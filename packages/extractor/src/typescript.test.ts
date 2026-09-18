@@ -19,17 +19,32 @@ const userShape = {
   created_at: "string",
 };
 
-describe("typescriptExtractor — repo-a/user.ts", () => {
-  const provides = ["User", "getUser"];
-  const consumes = ["axios", "DATABASE_URL"];
+describe("typescriptExtractor — repo-a/types.ts", () => {
+  it("extracts the User type; it provides itself and consumes nothing", () => {
+    expect(extractFixture("fixtures/repo-a/types.ts")).toEqual([
+      {
+        kind: "type",
+        symbol: "User",
+        provides: ["User"],
+        consumes: [],
+        deps: [],
+        source_ref: "fixtures/repo-a/types.ts:1",
+        origin: "working_tree",
+        confidence: 1,
+        shape: userShape,
+      },
+    ]);
+  });
+});
 
-  it("extracts dependency, function (with inlined shape), type, and env", () => {
+describe("typescriptExtractor — repo-a/user.ts", () => {
+  it("per-declaration provides/consumes; getUser inlines User across files", () => {
     expect(extractFixture("fixtures/repo-a/user.ts")).toEqual([
       {
         kind: "dependency",
         symbol: "axios",
-        provides,
-        consumes,
+        provides: [],
+        consumes: [],
         deps: ["axios"],
         source_ref: "fixtures/repo-a/user.ts:1",
         origin: "working_tree",
@@ -38,33 +53,22 @@ describe("typescriptExtractor — repo-a/user.ts", () => {
       {
         kind: "function",
         symbol: "getUser",
-        provides,
-        consumes,
+        provides: ["getUser"],
+        consumes: ["axios", "User", "DATABASE_URL"],
         deps: [],
-        source_ref: "fixtures/repo-a/user.ts:9",
+        source_ref: "fixtures/repo-a/user.ts:4",
         origin: "working_tree",
         confidence: 1,
         signature: "getUser(id: string) -> Promise<User>",
         shape: userShape,
       },
       {
-        kind: "type",
-        symbol: "User",
-        provides,
-        consumes,
-        deps: [],
-        source_ref: "fixtures/repo-a/user.ts:3",
-        origin: "working_tree",
-        confidence: 1,
-        shape: userShape,
-      },
-      {
         kind: "env",
         symbol: "DATABASE_URL",
-        provides,
-        consumes,
+        provides: ["DATABASE_URL"],
+        consumes: [],
         deps: [],
-        source_ref: "fixtures/repo-a/user.ts:10",
+        source_ref: "fixtures/repo-a/user.ts:5",
         origin: "working_tree",
         confidence: 1,
       },
@@ -73,15 +77,13 @@ describe("typescriptExtractor — repo-a/user.ts", () => {
 });
 
 describe("typescriptExtractor — repo-a/routes.ts", () => {
-  const consumes = ["express", "getUser"];
-
-  it("extracts the express dependency and both routes", () => {
+  it("routes provide their own symbol and consume only what the handler references", () => {
     expect(extractFixture("fixtures/repo-a/routes.ts")).toEqual([
       {
         kind: "dependency",
         symbol: "express",
         provides: [],
-        consumes,
+        consumes: [],
         deps: ["express"],
         source_ref: "fixtures/repo-a/routes.ts:1",
         origin: "working_tree",
@@ -90,8 +92,8 @@ describe("typescriptExtractor — repo-a/routes.ts", () => {
       {
         kind: "route",
         symbol: "GET /api/users/:id",
-        provides: [],
-        consumes,
+        provides: ["GET /api/users/:id"],
+        consumes: ["getUser"],
         deps: [],
         source_ref: "fixtures/repo-a/routes.ts:6",
         origin: "working_tree",
@@ -100,8 +102,8 @@ describe("typescriptExtractor — repo-a/routes.ts", () => {
       {
         kind: "route",
         symbol: "POST /api/users",
-        provides: [],
-        consumes,
+        provides: ["POST /api/users"],
+        consumes: [],
         deps: [],
         source_ref: "fixtures/repo-a/routes.ts:10",
         origin: "working_tree",
@@ -112,15 +114,13 @@ describe("typescriptExtractor — repo-a/routes.ts", () => {
 });
 
 describe("typescriptExtractor — repo-b/profile.ts", () => {
-  it("consumes getUser; Promise<void> return inlines no shape", () => {
-    const provides = ["loadProfile"];
-    const consumes = ["axios", "getUser"];
+  it("consumes getUser by symbol; Promise<void> inlines no shape", () => {
     expect(extractFixture("fixtures/repo-b/profile.ts")).toEqual([
       {
         kind: "dependency",
         symbol: "axios",
-        provides,
-        consumes,
+        provides: [],
+        consumes: [],
         deps: ["axios"],
         source_ref: "fixtures/repo-b/profile.ts:1",
         origin: "working_tree",
@@ -129,8 +129,8 @@ describe("typescriptExtractor — repo-b/profile.ts", () => {
       {
         kind: "function",
         symbol: "loadProfile",
-        provides,
-        consumes,
+        provides: ["loadProfile"],
+        consumes: ["axios", "getUser"],
         deps: [],
         source_ref: "fixtures/repo-b/profile.ts:4",
         origin: "working_tree",

@@ -1,10 +1,5 @@
 import axios from "axios";
-
-export interface User {
-  user_id: string;
-  full_name: string;
-  created_at: string;
-}
+import { User } from "./types";
 
 export async function getUser(id: string): Promise<User> {
   const base = process.env.DATABASE_URL;
