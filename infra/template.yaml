@@ -1,0 +1,141 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Handshake registry (P2) — ingest / context / verdict Lambdas behind one HTTP
+  API, backed by a single DynamoDB table. Deploy to ap-south-1.
+
+Parameters:
+  HandshakeToken:
+    Type: String
+    NoEcho: true
+    MinLength: 1
+    Description: Static workspace bearer token checked by every handler.
+
+Globals:
+  Function:
+    Runtime: nodejs20.x
+    Architectures:
+      - arm64
+    MemorySize: 512
+    Timeout: 10
+    Environment:
+      Variables:
+        TABLE_NAME: !Ref HandshakeTable
+        HANDSHAKE_TOKEN: !Ref HandshakeToken
+
+Resources:
+  HandshakeTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: handshake
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: PK
+          AttributeType: S
+        - AttributeName: SK
+          AttributeType: S
+        - AttributeName: GSI1PK
+          AttributeType: S
+        - AttributeName: GSI1SK
+          AttributeType: S
+      KeySchema:
+        - AttributeName: PK
+          KeyType: HASH
+        - AttributeName: SK
+          KeyType: RANGE
+      GlobalSecondaryIndexes:
+        - IndexName: GSI1
+          KeySchema:
+            - AttributeName: GSI1PK
+              KeyType: HASH
+            - AttributeName: GSI1SK
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+
+  IngestFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: cjs
+        Target: node20
+        Sourcemap: true
+        Minify: false
+        EntryPoints:
+          - src/index.ts
+        External:
+          - "@aws-sdk/*"
+    Properties:
+      CodeUri: ../services/ingest
+      Handler: src/index.handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref HandshakeTable
+      Events:
+        Post:
+          Type: HttpApi
+          Properties:
+            Path: /v1/declarations
+            Method: POST
+
+  ContextFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: cjs
+        Target: node20
+        Sourcemap: true
+        Minify: false
+        EntryPoints:
+          - src/index.ts
+        External:
+          - "@aws-sdk/*"
+    Properties:
+      CodeUri: ../services/context
+      Handler: src/index.handler
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref HandshakeTable
+      Events:
+        Get:
+          Type: HttpApi
+          Properties:
+            Path: /v1/context
+            Method: GET
+
+  VerdictFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: cjs
+        Target: node20
+        Sourcemap: true
+        Minify: false
+        EntryPoints:
+          - src/index.ts
+        External:
+          - "@aws-sdk/*"
+    Properties:
+      CodeUri: ../services/verdict
+      Handler: src/index.handler
+      MemorySize: 1024
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref HandshakeTable
+      Events:
+        Post:
+          Type: HttpApi
+          Properties:
+            Path: /v1/verdict
+            Method: POST
+
+Outputs:
+  ApiUrl:
+    Description: Base URL of the Handshake HTTP API.
+    Value: !Sub "https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com"
+  TableName:
+    Description: DynamoDB table name.
+    Value: !Ref HandshakeTable

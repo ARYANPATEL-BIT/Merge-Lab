@@ -1,5 +1,17 @@
 {
   "name": "@handshake/context",
   "version": "0.0.0",
-  "private": true
+  "private": true,
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@handshake/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@aws-sdk/client-dynamodb": "^3.600.0",
+    "@aws-sdk/lib-dynamodb": "^3.600.0",
+    "@types/aws-lambda": "^8.10.145",
+    "esbuild": "^0.21.5"
+  }
 }
