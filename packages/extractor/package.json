@@ -1,0 +1,17 @@
+{
+  "name": "@handshake/extractor",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@handshake/shared": "workspace:*",
+    "ts-morph": "^23.0.0"
+  }
+}

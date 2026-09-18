@@ -1,0 +1,22 @@
+{
+  "name": "handshake",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Pre-push interface contract registry. Publishes DECLARATIONS ONLY.",
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@9.7.0",
+  "scripts": {
+    "build": "pnpm -r run build",
+    "typecheck": "pnpm -r run typecheck",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.10",
+    "ts-morph": "^23.0.0",
+    "typescript": "^5.5.4",
+    "vitest": "^2.0.5"
+  }
+}
