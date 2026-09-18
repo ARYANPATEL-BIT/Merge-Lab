@@ -1,57 +1,221 @@
-{
-  "schemaVersion": 1,
-  "module": "services/resolver/src/index.ts",
-  "signatures": [
-    {
-      "name": "resolve",
-      "kind": "function",
-      "typeParams": [],
-      "params": [
-        { "name": "owner", "type": "string", "optional": false, "rest": false }
-      ],
-      "returnType": "Promise<ResolvedContract>",
-      "async": true
-    }
-  ],
-  "shapes": [
-    {
-      "name": "ResolvedContract",
-      "kind": "interface",
-      "typeParams": [],
-      "fields": [
-        { "name": "owner", "type": "string", "optional": false, "readonly": true },
-        { "name": "declarations", "type": "Declaration[]", "optional": false, "readonly": true },
-        { "name": "resolvedAt", "type": "number", "optional": false, "readonly": true }
-      ],
-      "extends": []
+[
+  {
+    "contract_id": "ct_ua_get_user",
+    "repo": "acme/app",
+    "branch": "feat/user-api",
+    "owner": "dev-a",
+    "version": 1,
+    "status": "declared",
+    "declared_at": "2026-09-18T09:00:00Z",
+    "kind": "function",
+    "symbol": "getUser",
+    "signature": "getUser(id: string) -> Promise<User>",
+    "provides": ["getUser"],
+    "consumes": ["User"],
+    "deps": ["axios@1.7.2"],
+    "source_ref": "src/api/user.ts:14",
+    "origin": "working_tree",
+    "confidence": 0.95
+  },
+  {
+    "contract_id": "ct_ua_user_type",
+    "repo": "acme/app",
+    "branch": "feat/user-api",
+    "owner": "dev-a",
+    "version": 1,
+    "status": "declared",
+    "declared_at": "2026-09-18T09:00:05Z",
+    "kind": "type",
+    "symbol": "User",
+    "shape": {
+      "user_id": "string",
+      "full_name": "string",
+      "created_at": "string"
     },
-    {
-      "name": "OwnerTier",
-      "kind": "enum",
-      "typeParams": [],
-      "fields": [
-        { "name": "P1", "type": "", "optional": false, "readonly": false },
-        { "name": "P2", "type": "", "optional": false, "readonly": false },
-        { "name": "P3", "type": "", "optional": false, "readonly": false },
-        { "name": "P4", "type": "", "optional": false, "readonly": false }
-      ],
-      "extends": []
-    }
-  ],
-  "deps": [
-    { "name": "@handshake/shared", "kind": "runtime", "typeOnly": true },
-    { "name": "@aws-sdk/client-dynamodb", "kind": "runtime", "typeOnly": false }
-  ],
-  "envVars": [
-    { "name": "AWS_REGION", "required": true, "type": "string" },
-    { "name": "CONTRACT_TABLE", "required": true, "type": "string" }
-  ],
-  "routes": [
-    {
-      "method": "GET",
-      "path": "/contracts/:owner",
-      "handler": "resolve",
-      "responseShape": "ResolvedContract"
-    }
-  ]
-}
+    "provides": ["User"],
+    "consumes": [],
+    "deps": [],
+    "source_ref": "src/api/types.ts:3",
+    "origin": "working_tree",
+    "confidence": 0.98
+  },
+  {
+    "contract_id": "ct_ua_dep_axios",
+    "repo": "acme/app",
+    "branch": "feat/user-api",
+    "owner": "dev-a",
+    "version": 1,
+    "status": "declared",
+    "declared_at": "2026-09-18T09:00:10Z",
+    "kind": "dependency",
+    "symbol": "axios",
+    "provides": [],
+    "consumes": [],
+    "deps": ["axios@1.7.2"],
+    "source_ref": "package.json:20",
+    "origin": "working_tree",
+    "confidence": 1
+  },
+  {
+    "contract_id": "ct_ua_route_post_users",
+    "repo": "acme/app",
+    "branch": "feat/user-api",
+    "owner": "dev-a",
+    "version": 1,
+    "status": "declared",
+    "declared_at": "2026-09-18T09:00:15Z",
+    "kind": "route",
+    "symbol": "POST /api/users",
+    "signature": "POST /api/users (body: NewUser) -> User",
+    "provides": ["POST /api/users"],
+    "consumes": ["User"],
+    "deps": [],
+    "source_ref": "src/api/routes.ts:22",
+    "origin": "working_tree",
+    "confidence": 0.9
+  },
+  {
+    "contract_id": "ct_ua_env_database_url",
+    "repo": "acme/app",
+    "branch": "feat/user-api",
+    "owner": "dev-a",
+    "version": 1,
+    "status": "declared",
+    "declared_at": "2026-09-18T09:00:20Z",
+    "kind": "env",
+    "symbol": "DATABASE_URL",
+    "provides": [],
+    "consumes": [],
+    "deps": [],
+    "source_ref": "src/db/client.ts:5",
+    "origin": "working_tree",
+    "confidence": 0.85
+  },
+  {
+    "contract_id": "ct_ua_create_user",
+    "repo": "acme/app",
+    "branch": "feat/user-api",
+    "owner": "dev-a",
+    "version": 1,
+    "status": "declared",
+    "declared_at": "2026-09-18T09:00:25Z",
+    "kind": "function",
+    "symbol": "createUser",
+    "signature": "createUser(input: NewUser) -> Promise<User>",
+    "provides": ["createUser"],
+    "consumes": ["User"],
+    "deps": ["axios@1.7.2"],
+    "source_ref": "src/api/user.ts:32",
+    "origin": "working_tree",
+    "confidence": 0.92
+  },
+  {
+    "contract_id": "ct_pu_profile_card",
+    "repo": "acme/app",
+    "branch": "feat/profile-ui",
+    "owner": "dev-b",
+    "version": 1,
+    "status": "declared",
+    "declared_at": "2026-09-18T10:15:00Z",
+    "kind": "function",
+    "symbol": "ProfileCard",
+    "signature": "ProfileCard(props: { userId: string }) -> JSX.Element",
+    "provides": ["ProfileCard"],
+    "consumes": ["getUser"],
+    "deps": ["axios@1.7.2"],
+    "source_ref": "src/components/ProfileCard.tsx:12",
+    "origin": "working_tree",
+    "confidence": 0.9
+  },
+  {
+    "contract_id": "ct_pu_dep_axios",
+    "repo": "acme/app",
+    "branch": "feat/profile-ui",
+    "owner": "dev-b",
+    "version": 1,
+    "status": "declared",
+    "declared_at": "2026-09-18T10:15:05Z",
+    "kind": "dependency",
+    "symbol": "axios",
+    "provides": [],
+    "consumes": [],
+    "deps": ["axios@1.7.2"],
+    "source_ref": "package.json:18",
+    "origin": "working_tree",
+    "confidence": 1
+  },
+  {
+    "contract_id": "ct_pu_profile_view_type",
+    "repo": "acme/app",
+    "branch": "feat/profile-ui",
+    "owner": "dev-b",
+    "version": 1,
+    "status": "declared",
+    "declared_at": "2026-09-18T10:15:10Z",
+    "kind": "type",
+    "symbol": "ProfileView",
+    "shape": {
+      "display_name": "string",
+      "avatar_url": "string"
+    },
+    "provides": ["ProfileView"],
+    "consumes": ["User"],
+    "deps": [],
+    "source_ref": "src/components/types.ts:2",
+    "origin": "working_tree",
+    "confidence": 0.96
+  },
+  {
+    "contract_id": "ct_pu_route_get_profile",
+    "repo": "acme/app",
+    "branch": "feat/profile-ui",
+    "owner": "dev-b",
+    "version": 1,
+    "status": "declared",
+    "declared_at": "2026-09-18T10:15:15Z",
+    "kind": "route",
+    "symbol": "GET /profile/:id",
+    "signature": "GET /profile/:id -> ProfileView",
+    "provides": ["GET /profile/:id"],
+    "consumes": ["getUser"],
+    "deps": [],
+    "source_ref": "src/routes/profile.tsx:8",
+    "origin": "working_tree",
+    "confidence": 0.88
+  },
+  {
+    "contract_id": "ct_pu_env_api_url",
+    "repo": "acme/app",
+    "branch": "feat/profile-ui",
+    "owner": "dev-b",
+    "version": 1,
+    "status": "declared",
+    "declared_at": "2026-09-18T10:15:20Z",
+    "kind": "env",
+    "symbol": "NEXT_PUBLIC_API_URL",
+    "provides": [],
+    "consumes": [],
+    "deps": [],
+    "source_ref": "src/config.ts:4",
+    "origin": "working_tree",
+    "confidence": 0.8
+  },
+  {
+    "contract_id": "ct_pu_use_user",
+    "repo": "acme/app",
+    "branch": "feat/profile-ui",
+    "owner": "dev-b",
+    "version": 1,
+    "status": "declared",
+    "declared_at": "2026-09-18T10:15:25Z",
+    "kind": "function",
+    "symbol": "useUser",
+    "signature": "useUser(id: string) -> { data: User; loading: boolean }",
+    "provides": ["useUser"],
+    "consumes": ["getUser", "User"],
+    "deps": ["axios@1.7.2"],
+    "source_ref": "src/hooks/useUser.ts:9",
+    "origin": "session",
+    "confidence": 0.7
+  }
+]

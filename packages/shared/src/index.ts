@@ -1,156 +1,213 @@
-// @handshake/shared — canonical DECLARATION contract types.
-// P1-owned. Everyone imports from here.
+// @handshake/shared — canonical contract types, single source of truth.
+// P1-owned. Everyone (extractor, daemon, hooks, ingest, context, verdict)
+// imports from here so every tier validates against the exact same objects.
 //
-// A Declaration is the ONLY thing Handshake ever transmits about a module.
-// Hard rule: names and types ONLY — never source code, diffs, or literal
-// values. Enum member values, env values, and default argument values are
-// omitted by construction: there is no field on these types that can carry
-// them.
+// zod schemas are authoritative; TypeScript types are inferred from them.
+// Hard rule: declarations carry names and types only — never source code,
+// diffs, or literal values.
 
-/** Bumped whenever the shape below changes. The extractor stamps each Declaration. */
+import { createHash } from "node:crypto";
+import { z } from "zod";
+
+/** Bumped whenever any schema below changes. Wire payloads carry this. */
 export const SCHEMA_VERSION = 1;
 
-/** The five kinds of declaration a module can publish. */
-export const DECLARATION_KINDS = [
-  "signatures",
-  "shapes",
-  "deps",
-  "envVars",
-  "routes",
-] as const;
-export type DeclarationKind = (typeof DECLARATION_KINDS)[number];
+// ---- Declaration ----------------------------------------------------------
+
+export const DeclarationKindSchema = z.enum([
+  "function",
+  "type",
+  "dependency",
+  "route",
+  "env",
+]);
+export type DeclarationKind = z.infer<typeof DeclarationKindSchema>;
+
+export const OriginSchema = z.enum(["working_tree", "session", "manual"]);
+export type Origin = z.infer<typeof OriginSchema>;
+
+export const DeclarationSchema = z.object({
+  kind: DeclarationKindSchema,
+  symbol: z.string(),
+  /** e.g. "getUser(id: string) -> Promise<User>". Names and types only. */
+  signature: z.string().optional(),
+  /** e.g. { user_id: "string", full_name: "string" }. Field name -> type. */
+  shape: z.record(z.string()).optional(),
+  provides: z.array(z.string()),
+  consumes: z.array(z.string()),
+  /** e.g. ["axios@1.7.2"]. */
+  deps: z.array(z.string()),
+  /** e.g. "src/api/user.ts:14". */
+  source_ref: z.string(),
+  origin: OriginSchema,
+  confidence: z.number().min(0).max(1),
+});
+export type Declaration = z.infer<typeof DeclarationSchema>;
+
+// ---- Contract (Declaration + registry metadata) ---------------------------
+
+export const ContractStatusSchema = z.enum([
+  "declared",
+  "implementing",
+  "implemented",
+  "changed",
+  "abandoned",
+]);
+export type ContractStatus = z.infer<typeof ContractStatusSchema>;
+
+export const ContractSchema = DeclarationSchema.extend({
+  contract_id: z.string(),
+  repo: z.string(),
+  branch: z.string(),
+  owner: z.string(),
+  version: z.number().int(),
+  status: ContractStatusSchema,
+  /** contract_id this one replaces, if any. */
+  supersedes: z.string().optional(),
+  declared_at: z.string(),
+});
+export type Contract = z.infer<typeof ContractSchema>;
+
+// ---- Findings & verdicts --------------------------------------------------
+
+export const RuleIdSchema = z.enum([
+  "DEP_CONFLICT",
+  "NAMING_DRIFT",
+  "DUP_SYMBOL",
+  "ROUTE_COLLISION",
+  "SHAPE_MISMATCH",
+  "STALE_BINDING",
+]);
+export type RuleId = z.infer<typeof RuleIdSchema>;
+
+export const SeveritySchema = z.enum(["block", "warn", "notify"]);
+export type Severity = z.infer<typeof SeveritySchema>;
+
+export const FindingSchema = z.object({
+  rule: RuleIdSchema,
+  severity: SeveritySchema,
+  reason: z.string(),
+  contract_ids: z.array(z.string()),
+});
+export type Finding = z.infer<typeof FindingSchema>;
+
+export const VerdictDecisionSchema = z.enum(["allow", "warn", "block"]);
+export type VerdictDecision = z.infer<typeof VerdictDecisionSchema>;
+
+export const VerdictSchema = z.object({
+  verdict: VerdictDecisionSchema,
+  findings: z.array(FindingSchema),
+});
+export type Verdict = z.infer<typeof VerdictSchema>;
+
+// ---- Functional classes ---------------------------------------------------
 
 /**
- * Normalized, printed type text — names and structure only, never values.
- * e.g. "string", "Promise<Declaration[]>", "(owner: string) => ResolvedContract".
- * The extractor widens value-literal types so no literal value survives here
- * (a `"sk-123"` value type becomes `string`); type-level string unions such as
- * an HTTP method stay as types.
+ * Static map of interchangeable dependencies. Two deps in the same class are
+ * functionally substitutable; used by the DEP_CONFLICT rule.
  */
-export type TypeText = string;
+export const FUNCTIONAL_CLASSES = {
+  http_client: ["axios", "node-fetch", "got", "superagent"],
+  orm: ["prisma", "typeorm", "drizzle"],
+  test: ["jest", "vitest", "mocha"],
+  validation: ["zod", "joi", "yup"],
+} as const;
+export type FunctionalClass = keyof typeof FUNCTIONAL_CLASSES;
 
-// ---- signatures -----------------------------------------------------------
-
-export type SignatureKind =
-  | "function"
-  | "method"
-  | "constructor"
-  | "getter"
-  | "setter";
-
-export interface Param {
-  name: string;
-  type: TypeText;
-  optional: boolean;
-  /** true for a `...rest` parameter. */
-  rest: boolean;
+/** Strip a trailing `@version` from a dep string. Scoped names are preserved. */
+export function depName(dep: string): string {
+  const at = dep.lastIndexOf("@");
+  return at > 0 ? dep.slice(0, at) : dep;
 }
 
-/** An exported callable signature. Default argument values are never carried. */
-export interface SignatureDecl {
-  /** Exported name, or `Class.method` for methods. */
-  name: string;
-  kind: SignatureKind;
-  /** Generic type parameter names, e.g. ["T", "K"]. */
-  typeParams: string[];
-  params: Param[];
-  returnType: TypeText;
-  async: boolean;
+/** The functional class a dependency belongs to, or undefined if unclassified. */
+export function functionalClassOf(dep: string): FunctionalClass | undefined {
+  const name = depName(dep);
+  for (const cls of Object.keys(FUNCTIONAL_CLASSES) as FunctionalClass[]) {
+    if ((FUNCTIONAL_CLASSES[cls] as readonly string[]).includes(name)) {
+      return cls;
+    }
+  }
+  return undefined;
 }
 
-// ---- data shapes ----------------------------------------------------------
+// ---- shapeHash ------------------------------------------------------------
 
-export type ShapeKind = "interface" | "type" | "enum" | "class";
+/** Fields ignored when hashing: identity/provenance, not shape. */
+const SHAPE_HASH_OMIT = ["declared_at", "source_ref"] as const;
 
-export interface Field {
-  name: string;
-  /** Field type text. Empty for enum members — member names only, no values. */
-  type: TypeText;
-  optional: boolean;
-  readonly: boolean;
+/** Recursively sort object keys so key order never affects serialization. */
+function canonicalize(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(canonicalize);
+  if (value !== null && typeof value === "object") {
+    const record = value as Record<string, unknown>;
+    const out: Record<string, unknown> = {};
+    for (const key of Object.keys(record).sort()) {
+      out[key] = canonicalize(record[key]);
+    }
+    return out;
+  }
+  return value;
 }
 
-/** An exported data shape: interface, type alias, enum, or class shape. */
-export interface ShapeDecl {
-  name: string;
-  kind: ShapeKind;
-  typeParams: string[];
-  fields: Field[];
-  /** Base type / implemented interface names. */
-  extends: string[];
+/**
+ * Stable content hash of a Declaration's shape. Ignores `declared_at` and
+ * `source_ref`. Reordering keys (top-level or within `shape`) hashes equal;
+ * changing any field type changes the hash.
+ */
+export function shapeHash(d: Declaration): string {
+  const clone: Record<string, unknown> = { ...d };
+  for (const key of SHAPE_HASH_OMIT) delete clone[key];
+  const canonical = JSON.stringify(canonicalize(clone));
+  return createHash("sha256").update(canonical).digest("hex");
 }
 
-// ---- deps -----------------------------------------------------------------
+// ---- API request/response schemas -----------------------------------------
+// Shared so P2 (ingest/context/verdict) validates the same objects the
+// daemon and hooks produce.
 
-export type DepKind = "runtime" | "dev" | "peer";
+/** POST /v1/declarations — daemon publishes a working tree's declarations. */
+export const PostDeclarationsRequestSchema = z.object({
+  schema_version: z.literal(SCHEMA_VERSION),
+  repo: z.string(),
+  branch: z.string(),
+  owner: z.string(),
+  origin: OriginSchema,
+  declarations: z.array(DeclarationSchema),
+});
+export type PostDeclarationsRequest = z.infer<
+  typeof PostDeclarationsRequestSchema
+>;
 
-/** An external module the module depends on. Versions are never carried. */
-export interface DepDecl {
-  /** Package or module specifier, e.g. "ts-morph". */
-  name: string;
-  kind: DepKind;
-  /** true for `import type` / type-only usage. */
-  typeOnly: boolean;
-}
+export const PostDeclarationsResponseSchema = z.object({
+  contracts: z.array(ContractSchema),
+});
+export type PostDeclarationsResponse = z.infer<
+  typeof PostDeclarationsResponseSchema
+>;
 
-// ---- env vars -------------------------------------------------------------
+/** GET /v1/context — teammate contracts read at SessionStart. */
+export const GetContextRequestSchema = z.object({
+  repo: z.string(),
+  branch: z.string().optional(),
+  /** Omit this owner's own contracts from the result. */
+  exclude_owner: z.string().optional(),
+});
+export type GetContextRequest = z.infer<typeof GetContextRequestSchema>;
 
-/** An environment variable the module reads. The value is never carried. */
-export interface EnvVarDecl {
-  /** Variable name, e.g. "AWS_REGION". */
-  name: string;
-  required: boolean;
-  /** Coerced type the module treats it as, e.g. "string" or "number". */
-  type: TypeText;
-}
+export const GetContextResponseSchema = z.object({
+  contracts: z.array(ContractSchema),
+});
+export type GetContextResponse = z.infer<typeof GetContextResponseSchema>;
 
-// ---- routes ---------------------------------------------------------------
+/** POST /v1/verdict — PreToolUse drift check for a pending write. */
+export const PostVerdictRequestSchema = z.object({
+  repo: z.string(),
+  branch: z.string(),
+  owner: z.string(),
+  declarations: z.array(DeclarationSchema),
+});
+export type PostVerdictRequest = z.infer<typeof PostVerdictRequestSchema>;
 
-export type HttpMethod =
-  | "GET"
-  | "POST"
-  | "PUT"
-  | "PATCH"
-  | "DELETE"
-  | "HEAD"
-  | "OPTIONS";
-
-/** An HTTP route the module exposes. */
-export interface RouteDecl {
-  method: HttpMethod;
-  /** Route pattern, e.g. "/contracts/:owner". */
-  path: string;
-  /** Exported handler name bound to this route. */
-  handler: string;
-  /** Name of a ShapeDecl describing the request body, if typed. */
-  requestShape?: string;
-  /** Name of a ShapeDecl describing the response body, if typed. */
-  responseShape?: string;
-}
-
-// ---- envelope -------------------------------------------------------------
-
-/** Everything Handshake publishes about a single module in a working tree. */
-export interface Declaration {
-  schemaVersion: number;
-  /** Workspace-relative module path, e.g. "services/resolver/src/index.ts". */
-  module: string;
-  signatures: SignatureDecl[];
-  shapes: ShapeDecl[];
-  deps: DepDecl[];
-  envVars: EnvVarDecl[];
-  routes: RouteDecl[];
-}
-
-/** An empty Declaration for `module`, stamped with the current schema version. */
-export function emptyDeclaration(module: string): Declaration {
-  return {
-    schemaVersion: SCHEMA_VERSION,
-    module,
-    signatures: [],
-    shapes: [],
-    deps: [],
-    envVars: [],
-    routes: [],
-  };
-}
+export const PostVerdictResponseSchema = VerdictSchema;
+export type PostVerdictResponse = Verdict;
