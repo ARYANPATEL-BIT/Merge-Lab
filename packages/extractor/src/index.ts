@@ -1,29 +1,20 @@
-// @handshake/extractor — walks a working tree with ts-morph and returns
-// Declarations. P1-owned.
+// @handshake/extractor — turns a working tree's source + manifests into
+// Declarations. P1-owned. Imports the frozen contract types from
+// @handshake/shared; never redefines them.
 //
 // Hard rules:
-//  - Emit names and types only. Never file contents, diffs, or literal values.
-//  - Extraction failure returns [] and increments a counter. Never guess.
+//  - Emit names and types only (enforced by the redactor before return).
+//  - Any parse error returns [] and bumps `extractFailed`. Never throws.
 
 import type { Declaration } from "@handshake/shared";
 
-/** Count of extraction failures since process start. Never guess on failure. */
-let extractionFailures = 0;
-
-export function extractionFailureCount(): number {
-  return extractionFailures;
+/** A source-file extractor for one family of file extensions. */
+export interface Extractor {
+  extensions: string[];
+  extract(path: string, content: string): Declaration[];
 }
 
-/**
- * Extract declarations from a working tree rooted at `projectRoot`.
- * On any failure, returns [] and increments the failure counter.
- */
-export function extract(_projectRoot: string): Declaration[] {
-  try {
-    // TODO: ts-morph project load + declaration walk.
-    return [];
-  } catch {
-    extractionFailures += 1;
-    return [];
-  }
-}
+export { typescriptExtractor } from "./typescript.js";
+export { extractManifestDeps } from "./manifest.js";
+export { redact } from "./redactor.js";
+export { extractFailed, resetExtractFailed } from "./counter.js";
