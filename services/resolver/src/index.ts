@@ -1,12 +1,10 @@
-// services/resolver — resolves the authoritative contract set teammates read
-// at SessionStart. P1-owned. Runs as a Lambda behind API Gateway (ap-south-1).
+// services/resolver — pure, deterministic contract logic. P1-owned library.
+// No AWS SDK, no Lambda handler, no HTTP, no env vars, no LLM. P2 wraps it.
 
-import type { Declaration } from "@handshake/shared";
-
-/**
- * Resolve the authoritative set of declarations for a workspace.
- * TODO: read published contracts from DynamoDB and merge by owner.
- */
-export async function resolve(): Promise<Declaration[]> {
-  return [];
-}
+export { runRules, type Binding } from "./rules.js";
+export {
+  resolve,
+  type Resolution,
+  type ResolutionAction,
+  type ResolveResult,
+} from "./resolve.js";

@@ -51,6 +51,10 @@ importers:
       '@handshake/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+    devDependencies:
+      vite-node:
+        specifier: ^2.1.9
+        version: 2.1.9(@types/node@20.19.43)
 
   services/verdict: {}
 
