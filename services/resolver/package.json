@@ -8,9 +8,13 @@
   "scripts": {
     "build": "tsc",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:scenarios": "vite-node scripts/scenarios-table.ts"
   },
   "dependencies": {
     "@handshake/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "vite-node": "^2.1.9"
   }
 }
