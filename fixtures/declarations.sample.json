@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "module": "services/resolver/src/index.ts",
+  "signatures": [
+    {
+      "name": "resolve",
+      "kind": "function",
+      "typeParams": [],
+      "params": [
+        { "name": "owner", "type": "string", "optional": false, "rest": false }
+      ],
+      "returnType": "Promise<ResolvedContract>",
+      "async": true
+    }
+  ],
+  "shapes": [
+    {
+      "name": "ResolvedContract",
+      "kind": "interface",
+      "typeParams": [],
+      "fields": [
+        { "name": "owner", "type": "string", "optional": false, "readonly": true },
+        { "name": "declarations", "type": "Declaration[]", "optional": false, "readonly": true },
+        { "name": "resolvedAt", "type": "number", "optional": false, "readonly": true }
+      ],
+      "extends": []
+    },
+    {
+      "name": "OwnerTier",
+      "kind": "enum",
+      "typeParams": [],
+      "fields": [
+        { "name": "P1", "type": "", "optional": false, "readonly": false },
+        { "name": "P2", "type": "", "optional": false, "readonly": false },
+        { "name": "P3", "type": "", "optional": false, "readonly": false },
+        { "name": "P4", "type": "", "optional": false, "readonly": false }
+      ],
+      "extends": []
+    }
+  ],
+  "deps": [
+    { "name": "@handshake/shared", "kind": "runtime", "typeOnly": true },
+    { "name": "@aws-sdk/client-dynamodb", "kind": "runtime", "typeOnly": false }
+  ],
+  "envVars": [
+    { "name": "AWS_REGION", "required": true, "type": "string" },
+    { "name": "CONTRACT_TABLE", "required": true, "type": "string" }
+  ],
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/contracts/:owner",
+      "handler": "resolve",
+      "responseShape": "ResolvedContract"
+    }
+  ]
+}

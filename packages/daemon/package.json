@@ -1,13 +1,5 @@
 {
   "name": "@handshake/daemon",
   "version": "0.0.0",
-  "private": true,
-  "type": "module",
-  "main": "src/index.ts",
-  "types": "src/index.ts",
-  "scripts": {
-    "build": "tsc",
-    "typecheck": "tsc --noEmit",
-    "test": "vitest run"
-  }
+  "private": true
 }

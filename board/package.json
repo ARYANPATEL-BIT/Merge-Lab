@@ -1,9 +1,5 @@
 {
   "name": "@handshake/board",
   "version": "0.0.0",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "dev": "echo \"TODO: board dev server\" && exit 0"
-  }
+  "private": true
 }
