@@ -1,0 +1,334 @@
+/* Merge Lab — shared design system.
+   One palette, one type scale, one set of monospace labels and hairline
+   borders, used by BOTH the marketing landing page ("/") and the contract
+   board ("/board"). Warm off-white paper, near-black ink, a single warm accent.
+   Light is the default; the board opts into dark via prefers-color-scheme and a
+   manual [data-theme] override. The landing page pins itself to light. */
+
+/* ---- Light tokens (default) ----------------------------------------------- */
+:root {
+  --font-display: "Outfit", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-sans: "Outfit", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: "Fira Code", ui-monospace, "Cascadia Mono", "Source Code Pro", Menlo, Consolas, "DejaVu Sans Mono", monospace;
+
+  /* Spacing — spacious marketing rhythm on top of the board's tighter scale. */
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-5: 1.5rem;
+  --sp-6: 2.5rem;
+  --sp-7: 4rem;
+  --sp-8: 6rem;
+  --sp-9: 8.5rem;
+
+  --radius: 10px;
+  --radius-sm: 7px;
+  --radius-pill: 999px;
+
+  /* Shared page measure + gutter, used by the nav on both routes. */
+  --measure: 1200px;
+  --gutter: clamp(1.25rem, 5vw, 5rem);
+
+  /* Type scale — geometric sans, tight tracking on the large sizes. */
+  --fs-eyebrow: 0.72rem;
+  --fs-micro: 0.8rem;
+  --fs-small: 0.9rem;
+  --fs-body: 1.0625rem;
+  --fs-lead: clamp(1.15rem, 0.92rem + 1vw, 1.5rem);
+  --fs-h3: clamp(1.45rem, 1.1rem + 1.6vw, 2.1rem);
+  --fs-h2: clamp(2.1rem, 1.4rem + 3.2vw, 3.5rem);
+  --fs-display: clamp(3.1rem, 0.9rem + 9.1vw, 7.75rem);
+
+  /* Warm paper + ink. */
+  --bg: #f7f6f4;
+  --surface: #fdfcfa;
+  --surface-2: #f1efea;
+  --surface-3: #e9e6df;
+  --fg: #1a1815;
+  --fg-muted: #726d63;
+  --fg-subtle: #9a948a;
+  --border: #e4e0d8;
+  --border-strong: #d3cec3;
+  --accent: #e5491f;
+  --accent-ink: #c23d18;
+  --shadow: none;
+
+  /* Functional status colours — carried by icon + label + colour, never colour
+     alone. Tuned to sit on warm paper. */
+  --ok: #3c7a4e;
+  --ok-bg: #e9f1ea;
+  --ok-border: #c7dbcb;
+  --dormant: #986713;
+  --dormant-bg: #f4ebd6;
+  --dormant-border: #e3d1a7;
+
+  --sev-block: #bd3826;
+  --sev-block-bg: #f7e5df;
+  --sev-block-border: #e8c2b6;
+  --sev-warn: #986713;
+  --sev-warn-bg: #f4ebd6;
+  --sev-warn-border: #e3d1a7;
+  --sev-notify: #4b4a8f;
+  --sev-notify-bg: #e8e7f1;
+  --sev-notify-border: #cbc9e0;
+
+  --st-declared-fg: #6e6a61;
+  --st-declared-bg: #ede9e2;
+  --st-implementing-fg: #4b4a8f;
+  --st-implementing-bg: #e8e7f1;
+  --st-implemented-fg: #3c7a4e;
+  --st-implemented-bg: #e9f1ea;
+  --st-changed-fg: #986713;
+  --st-changed-bg: #f4ebd6;
+
+  color-scheme: light;
+}
+
+/* ---- Dark tokens — identical to the landing page's inverted section, so the
+   board's dark mode and the "How it works" band read as one palette. Board only;
+   the landing pins data-theme="light". ------------------------------------------ */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111010;
+    --surface: #1a1917;
+    --surface-2: #201e1b;
+    --surface-3: #282521;
+    --fg: #f4f2ec;
+    --fg-muted: #a8a299;
+    --fg-subtle: #6f6a61;
+    --border: #2c2a25;
+    --border-strong: #3a372f;
+    --accent: #ff6a3d;
+    --accent-ink: #ff8a63;
+    --shadow: none;
+
+    --ok: #74c088;
+    --ok-bg: rgba(60, 122, 78, 0.18);
+    --ok-border: rgba(116, 192, 136, 0.4);
+    --dormant: #e0ad4e;
+    --dormant-bg: rgba(152, 103, 19, 0.2);
+    --dormant-border: rgba(224, 173, 78, 0.4);
+
+    --sev-block: #e8836e;
+    --sev-block-bg: rgba(189, 56, 38, 0.22);
+    --sev-block-border: rgba(232, 131, 110, 0.42);
+    --sev-warn: #e0ad4e;
+    --sev-warn-bg: rgba(152, 103, 19, 0.2);
+    --sev-warn-border: rgba(224, 173, 78, 0.4);
+    --sev-notify: #a5a3e0;
+    --sev-notify-bg: rgba(75, 74, 143, 0.24);
+    --sev-notify-border: rgba(165, 163, 224, 0.42);
+
+    --st-declared-fg: #c7c2b8;
+    --st-declared-bg: rgba(124, 119, 109, 0.2);
+    --st-implementing-fg: #a5a3e0;
+    --st-implementing-bg: rgba(75, 74, 143, 0.26);
+    --st-implemented-fg: #74c088;
+    --st-implemented-bg: rgba(60, 122, 78, 0.2);
+    --st-changed-fg: #e0ad4e;
+    --st-changed-bg: rgba(152, 103, 19, 0.22);
+
+    color-scheme: dark;
+  }
+}
+
+/* Manual override wins over the system preference in both directions. */
+:root[data-theme="dark"] {
+  --bg: #111010;
+  --surface: #1a1917;
+  --surface-2: #201e1b;
+  --surface-3: #282521;
+  --fg: #f4f2ec;
+  --fg-muted: #a8a299;
+  --fg-subtle: #6f6a61;
+  --border: #2c2a25;
+  --border-strong: #3a372f;
+  --accent: #ff6a3d;
+  --accent-ink: #ff8a63;
+  --shadow: none;
+  --ok: #74c088;
+  --ok-bg: rgba(60, 122, 78, 0.18);
+  --ok-border: rgba(116, 192, 136, 0.4);
+  --dormant: #e0ad4e;
+  --dormant-bg: rgba(152, 103, 19, 0.2);
+  --dormant-border: rgba(224, 173, 78, 0.4);
+  --sev-block: #e8836e;
+  --sev-block-bg: rgba(189, 56, 38, 0.22);
+  --sev-block-border: rgba(232, 131, 110, 0.42);
+  --sev-warn: #e0ad4e;
+  --sev-warn-bg: rgba(152, 103, 19, 0.2);
+  --sev-warn-border: rgba(224, 173, 78, 0.4);
+  --sev-notify: #a5a3e0;
+  --sev-notify-bg: rgba(75, 74, 143, 0.24);
+  --sev-notify-border: rgba(165, 163, 224, 0.42);
+  --st-declared-fg: #c7c2b8;
+  --st-declared-bg: rgba(124, 119, 109, 0.2);
+  --st-implementing-fg: #a5a3e0;
+  --st-implementing-bg: rgba(75, 74, 143, 0.26);
+  --st-implemented-fg: #74c088;
+  --st-implemented-bg: rgba(60, 122, 78, 0.2);
+  --st-changed-fg: #e0ad4e;
+  --st-changed-bg: rgba(152, 103, 19, 0.22);
+  color-scheme: dark;
+}
+
+/* ---- Base ----------------------------------------------------------------- */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--fs-body);
+  line-height: 1.55;
+  color: var(--fg);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-feature-settings: "liga" 0;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+
+/* ---- Monospace eyebrow label with a leading rule -------------------------- */
+.label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.85rem;
+  font-family: var(--font-mono);
+  font-size: var(--fs-eyebrow);
+  font-weight: 500;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+
+.label::before {
+  content: "";
+  width: 1.9rem;
+  height: 1px;
+  background: var(--accent);
+}
+
+.label-plain {
+  gap: 0;
+}
+
+.label-plain::before {
+  display: none;
+}
+
+/* ---- Pill buttons --------------------------------------------------------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  font-family: var(--font-sans);
+  font-size: 0.98rem;
+  font-weight: 500;
+  line-height: 1;
+  padding: 0.9rem 1.5rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 200ms ease, color 200ms ease,
+    border-color 200ms ease, transform 200ms ease;
+}
+
+.btn svg {
+  width: 1.05em;
+  height: 1.05em;
+  transition: transform 200ms ease;
+}
+
+.btn-primary {
+  background: var(--fg);
+  color: var(--bg);
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+}
+
+.btn-primary:hover svg {
+  transform: translateX(3px);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--fg);
+  border-color: var(--border-strong);
+}
+
+.btn-secondary:hover {
+  border-color: var(--fg);
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* ---- Icon-only theme toggle (shared by every route) ----------------------- */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  color: var(--fg-muted);
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: border-color 180ms ease, color 180ms ease, background-color 180ms ease;
+}
+
+.theme-toggle:hover {
+  color: var(--fg);
+  border-color: var(--fg);
+}
+
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.theme-toggle svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* ---- Motion defaults ------------------------------------------------------ */
+/* Reveal targets are visible by default (no-JS / reduced-motion safe); GSAP
+   only hides-then-reveals them when motion is allowed. */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -1,8 +1,9 @@
 # board
 
-The Handshake projector board — a single-page React + Vite app that reads
-`GET /v1/board` and renders three regions: **Branches**, **Contracts** (grouped
-by branch), and the **Drift feed**. It polls every 3 seconds (no websockets).
+The Merge Lab projector board — a single-page React + Vite app. `/` is the
+marketing landing page; `/board` reads `GET /v1/board` and renders three regions:
+**Branches**, **Contracts** (grouped by branch), and the **Drift feed**. It polls
+every 3 seconds (no websockets).
 
 ## Run
 

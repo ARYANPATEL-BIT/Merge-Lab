@@ -18,10 +18,13 @@ export function Contracts({ contracts }: { contracts: Contract[] }) {
   return (
     <section className="panel" aria-labelledby="contracts-title">
       <header className="panel-head">
-        <h2 id="contracts-title" className="panel-title">
-          Contracts
-        </h2>
-        <span className="panel-count">{contracts.length}</span>
+        <div className="panel-heading">
+          <p className="label">Grouped by branch</p>
+          <h2 id="contracts-title" className="panel-title">
+            Contracts
+          </h2>
+        </div>
+        <span className="panel-count mono">{contracts.length}</span>
       </header>
       <div className="panel-body">
         {contracts.length === 0 ? (

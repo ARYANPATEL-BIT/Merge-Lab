@@ -22,4 +22,7 @@ export default defineConfig({
   // Allow serving the workspace's shared source and the fixtures directory,
   // which live above the board package root.
   server: { fs: { allow: [repoRoot] } },
+  // three.js is deliberately code-split into its own chunk (loaded only for the
+  // desktop hero visual), so ~520 kB there is expected, not a regression.
+  build: { chunkSizeWarningLimit: 600 },
 });

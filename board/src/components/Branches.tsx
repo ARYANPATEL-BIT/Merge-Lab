@@ -13,10 +13,13 @@ export function Branches({
   return (
     <section className="panel" aria-labelledby="branches-title">
       <header className="panel-head">
-        <h2 id="branches-title" className="panel-title">
-          Branches
-        </h2>
-        <span className="panel-count">{branches.length}</span>
+        <div className="panel-heading">
+          <p className="label">Reporting now</p>
+          <h2 id="branches-title" className="panel-title">
+            Branches
+          </h2>
+        </div>
+        <span className="panel-count mono">{branches.length}</span>
       </header>
       <div className="panel-body">
         {branches.length === 0 ? (

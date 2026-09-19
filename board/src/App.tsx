@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { fetchBoard, isDemo, repo, type BoardSnapshot } from "./data.js";
 import { relativeTime } from "./lib/format.js";
+import { useDocumentTitle } from "./landing/motion.js";
+import { PillNav } from "./landing/Nav.js";
+import { ThemeToggle } from "./landing/theme.js";
 import { Branches } from "./components/Branches.js";
 import { Contracts } from "./components/Contracts.js";
 import { DriftFeed } from "./components/DriftFeed.js";
-import { BrandMark, ThemeIcon } from "./components/icons.js";
 
 const POLL_MS = 3000;
 
@@ -50,35 +52,10 @@ function useBoard() {
   return { snapshot, status, error, updatedMs };
 }
 
-type Theme = "light" | "dark";
-
-/** Effective theme = manual override, else the system preference (kept live). */
-function useTheme(): { effective: Theme; toggle: () => void } {
-  const readSystem = (): Theme =>
-    window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-  const [override, setOverride] = useState<Theme | null>(null);
-  const [system, setSystem] = useState<Theme>(readSystem);
-
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    const onChange = () => setSystem(mq.matches ? "dark" : "light");
-    mq.addEventListener("change", onChange);
-    return () => mq.removeEventListener("change", onChange);
-  }, []);
-
-  useEffect(() => {
-    if (override) document.documentElement.setAttribute("data-theme", override);
-    else document.documentElement.removeAttribute("data-theme");
-  }, [override]);
-
-  const effective = override ?? system;
-  return { effective, toggle: () => setOverride(effective === "dark" ? "light" : "dark") };
-}
-
 export function App() {
   const { snapshot, status, error, updatedMs } = useBoard();
-  const { effective: theme, toggle: toggleTheme } = useTheme();
-  const target: Theme = theme === "dark" ? "light" : "dark";
+
+  useDocumentTitle("Merge Lab — Contract Board");
 
   // One-second ticker so the header freshness label counts up between polls.
   const [, setTick] = useState(0);
@@ -92,43 +69,23 @@ export function App() {
 
   return (
     <div className="app">
-      <header className="topbar">
-        <div className="brand">
-          <span className="brand-mark" aria-hidden={true}>
-            <BrandMark />
-          </span>
-          <div className="brand-text">
-            <span className="brand-name">Handshake</span>
-            <span className="brand-sub">interface contract board</span>
-          </div>
-        </div>
-
-        <div className="topbar-meta">
-          <span className="repo mono" title="repository">
-            {repo}
-          </span>
-          <span className={`mode-chip ${isDemo ? "mode-demo" : "mode-live"}`}>
-            <span className="mode-dot" aria-hidden={true} />
-            {isDemo ? "Demo" : "Live"}
-          </span>
-          <span className="freshness" role="status" aria-live="polite">
-            {status === "loading"
-              ? "connecting…"
-              : updatedMs
-                ? `updated ${relativeTime(new Date(updatedMs).toISOString(), Date.now())}`
-                : "—"}
-          </span>
-          <button
-            type="button"
-            className="theme-toggle"
-            onClick={toggleTheme}
-            aria-label={`Switch to ${target} theme`}
-          >
-            <ThemeIcon target={target} />
-            <span>Switch to {target}</span>
-          </button>
-        </div>
-      </header>
+      <PillNav>
+        <span className="repo mono" title="repository">
+          {repo}
+        </span>
+        <span className={`mode-chip ${isDemo ? "mode-demo" : "mode-live"}`}>
+          <span className="mode-dot" aria-hidden={true} />
+          {isDemo ? "Demo" : "Live"}
+        </span>
+        <span className="freshness" role="status" aria-live="polite">
+          {status === "loading"
+            ? "connecting…"
+            : updatedMs
+              ? `updated ${relativeTime(new Date(updatedMs).toISOString(), Date.now())}`
+              : "—"}
+        </span>
+        <ThemeToggle />
+      </PillNav>
 
       {status === "error" ? (
         <div className="banner" role="status" aria-live="polite">

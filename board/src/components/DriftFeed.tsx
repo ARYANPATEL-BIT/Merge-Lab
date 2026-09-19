@@ -7,10 +7,13 @@ export function DriftFeed({ findings }: { findings: Finding[] }) {
   return (
     <section className="panel panel-drift" aria-labelledby="drift-title">
       <header className="panel-head">
-        <h2 id="drift-title" className="panel-title">
-          Drift feed
-        </h2>
-        <span className="panel-count">{findings.length}</span>
+        <div className="panel-heading">
+          <p className="label">Newest first</p>
+          <h2 id="drift-title" className="panel-title">
+            Drift feed
+          </h2>
+        </div>
+        <span className="panel-count mono">{findings.length}</span>
       </header>
       <div className="panel-body">
         {findings.length === 0 ? (
