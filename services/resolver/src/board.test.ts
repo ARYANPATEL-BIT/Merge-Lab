@@ -79,11 +79,38 @@ describe("assembleBoard — drift feed", () => {
 
     const { findings } = assembleBoard(contracts, NOW);
 
-    expect(findings.some((f) => f.rule === "ROUTE_COLLISION")).toBe(true);
-    // Same collision reported from both directions collapses to distinct reasons,
-    // never a byte-identical duplicate.
-    const keys = new Set(findings.map((f) => `${f.rule}|${f.reason}`));
-    expect(keys.size).toBe(findings.length);
+    // A symmetric collision (found from both branches) collapses to one entry.
+    const routeCollisions = findings.filter((f) => f.rule === "ROUTE_COLLISION");
+    expect(routeCollisions).toHaveLength(1);
+  });
+
+  it("collapses a DEP_CONFLICT reported from both branches to a single entry", () => {
+    const contracts = [
+      contract({ contract_id: "a-dep", kind: "dependency", symbol: "axios", provides: [], deps: ["axios@1.7.2"], branch: "feat/a", owner: "dev-a" }),
+      contract({ contract_id: "b-dep", kind: "dependency", symbol: "node-fetch", provides: [], deps: ["node-fetch@3.3.2"], branch: "feat/b", owner: "dev-b" }),
+    ];
+
+    const conflicts = assembleBoard(contracts, NOW).findings.filter(
+      (f) => f.rule === "DEP_CONFLICT",
+    );
+    expect(conflicts).toHaveLength(1);
+    expect(conflicts[0].severity).toBe("block");
+  });
+
+  it("keeps distinct symmetric conflicts between the same branch pair", () => {
+    // Two different route collisions between the same two branches must not be
+    // collapsed into one another.
+    const contracts = [
+      contract({ contract_id: "a1", kind: "route", symbol: "POST /users", provides: ["POST /users"], branch: "feat/a" }),
+      contract({ contract_id: "b1", kind: "route", symbol: "POST /users", provides: ["POST /users"], branch: "feat/b", owner: "dev-b" }),
+      contract({ contract_id: "a2", kind: "route", symbol: "GET /users", provides: ["GET /users"], branch: "feat/a" }),
+      contract({ contract_id: "b2", kind: "route", symbol: "GET /users", provides: ["GET /users"], branch: "feat/b", owner: "dev-b" }),
+    ];
+
+    const routes = assembleBoard(contracts, NOW).findings.filter(
+      (f) => f.rule === "ROUTE_COLLISION",
+    );
+    expect(routes).toHaveLength(2);
   });
 
   it("orders findings newest-first by the drifting branch's activity", () => {

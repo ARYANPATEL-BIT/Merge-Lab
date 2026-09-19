@@ -5,6 +5,7 @@
 // sees offline is exactly what the deployed board computes.
 
 import {
+  functionalClassOf,
   HEARTBEAT_WINDOW_MS,
   type BranchSummary,
   type Contract,
@@ -21,6 +22,15 @@ const RULE_ACTIVE = new Set(["declared", "implementing", "implemented"]);
 
 /** block first, then warn, then notify. */
 const SEVERITY_RANK: Record<Severity, number> = { block: 0, warn: 1, notify: 2 };
+
+/**
+ * Rules where a conflict between two branches is found from both sides (each
+ * branch's declarations flag the other), so the feed would list it twice. The
+ * board collapses these to one entry per (rule, branch pair). The remaining
+ * rules are directional — only the consuming/pinned branch fires — so they
+ * already appear once.
+ */
+const SYMMETRIC_RULES = new Set(["DEP_CONFLICT", "DUP_SYMBOL", "ROUTE_COLLISION"]);
 
 function groupBy<T>(items: T[], key: (t: T) => string): Map<string, T[]> {
   const out = new Map<string, T[]>();
@@ -58,10 +68,12 @@ function summarizeBranch(branch: string, contracts: Contract[], nowMs: number): 
   };
 }
 
-/** A finding plus the branch activity time used only to order the feed. */
+/** A finding plus the context used only to order and de-duplicate the feed. */
 interface TimedFinding {
   finding: Finding;
   atMs: number;
+  /** The branch whose declarations produced this finding. */
+  incoming: string;
 }
 
 /**
@@ -86,6 +98,7 @@ export function assembleBoard(
   // Findings: evaluate each branch's live declarations against every other
   // branch's live context. A finding is timestamped by the drifting branch's
   // last activity so the feed reads newest-first.
+  const byId = new Map(contracts.map((c) => [c.contract_id, c]));
   const ruleActive = contracts.filter((c) => RULE_ACTIVE.has(c.status));
   const byBranchActive = groupBy(ruleActive, (c) => c.branch);
   const timed: TimedFinding[] = [];
@@ -94,21 +107,40 @@ export function assembleBoard(
     const bindings = bindingsByBranch[branch] ?? [];
     const atMs = latestMs(byBranchDisplayed.get(branch) ?? incoming);
     for (const finding of runRules(incoming, others, bindings)) {
-      timed.push({ finding, atMs });
+      timed.push({ finding, atMs, incoming: branch });
     }
   }
 
-  const seen = new Set<string>();
+  const seenExact = new Set<string>();
+  const seenPair = new Set<string>();
   const findings: Finding[] = timed
     .sort(
       (a, b) =>
         b.atMs - a.atMs ||
         SEVERITY_RANK[a.finding.severity] - SEVERITY_RANK[b.finding.severity],
     )
-    .filter(({ finding }) => {
-      const key = `${finding.rule}|${finding.severity}|${finding.reason}|${[...finding.contract_ids].sort().join(",")}`;
-      if (seen.has(key)) return false;
-      seen.add(key);
+    .filter(({ finding, incoming }) => {
+      const exact = `${finding.rule}|${finding.severity}|${finding.reason}|${[...finding.contract_ids].sort().join(",")}`;
+      if (seenExact.has(exact)) return false;
+      if (SYMMETRIC_RULES.has(finding.rule)) {
+        // Collapse to one entry per (rule, branch pair, conflict). The conflict
+        // discriminator is stable across both directions: the shared symbol for
+        // route/dup collisions, the functional class for a dep conflict (whose
+        // two sides name different deps). This keeps distinct conflicts between
+        // the same pair from collapsing into each other.
+        const refs = finding.contract_ids
+          .map((id) => byId.get(id))
+          .filter((c): c is Contract => c !== undefined);
+        const branches = new Set([incoming, ...refs.map((c) => c.branch)]);
+        const conflict =
+          finding.rule === "DEP_CONFLICT"
+            ? refs.map((c) => functionalClassOf(c.symbol) ?? c.symbol).sort().join(",")
+            : refs.map((c) => c.symbol).sort().join(",");
+        const pairKey = `${finding.rule}|${[...branches].sort().join("|")}|${conflict}`;
+        if (seenPair.has(pairKey)) return false;
+        seenPair.add(pairKey);
+      }
+      seenExact.add(exact);
       return true;
     })
     .map(({ finding }) => finding);

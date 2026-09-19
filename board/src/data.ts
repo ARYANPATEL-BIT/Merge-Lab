@@ -4,18 +4,14 @@
 // so timestamps and status dots always agree.
 
 import { assembleBoard } from "@handshake/resolver";
-import {
-  GetBoardResponseSchema,
-  type Contract,
-  type GetBoardResponse,
-} from "@handshake/shared";
-import fixtureRaw from "../../fixtures/declarations.sample.json";
+import { GetBoardResponseSchema, type GetBoardResponse } from "@handshake/shared";
+import { buildDemo } from "./demo.js";
 
 const API_URL = import.meta.env.VITE_API_URL;
 const API_TOKEN = import.meta.env.VITE_API_TOKEN;
 const REPO = import.meta.env.VITE_REPO ?? "acme/app";
 
-/** No API URL configured → render from the bundled fixture. */
+/** No API URL configured → render from the bundled demo dataset. */
 export const isDemo = !API_URL;
 export const repo = REPO;
 
@@ -24,21 +20,16 @@ export interface BoardSnapshot {
   nowMs: number;
 }
 
-// Anchor the demo clock just after the fixture's newest heartbeat: the most
-// recent branch reads "active", older ones "dormant". Derived from the data,
-// so it never decays to all-dormant while the board sits on a projector.
-function demoNow(contracts: Contract[]): number {
-  const latest = contracts.reduce((max, c) => {
-    const t = Date.parse(c.declared_at);
-    return Number.isNaN(t) ? max : Math.max(max, t);
-  }, 0);
-  return latest + 60_000;
+// Dormant example is opt-in (?dormant or VITE_DEMO_DORMANT=1); by default every
+// demo branch is actively reporting, matching a live demo.
+function demoWantsDormant(): boolean {
+  if (import.meta.env.VITE_DEMO_DORMANT === "1") return true;
+  return new URLSearchParams(window.location.search).has("dormant");
 }
 
 export function loadDemo(): BoardSnapshot {
-  const contracts = fixtureRaw as Contract[];
-  const nowMs = demoNow(contracts);
-  return { board: assembleBoard(contracts, nowMs), nowMs };
+  const { contracts, bindings, nowMs } = buildDemo({ dormant: demoWantsDormant() });
+  return { board: assembleBoard(contracts, nowMs, bindings), nowMs };
 }
 
 export async function fetchBoard(signal?: AbortSignal): Promise<BoardSnapshot> {

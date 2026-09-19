@@ -4,7 +4,7 @@ import { relativeTime } from "./lib/format.js";
 import { Branches } from "./components/Branches.js";
 import { Contracts } from "./components/Contracts.js";
 import { DriftFeed } from "./components/DriftFeed.js";
-import { BrandMark } from "./components/icons.js";
+import { BrandMark, ThemeIcon } from "./components/icons.js";
 
 const POLL_MS = 3000;
 
@@ -50,24 +50,35 @@ function useBoard() {
   return { snapshot, status, error, updatedMs };
 }
 
-/** Manual light/dark override on top of the prefers-color-scheme default. */
-function useTheme(): [string | null, () => void] {
-  const [theme, setTheme] = useState<string | null>(null);
+type Theme = "light" | "dark";
+
+/** Effective theme = manual override, else the system preference (kept live). */
+function useTheme(): { effective: Theme; toggle: () => void } {
+  const readSystem = (): Theme =>
+    window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  const [override, setOverride] = useState<Theme | null>(null);
+  const [system, setSystem] = useState<Theme>(readSystem);
+
   useEffect(() => {
-    if (theme) document.documentElement.setAttribute("data-theme", theme);
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    const onChange = () => setSystem(mq.matches ? "dark" : "light");
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+
+  useEffect(() => {
+    if (override) document.documentElement.setAttribute("data-theme", override);
     else document.documentElement.removeAttribute("data-theme");
-  }, [theme]);
-  const toggle = () => {
-    const systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const current = theme ?? (systemDark ? "dark" : "light");
-    setTheme(current === "dark" ? "light" : "dark");
-  };
-  return [theme, toggle];
+  }, [override]);
+
+  const effective = override ?? system;
+  return { effective, toggle: () => setOverride(effective === "dark" ? "light" : "dark") };
 }
 
 export function App() {
   const { snapshot, status, error, updatedMs } = useBoard();
-  const [theme, toggleTheme] = useTheme();
+  const { effective: theme, toggle: toggleTheme } = useTheme();
+  const target: Theme = theme === "dark" ? "light" : "dark";
 
   // One-second ticker so the header freshness label counts up between polls.
   const [, setTick] = useState(0);
@@ -111,9 +122,10 @@ export function App() {
             type="button"
             className="theme-toggle"
             onClick={toggleTheme}
-            aria-label="Toggle light and dark theme"
+            aria-label={`Switch to ${target} theme`}
           >
-            {theme === "dark" ? "Light" : theme === "light" ? "Dark" : "Theme"}
+            <ThemeIcon target={target} />
+            <span>Switch to {target}</span>
           </button>
         </div>
       </header>

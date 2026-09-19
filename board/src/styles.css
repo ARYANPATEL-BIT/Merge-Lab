@@ -175,10 +175,9 @@ h3 {
 
 /* ---- App shell ------------------------------------------------------------- */
 .app {
-  height: 100dvh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
 }
 
 .topbar {
@@ -286,6 +285,9 @@ h3 {
 }
 
 .theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
   font-family: var(--font-sans);
   font-size: 0.9rem;
   font-weight: 600;
@@ -296,7 +298,6 @@ h3 {
   padding: var(--sp-2) var(--sp-3);
   cursor: pointer;
   min-height: 40px;
-  min-width: 64px;
 }
 
 .theme-toggle:hover {
@@ -322,16 +323,18 @@ h3 {
 /* ---- Grid ------------------------------------------------------------------ */
 .grid {
   flex: 1 1 auto;
-  min-height: 0;
   display: grid;
-  grid-template-columns: minmax(340px, 0.9fr) 1.35fr;
+  grid-template-columns: minmax(340px, 0.95fr) 1.4fr;
   gap: var(--sp-4);
   padding: var(--sp-4) var(--sp-5) var(--sp-5);
-  overflow: hidden;
+  /* Each column sizes to its own content and tops-align: the drift feed
+     shrinks to its findings instead of stretching, and the contracts column
+     grows into the page's vertical space rather than scrolling internally. */
+  align-items: start;
 }
 
 .grid-loading {
-  display: grid;
+  min-height: 60vh;
   place-items: center;
 }
 
@@ -341,32 +344,22 @@ h3 {
 }
 
 .col {
-  min-height: 0;
   display: flex;
   flex-direction: column;
   gap: var(--sp-4);
 }
 
-.col-left > .panel:nth-child(1) {
-  /* Size to its branches (never shrink them away — a hidden dormant branch
-     reads as "nobody here"); cap tall lists and scroll inside instead. */
-  flex: 0 0 auto;
-  max-height: 45%;
-}
-
-.col-left > .panel:nth-child(2) {
-  flex: 1 1 auto;
-}
-
-.col-right > .panel {
-  height: 100%;
+/* Only the branch list caps its height and scrolls inside — long branch lists
+   should not push the two priority regions off screen. */
+.col-left > .panel:nth-child(1) .panel-body {
+  max-height: 42vh;
+  overflow-y: auto;
 }
 
 /* ---- Panels ---------------------------------------------------------------- */
 .panel {
   display: flex;
   flex-direction: column;
-  min-height: 0;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -405,9 +398,6 @@ h3 {
 }
 
 .panel-body {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow-y: auto;
   padding: var(--sp-3) var(--sp-4) var(--sp-4);
 }
 
@@ -513,9 +503,6 @@ h3 {
 }
 
 .group-head {
-  position: sticky;
-  top: calc(-1 * var(--sp-3));
-  z-index: 1;
   font-size: 0.95rem;
   font-weight: 600;
   color: var(--fg-muted);
@@ -793,22 +780,11 @@ h3 {
 
 /* ---- Responsive: stack on narrow / portrait projectors --------------------- */
 @media (max-width: 1024px) {
-  .app {
-    height: auto;
-    min-height: 100dvh;
-    overflow: visible;
-  }
   .grid {
     grid-template-columns: 1fr;
-    overflow: visible;
   }
-  .col-left > .panel:nth-child(1),
-  .col-left > .panel:nth-child(2),
-  .col-right > .panel {
+  .col-left > .panel:nth-child(1) .panel-body {
     max-height: none;
-    height: auto;
-  }
-  .panel-body {
     overflow-y: visible;
   }
 }
