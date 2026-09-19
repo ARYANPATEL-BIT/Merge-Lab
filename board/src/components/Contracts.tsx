@@ -1,0 +1,70 @@
+import type { Contract } from "@handshake/shared";
+import { originLabel, shapeInline, statusClassName } from "../lib/format.js";
+import { EmptyState } from "./EmptyState.js";
+import { InboxIcon } from "./icons.js";
+
+function groupByBranch(contracts: Contract[]): Array<[string, Contract[]]> {
+  const map = new Map<string, Contract[]>();
+  for (const c of contracts) {
+    const bucket = map.get(c.branch);
+    if (bucket) bucket.push(c);
+    else map.set(c.branch, [c]);
+  }
+  return [...map.entries()];
+}
+
+export function Contracts({ contracts }: { contracts: Contract[] }) {
+  const groups = groupByBranch(contracts);
+  return (
+    <section className="panel" aria-labelledby="contracts-title">
+      <header className="panel-head">
+        <h2 id="contracts-title" className="panel-title">
+          Contracts
+        </h2>
+        <span className="panel-count">{contracts.length}</span>
+      </header>
+      <div className="panel-body">
+        {contracts.length === 0 ? (
+          <EmptyState
+            icon={<InboxIcon />}
+            title="No contracts declared"
+            hint="Contracts appear as teammates publish their working-tree declarations."
+          />
+        ) : (
+          groups.map(([branch, items]) => (
+            <div className="contract-group" key={branch}>
+              <h3 className="group-head mono">{branch}</h3>
+              <ul className="contract-list">
+                {items.map((c) => (
+                  <li className="contract" key={c.contract_id}>
+                    <div className="contract-top">
+                      <span className="kind-tag">{c.kind}</span>
+                      <span className="contract-symbol mono">{c.symbol}</span>
+                      <span className={`status-badge ${statusClassName(c.status)}`}>
+                        {c.status}
+                      </span>
+                    </div>
+                    {c.signature ? (
+                      <code className="contract-sig mono">{c.signature}</code>
+                    ) : null}
+                    {c.shape ? (
+                      <code className="contract-shape mono">{shapeInline(c.shape)}</code>
+                    ) : null}
+                    <div className="contract-foot">
+                      <span className="version mono">v{c.version}</span>
+                      <span
+                        className={`origin origin-${c.origin === "working_tree" ? "wt" : "inf"}`}
+                      >
+                        {originLabel(c.origin)}
+                      </span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))
+        )}
+      </div>
+    </section>
+  );
+}

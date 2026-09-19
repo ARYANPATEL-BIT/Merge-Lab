@@ -211,3 +211,32 @@ export type PostVerdictRequest = z.infer<typeof PostVerdictRequestSchema>;
 
 export const PostVerdictResponseSchema = VerdictSchema;
 export type PostVerdictResponse = Verdict;
+
+/**
+ * GET /v1/board — one-shot snapshot for the projector board. A branch is
+ * `active` when it reported within the heartbeat window, else `dormant`.
+ * A dormant branch is still returned so absence never reads as "nobody here".
+ */
+export const BranchStatusSchema = z.enum(["active", "dormant"]);
+export type BranchStatus = z.infer<typeof BranchStatusSchema>;
+
+export const BranchSummarySchema = z.object({
+  branch: z.string(),
+  owner: z.string(),
+  contract_count: z.number().int(),
+  /** ISO time of this branch's most recent declaration (its heartbeat). */
+  last_reported: z.string(),
+  status: BranchStatusSchema,
+});
+export type BranchSummary = z.infer<typeof BranchSummarySchema>;
+
+export const GetBoardResponseSchema = z.object({
+  branches: z.array(BranchSummarySchema),
+  contracts: z.array(ContractSchema),
+  /** Drift findings across branches, newest first. */
+  findings: z.array(FindingSchema),
+});
+export type GetBoardResponse = z.infer<typeof GetBoardResponseSchema>;
+
+/** A branch is active if it reported within this window (ms). */
+export const HEARTBEAT_WINDOW_MS = 5 * 60 * 1000;
