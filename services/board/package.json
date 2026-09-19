@@ -1,5 +1,5 @@
 {
-  "name": "@handshake/ingest",
+  "name": "@handshake/board-service",
   "version": "0.0.0",
   "private": true,
   "scripts": {
@@ -7,8 +7,7 @@
   },
   "dependencies": {
     "@handshake/resolver": "workspace:*",
-    "@handshake/shared": "workspace:*",
-    "ulid": "^2.3.0"
+    "@handshake/shared": "workspace:*"
   },
   "devDependencies": {
     "@aws-sdk/client-dynamodb": "^3.600.0",

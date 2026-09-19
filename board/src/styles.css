@@ -1,0 +1,592 @@
+/* Merge Lab — contract board. Shares ONE design system with the landing page
+   (theme.css): warm paper, near-black ink, one accent, hairline borders, no
+   shadows, no gradients, the same type scale and monospace labels. Regions are
+   titled headlines sitting on the paper — not cards — with hairline-divided
+   rows. Light is the default; dark mode uses the landing's inverted palette.
+   Severity is always carried by icon + label + colour, never colour alone.
+   This is a visual layer only: the three regions, their data and every field
+   are unchanged. */
+
+/* ---- App shell — clears the fixed floating nav ---------------------------- */
+.app {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding-top: clamp(5rem, 8vh, 6.5rem);
+}
+
+/* Board status + theme toggle living inside the shared pill nav. */
+.repo {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--fg-muted);
+  padding: 0.3rem 0.7rem;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+}
+
+.mode-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  padding: 0.3rem 0.7rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid transparent;
+}
+
+.mode-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.mode-live {
+  color: var(--ok);
+  background: var(--ok-bg);
+  border-color: var(--ok-border);
+}
+
+.mode-live .mode-dot {
+  animation: pulse 2s ease-out infinite;
+}
+
+.mode-demo {
+  color: var(--sev-notify);
+  background: var(--sev-notify-bg);
+  border-color: var(--sev-notify-border);
+}
+
+.freshness {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--fg-subtle);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 900px) {
+  .repo,
+  .freshness {
+    display: none;
+  }
+}
+
+.banner {
+  flex: 0 0 auto;
+  margin: 0 var(--gutter, clamp(1.25rem, 5vw, 5rem)) var(--sp-4);
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+  color: var(--sev-warn);
+  background: var(--sev-warn-bg);
+  border: 1px solid var(--sev-warn-border);
+}
+
+/* ---- Grid ----------------------------------------------------------------- */
+.grid {
+  flex: 1 1 auto;
+  display: grid;
+  grid-template-columns: minmax(340px, 0.95fr) 1.4fr;
+  gap: clamp(2rem, 5vw, 5rem);
+  padding: var(--sp-5) clamp(1.25rem, 5vw, 5rem) var(--sp-8);
+  align-items: start;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.grid-loading {
+  min-height: 60vh;
+  place-items: center;
+}
+
+.loading-note {
+  color: var(--fg-subtle);
+  font-size: 1.1rem;
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(2rem, 4vw, 3.5rem);
+  min-width: 0;
+}
+
+/* Only the branch list caps its height and scrolls inside. */
+.col-left > .panel:nth-child(1) .panel-body {
+  max-height: 40vh;
+  overflow-y: auto;
+}
+
+/* ---- Regions — headlines on the paper, not cards -------------------------- */
+.panel {
+  display: flex;
+  flex-direction: column;
+  background: none;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.panel-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  padding: 0 0 var(--sp-4);
+  margin-bottom: var(--sp-2);
+  border-bottom: 1px solid var(--border);
+}
+
+.panel-heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.panel-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 1.2rem + 1.6vw, 2.6rem);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1;
+}
+
+.panel-count {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--fg-subtle);
+  font-variant-numeric: tabular-nums;
+}
+
+.panel-body {
+  padding: 0;
+}
+
+/* ---- Branches — hairline rows --------------------------------------------- */
+.branch-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.branch {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-4) 0;
+  border-top: 1px solid var(--border);
+}
+
+.branch:first-child {
+  border-top: none;
+}
+
+.branch.is-dormant {
+  opacity: 0.75;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.dot-active {
+  background: var(--ok);
+  box-shadow: 0 0 0 4px var(--ok-bg);
+  animation: pulse 2s ease-out infinite;
+}
+
+.dot-dormant {
+  background: transparent;
+  border: 2px solid var(--dormant);
+}
+
+.branch-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.branch-name {
+  font-size: 1.05rem;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.branch-owner {
+  font-size: 0.85rem;
+  color: var(--fg-subtle);
+}
+
+.branch-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.15rem;
+  text-align: right;
+}
+
+.branch-count {
+  font-size: 0.9rem;
+  color: var(--fg-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.branch-status {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.label-active {
+  color: var(--ok);
+}
+
+.label-dormant {
+  color: var(--dormant);
+}
+
+.branch-time {
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  color: var(--fg-subtle);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- Contracts — numbered rows with hairline dividers --------------------- */
+.contract-group + .contract-group {
+  margin-top: var(--sp-6);
+}
+
+.group-head {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--fg-muted);
+  padding: 0;
+  margin: 0 0 var(--sp-3);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.group-head::before {
+  content: "";
+  width: 1.5rem;
+  height: 1px;
+  background: var(--accent);
+}
+
+.contract-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: contract;
+}
+
+.contract {
+  counter-increment: contract;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  padding: var(--sp-4) 0 var(--sp-4) 3rem;
+  border-top: 1px solid var(--border);
+  background: none;
+  border-radius: 0;
+}
+
+.contract::before {
+  content: counter(contract, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: var(--sp-4);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--accent);
+  line-height: 1.4;
+}
+
+.contract-top {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+}
+
+.kind-tag {
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--fg-subtle);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 0.12rem 0.55rem;
+}
+
+.contract-symbol {
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--fg);
+}
+
+.status-badge {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  border-radius: var(--radius-pill);
+  padding: 0.14rem 0.6rem;
+}
+
+.status-declared {
+  color: var(--st-declared-fg);
+  background: var(--st-declared-bg);
+}
+.status-implementing {
+  color: var(--st-implementing-fg);
+  background: var(--st-implementing-bg);
+}
+.status-implemented {
+  color: var(--st-implemented-fg);
+  background: var(--st-implemented-bg);
+}
+.status-changed {
+  color: var(--st-changed-fg);
+  background: var(--st-changed-bg);
+}
+
+.contract-sig,
+.contract-shape {
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--fg-muted);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: var(--sp-2) var(--sp-3);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.contract-shape {
+  color: var(--fg);
+}
+
+.contract-foot {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.version {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--fg-subtle);
+  font-variant-numeric: tabular-nums;
+}
+
+.origin {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  border-radius: var(--radius-pill);
+  padding: 0.12rem 0.55rem;
+  border: 1px solid var(--border);
+  color: var(--fg-subtle);
+  background: transparent;
+}
+
+.origin-wt {
+  color: var(--accent-ink);
+  border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+/* ---- Drift feed — hairline rows with a severity edge ---------------------- */
+.drift-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.finding {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  padding: var(--sp-5) 0 var(--sp-5) var(--sp-4);
+  border-top: 1px solid var(--border);
+  border-left: 3px solid transparent;
+  background: none;
+  border-radius: 0;
+}
+
+.finding:first-child {
+  border-top: none;
+}
+
+.finding.sev-block {
+  border-left-color: var(--sev-block);
+}
+.finding.sev-warn {
+  border-left-color: var(--sev-warn);
+}
+.finding.sev-notify {
+  border-left-color: var(--sev-notify);
+}
+
+.finding-head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+}
+
+.sev-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  border-radius: var(--radius-pill);
+  padding: 0.24rem 0.7rem;
+}
+
+.sev-block .sev-badge {
+  color: var(--sev-block);
+  background: var(--sev-block-bg);
+  border: 1px solid var(--sev-block-border);
+}
+.sev-warn .sev-badge {
+  color: var(--sev-warn);
+  background: var(--sev-warn-bg);
+  border: 1px solid var(--sev-warn-border);
+}
+.sev-notify .sev-badge {
+  color: var(--sev-notify);
+  background: var(--sev-notify-bg);
+  border: 1px solid var(--sev-notify-border);
+}
+
+.sev-badge svg {
+  width: 15px;
+  height: 15px;
+}
+
+.rule-name {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--fg-muted);
+  letter-spacing: 0.02em;
+}
+
+.finding-reason {
+  margin: 0;
+  font-size: 1.2rem;
+  line-height: 1.5;
+  color: var(--fg);
+  max-width: 52ch;
+}
+
+/* ---- Empty states --------------------------------------------------------- */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: var(--sp-2);
+  min-height: 180px;
+  padding: var(--sp-6) var(--sp-5);
+  color: var(--fg-subtle);
+}
+
+.empty-icon {
+  color: var(--fg-subtle);
+  opacity: 0.7;
+}
+
+.empty-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--fg-muted);
+}
+
+.empty-hint {
+  margin: 0;
+  font-size: 0.95rem;
+  max-width: 42ch;
+}
+
+/* ---- Scrollbars ----------------------------------------------------------- */
+.panel-body {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+.panel-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.panel-body::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: var(--radius-pill);
+}
+
+/* ---- Motion --------------------------------------------------------------- */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 var(--ok-bg);
+  }
+  70% {
+    box-shadow: 0 0 0 8px transparent;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dot-active,
+  .mode-live .mode-dot {
+    animation: none;
+  }
+}
+
+/* ---- Responsive: stack on narrow / portrait projectors -------------------- */
+@media (max-width: 1024px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  .col-left > .panel:nth-child(1) .panel-body {
+    max-height: none;
+    overflow-y: visible;
+  }
+}

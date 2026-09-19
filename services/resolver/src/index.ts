@@ -8,3 +8,4 @@ export {
   type ResolutionAction,
   type ResolveResult,
 } from "./resolve.js";
+export { assembleBoard } from "./board.js";

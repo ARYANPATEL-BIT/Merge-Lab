@@ -1,8 +1,8 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  Handshake registry (P2) — ingest / context / verdict Lambdas behind one HTTP
-  API, backed by a single DynamoDB table. Deploy to ap-south-1.
+  Handshake registry (P2) — ingest / context / verdict / board Lambdas behind
+  one HTTP API, backed by a single DynamoDB table. Deploy to ap-south-1.
 
 Parameters:
   HandshakeToken:
@@ -12,6 +12,19 @@ Parameters:
     Description: Static workspace bearer token checked by every handler.
 
 Globals:
+  HttpApi:
+    # The board is a browser client on a different origin; the read endpoint is
+    # bearer-token authorized (no cookies), so a wildcard origin is safe here.
+    CorsConfiguration:
+      AllowOrigins:
+        - "*"
+      AllowHeaders:
+        - authorization
+        - content-type
+      AllowMethods:
+        - GET
+        - POST
+        - OPTIONS
   Function:
     Runtime: nodejs20.x
     Architectures:
@@ -131,6 +144,32 @@ Resources:
           Properties:
             Path: /v1/verdict
             Method: POST
+
+  BoardFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: cjs
+        Target: node20
+        Sourcemap: true
+        Minify: false
+        EntryPoints:
+          - src/index.ts
+        External:
+          - "@aws-sdk/*"
+    Properties:
+      CodeUri: ../services/board
+      Handler: src/index.handler
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref HandshakeTable
+      Events:
+        Get:
+          Type: HttpApi
+          Properties:
+            Path: /v1/board
+            Method: GET
 
 Outputs:
   ApiUrl:
