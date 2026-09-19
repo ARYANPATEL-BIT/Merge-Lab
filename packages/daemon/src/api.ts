@@ -21,6 +21,11 @@ function joinUrl(base: string, path: string): string {
   return `${base.replace(/\/+$/, "")}${path}`;
 }
 
+/** Optional per-request controls. `signal` lets a caller enforce a timeout. */
+export interface RequestOptions {
+  signal?: AbortSignal;
+}
+
 async function requestJson(url: string, init: RequestInit): Promise<unknown> {
   let res: Response;
   try {
@@ -57,24 +62,30 @@ export async function postDeclarations(
 export async function getContext(
   cfg: Config,
   query: { repo: string; branch?: string; exclude_owner?: string },
+  opts: RequestOptions = {},
 ): Promise<GetContextResponse> {
   const params = new URLSearchParams({ repo: query.repo });
   if (query.branch) params.set("branch", query.branch);
   if (query.exclude_owner) params.set("exclude_owner", query.exclude_owner);
   const json = await requestJson(
     `${joinUrl(cfg.apiUrl, "/v1/context")}?${params.toString()}`,
-    { method: "GET", headers: { authorization: `Bearer ${cfg.token}` } },
+    { method: "GET", headers: { authorization: `Bearer ${cfg.token}` }, signal: opts.signal },
   );
   const parsed = GetContextResponseSchema.safeParse(json);
   if (!parsed.success) throw new ApiError("unexpected /v1/context response");
   return parsed.data;
 }
 
-export async function postVerdict(cfg: Config, req: PostVerdictRequest): Promise<Verdict> {
+export async function postVerdict(
+  cfg: Config,
+  req: PostVerdictRequest,
+  opts: RequestOptions = {},
+): Promise<Verdict> {
   const json = await requestJson(joinUrl(cfg.apiUrl, "/v1/verdict"), {
     method: "POST",
     headers: jsonHeaders(cfg),
     body: JSON.stringify(req),
+    signal: opts.signal,
   });
   const parsed = PostVerdictResponseSchema.safeParse(json);
   if (!parsed.success) throw new ApiError("unexpected /v1/verdict response");

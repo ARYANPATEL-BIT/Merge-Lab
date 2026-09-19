@@ -1,9 +1,9 @@
-// `handshake init` — write ~/.handshake/config.json from flags (or env). Kept
-// non-interactive so it runs cleanly in a demo or CI: no prompts to hang on.
-//   handshake init --api-url <url> --token <token> [--owner <name>]
+// `handshake init` — write the config from flags (or env). Kept non-interactive
+// so it runs cleanly in a demo or CI: no prompts to hang on.
+//   handshake init --api-url <url> --token <token> [--owner <name>] [--mode warn]
 // Falls back to HANDSHAKE_API_URL / HANDSHAKE_TOKEN. The token is never echoed.
 
-import { configPath, writeConfig, type Config } from "./config.js";
+import { configPath, ModeSchema, writeConfig, type Config } from "./config.js";
 import { info } from "./log.js";
 
 /** Parse `--key value` and `--key=value`; later wins. Bare flags map to "". */
@@ -33,11 +33,18 @@ export async function cmdInit(argv: string[]): Promise<void> {
 
   if (!apiUrl || !token) {
     throw new Error(
-      "usage: handshake init --api-url <url> --token <token> [--owner <name>]",
+      "usage: handshake init --api-url <url> --token <token> [--owner <name>] [--mode off|warn|block]",
     );
   }
 
-  const config: Config = { apiUrl, token, ...(owner ? { owner } : {}) };
+  const parsedMode = ModeSchema.safeParse(flags["mode"] || "warn");
+  if (!parsedMode.success) {
+    throw new Error(`invalid --mode '${flags["mode"]}' (expected off, warn, or block)`);
+  }
+
+  const config: Config = { apiUrl, token, mode: parsedMode.data, ...(owner ? { owner } : {}) };
   await writeConfig(config);
-  info(`Wrote ${configPath()} (apiUrl ${apiUrl}${owner ? `, owner ${owner}` : ""}).`);
+  info(
+    `Wrote ${configPath()} (apiUrl ${apiUrl}, mode ${config.mode}${owner ? `, owner ${owner}` : ""}).`,
+  );
 }

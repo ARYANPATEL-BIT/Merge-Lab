@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@handshake/extractor": "workspace:*",
+    "@handshake/hooks": "workspace:*",
     "@handshake/shared": "workspace:*",
     "zod": "^3.23.8"
   },

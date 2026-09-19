@@ -1,5 +1,17 @@
 {
   "name": "@handshake/hooks",
   "version": "0.0.0",
-  "private": true
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@handshake/daemon": "workspace:*",
+    "@handshake/extractor": "workspace:*",
+    "@handshake/shared": "workspace:*"
+  }
 }

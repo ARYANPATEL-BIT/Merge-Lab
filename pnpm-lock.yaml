@@ -28,6 +28,9 @@ importers:
       '@handshake/extractor':
         specifier: workspace:*
         version: link:../extractor
+      '@handshake/hooks':
+        specifier: workspace:*
+        version: link:../hooks
       '@handshake/shared':
         specifier: workspace:*
         version: link:../shared
@@ -48,7 +51,17 @@ importers:
         specifier: ^23.0.0
         version: 23.0.0
 
-  packages/hooks: {}
+  packages/hooks:
+    dependencies:
+      '@handshake/daemon':
+        specifier: workspace:*
+        version: link:../daemon
+      '@handshake/extractor':
+        specifier: workspace:*
+        version: link:../extractor
+      '@handshake/shared':
+        specifier: workspace:*
+        version: link:../shared
 
   packages/shared:
     dependencies:
