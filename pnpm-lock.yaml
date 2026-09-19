@@ -23,7 +23,21 @@ importers:
 
   board: {}
 
-  packages/daemon: {}
+  packages/daemon:
+    dependencies:
+      '@handshake/extractor':
+        specifier: workspace:*
+        version: link:../extractor
+      '@handshake/shared':
+        specifier: workspace:*
+        version: link:../shared
+      zod:
+        specifier: ^3.23.8
+        version: 3.25.76
+    devDependencies:
+      esbuild:
+        specifier: ^0.21.5
+        version: 0.21.5
 
   packages/extractor:
     dependencies:

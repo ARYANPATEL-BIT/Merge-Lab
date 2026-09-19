@@ -21,5 +21,9 @@ Node 20, TypeScript, ESM, ts-morph, vitest, pnpm workspaces.
 AWS: Lambda + API Gateway + DynamoDB, SAM. Region ap-south-1.
 
 ## State
-Done: packages/shared, packages/extractor, services/resolver, infra + handlers.
-Next: packages/daemon (CLI publisher), packages/hooks, board.
+Done: packages/shared, packages/extractor, services/resolver, infra + handlers,
+packages/daemon (CLI publisher).
+Next: packages/hooks, board.
+
+- Tests must never touch ~/.handshake. Config path comes from a
+  HANDSHAKE_CONFIG_DIR override; tests set it to a temp dir.
