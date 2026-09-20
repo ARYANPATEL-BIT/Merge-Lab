@@ -5,12 +5,12 @@
 //
 // The caller mounts this only on desktop with motion allowed. WebGL init is
 // guarded: if a context can't be created the canvas simply stays transparent and
-// the paper hero shows through — the page never breaks.
+// the paper hero shows through - the page never breaks.
 
 import { useEffect, useRef } from "react";
 import { WaterRipple } from "./ripple/WaterRipple.js";
 
-const WAKE_SPACING = 0.012; // uv distance between wake drops — dense = flowing
+const WAKE_SPACING = 0.012; // uv distance between wake drops - dense = flowing
 const IDLE_MS = 2600;
 const IDLE_EVERY_MS = 4000;
 

@@ -1,5 +1,5 @@
 {
-  "name": "handshake",
+  "name": "mergelab",
   "version": "0.0.0",
   "private": true,
   "description": "Pre-push interface contract registry. Publishes DECLARATIONS ONLY.",

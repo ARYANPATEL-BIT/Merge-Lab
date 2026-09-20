@@ -1,4 +1,4 @@
-import type { Declaration } from "@handshake/shared";
+import type { Declaration } from "@mergelab/shared";
 import { describe, expect, it } from "vitest";
 import { extractManifestDeps } from "./index.js";
 import { extractFailed, resetExtractFailed } from "./counter.js";

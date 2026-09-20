@@ -16,7 +16,7 @@ function write(dir: string, rel: string, content: string): void {
 }
 
 function makeRepo(): string {
-  const dir = realpathSync(mkdtempSync(join(tmpdir(), "hs-git-")));
+  const dir = realpathSync(mkdtempSync(join(tmpdir(), "ml-git-")));
   git(["init", "-b", "main"], dir);
   git(["config", "user.name", "Dev A"], dir);
   git(["config", "user.email", "dev-a@example.com"], dir);
@@ -55,8 +55,8 @@ describe("changedSourceFiles", () => {
     expect(changedSourceFiles(dir)).toEqual(["src/b.ts"]);
   });
 
-  it("respects .handshakeignore patterns", () => {
-    write(dir, ".handshakeignore", "vendor/\n");
+  it("respects .mergelabignore patterns", () => {
+    write(dir, ".mergelabignore", "vendor/\n");
     write(dir, "vendor/d.ts", "export const d = 5;\n");
     write(dir, "src/b.ts", "export const b = 3;\n");
     expect(changedSourceFiles(dir)).toEqual(["src/b.ts"]);

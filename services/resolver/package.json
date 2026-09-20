@@ -1,5 +1,5 @@
 {
-  "name": "@handshake/resolver",
+  "name": "@mergelab/resolver",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -12,7 +12,7 @@
     "test:scenarios": "vite-node scripts/scenarios-table.ts"
   },
   "dependencies": {
-    "@handshake/shared": "workspace:*"
+    "@mergelab/shared": "workspace:*"
   },
   "devDependencies": {
     "vite-node": "^2.1.9"

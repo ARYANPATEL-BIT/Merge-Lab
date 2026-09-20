@@ -1,21 +1,21 @@
-// Handler tests for @handshake/ingest. Uses aws-sdk-client-mock so no real AWS
-// is touched. Asserts the DynamoDB commands sent — key shape, version, status —
+// Handler tests for @mergelab/ingest. Uses aws-sdk-client-mock so no real AWS
+// is touched. Asserts the DynamoDB commands sent - key shape, version, status -
 // not just the HTTP status, since a handler that returns 200 while writing the
 // wrong key is exactly what these guard against.
 
 import { DynamoDBDocumentClient, PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
 import type { APIGatewayProxyEventV2, APIGatewayProxyStructuredResultV2 } from "aws-lambda";
-import type { Contract, Declaration } from "@handshake/shared";
+import type { Contract, Declaration } from "@mergelab/shared";
 import { mockClient } from "aws-sdk-client-mock";
 import { beforeEach, describe, expect, it } from "vitest";
 
-const TABLE = "handshake-test";
+const TABLE = "mergelab-test";
 const TOKEN = "s3cr3t";
 process.env.TABLE_NAME = TABLE;
-process.env.HANDSHAKE_TOKEN = TOKEN;
+process.env.MERGELAB_TOKEN = TOKEN;
 
 const ddbMock = mockClient(DynamoDBDocumentClient);
-// Dynamic import so the handler module reads TABLE_NAME/HANDSHAKE_TOKEN after
+// Dynamic import so the handler module reads TABLE_NAME/MERGELAB_TOKEN after
 // they are set above (static imports would evaluate the module first).
 const { handler } = await import("./index.js");
 

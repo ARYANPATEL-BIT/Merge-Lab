@@ -1,7 +1,7 @@
-// Redactor — applied to every Declaration before it is returned. Enforces the
+// Redactor - applied to every Declaration before it is returned. Enforces the
 // "names and types only" hard rule. Returns null to DROP a Declaration.
 
-import type { Declaration } from "@handshake/shared";
+import type { Declaration } from "@mergelab/shared";
 
 const REDACTED = "<redacted>";
 const SENSITIVE = /(secret|token|password|apikey|api_key|private_key)/i;
@@ -37,7 +37,7 @@ function maskText(text: string): string {
 }
 
 export function redact(d: Declaration): Declaration | null {
-  // Rule 2 — drop by source before doing any work.
+  // Rule 2 - drop by source before doing any work.
   if (fromForbiddenSource(d.source_ref)) return null;
 
   const out: Declaration = {
@@ -58,7 +58,7 @@ export function redact(d: Declaration): Declaration | null {
     out.shape = shape;
   }
 
-  // Rule 4 — drop (never truncate) anything serialising over 2KB.
+  // Rule 4 - drop (never truncate) anything serialising over 2KB.
   if (JSON.stringify(out).length > MAX_BYTES) return null;
 
   return out;

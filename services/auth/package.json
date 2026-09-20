@@ -1,12 +1,11 @@
 {
-  "name": "@mergelab/verdict",
+  "name": "@mergelab/auth-service",
   "version": "0.0.0",
   "private": true,
   "scripts": {
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@mergelab/resolver": "workspace:*",
     "@mergelab/shared": "workspace:*"
   },
   "devDependencies": {

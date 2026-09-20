@@ -1,5 +1,5 @@
 {
-  "name": "@handshake/board",
+  "name": "@mergelab/board",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -10,8 +10,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@handshake/resolver": "workspace:*",
-    "@handshake/shared": "workspace:*",
+    "@mergelab/resolver": "workspace:*",
+    "@mergelab/shared": "workspace:*",
     "gsap": "^3.15.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

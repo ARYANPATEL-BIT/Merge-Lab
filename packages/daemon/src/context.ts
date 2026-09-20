@@ -1,4 +1,4 @@
-// `handshake context` — fetch this branch's consumable contracts (teammates'
+// `mergelab context` - fetch this branch's consumable contracts (teammates'
 // only) and print the rendered block. The same render is reused by the future
 // SessionStart hook.
 

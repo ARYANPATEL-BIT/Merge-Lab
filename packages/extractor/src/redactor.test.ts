@@ -1,4 +1,4 @@
-import type { Declaration } from "@handshake/shared";
+import type { Declaration } from "@mergelab/shared";
 import { describe, expect, it } from "vitest";
 import { redact } from "./index.js";
 
@@ -16,7 +16,7 @@ function decl(over: Partial<Declaration>): Declaration {
   };
 }
 
-describe("redact — rule 2: forbidden sources are dropped", () => {
+describe("redact - rule 2: forbidden sources are dropped", () => {
   for (const source_ref of [
     ".env:1",
     "config/.env.local:2",
@@ -34,7 +34,7 @@ describe("redact — rule 2: forbidden sources are dropped", () => {
   });
 });
 
-describe("redact — rule 3: sensitive identifiers are masked", () => {
+describe("redact - rule 3: sensitive identifiers are masked", () => {
   it("masks a sensitive symbol", () => {
     expect(redact(decl({ kind: "env", symbol: "API_KEY" }))?.symbol).toBe("<redacted>");
   });
@@ -53,7 +53,7 @@ describe("redact — rule 3: sensitive identifiers are masked", () => {
   });
 });
 
-describe("redact — rule 1: literals are widened to their base type", () => {
+describe("redact - rule 1: literals are widened to their base type", () => {
   it("widens string/number/boolean literal types in a shape", () => {
     expect(
       redact(decl({ kind: "type", shape: { mode: "'dark'", count: "42", flag: "true" } }))?.shape,
@@ -67,7 +67,7 @@ describe("redact — rule 1: literals are widened to their base type", () => {
   });
 });
 
-describe("redact — rule 4: oversized declarations are dropped", () => {
+describe("redact - rule 4: oversized declarations are dropped", () => {
   it("drops a declaration serialising over 2KB", () => {
     const shape: Record<string, string> = {};
     for (let i = 0; i < 400; i++) shape[`field_${i}`] = "string";

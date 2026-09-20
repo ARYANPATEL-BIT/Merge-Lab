@@ -1,18 +1,18 @@
-// Handler tests for @handshake/verdict. aws-sdk-client-mock stands in for
-// DynamoDB. The handler owns two reads — active contracts and branch bindings —
+// Handler tests for @mergelab/verdict. aws-sdk-client-mock stands in for
+// DynamoDB. The handler owns two reads - active contracts and branch bindings -
 // so the mock routes on the SK prefix, and the tests assert the verdict the
 // deterministic rule engine produces from them.
 
 import { DynamoDBDocumentClient, QueryCommand } from "@aws-sdk/lib-dynamodb";
 import type { APIGatewayProxyEventV2, APIGatewayProxyStructuredResultV2 } from "aws-lambda";
-import type { Contract, Declaration, Finding, VerdictDecision } from "@handshake/shared";
+import type { Contract, Declaration, Finding, VerdictDecision } from "@mergelab/shared";
 import { mockClient } from "aws-sdk-client-mock";
 import { beforeEach, describe, expect, it } from "vitest";
 
-const TABLE = "handshake-test";
+const TABLE = "mergelab-test";
 const TOKEN = "s3cr3t";
 process.env.TABLE_NAME = TABLE;
-process.env.HANDSHAKE_TOKEN = TOKEN;
+process.env.MERGELAB_TOKEN = TOKEN;
 
 const ddbMock = mockClient(DynamoDBDocumentClient);
 const { handler } = await import("./index.js");

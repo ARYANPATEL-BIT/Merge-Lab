@@ -1,18 +1,18 @@
-// Handler tests for @handshake/board-service. aws-sdk-client-mock stands in for
-// DynamoDB. Asserts the assembled snapshot — branches with heartbeat status,
-// contracts, and the cross-branch drift feed — that assembleBoard produces from
+// Handler tests for @mergelab/board-service. aws-sdk-client-mock stands in for
+// DynamoDB. Asserts the assembled snapshot - branches with heartbeat status,
+// contracts, and the cross-branch drift feed - that assembleBoard produces from
 // the rows the handler reads.
 
 import { DynamoDBDocumentClient, QueryCommand } from "@aws-sdk/lib-dynamodb";
 import type { APIGatewayProxyEventV2, APIGatewayProxyStructuredResultV2 } from "aws-lambda";
-import type { BranchSummary, Contract, Finding } from "@handshake/shared";
+import type { BranchSummary, Contract, Finding } from "@mergelab/shared";
 import { mockClient } from "aws-sdk-client-mock";
 import { beforeEach, describe, expect, it } from "vitest";
 
-const TABLE = "handshake-test";
+const TABLE = "mergelab-test";
 const TOKEN = "s3cr3t";
 process.env.TABLE_NAME = TABLE;
-process.env.HANDSHAKE_TOKEN = TOKEN;
+process.env.MERGELAB_TOKEN = TOKEN;
 
 const ddbMock = mockClient(DynamoDBDocumentClient);
 const { handler } = await import("./index.js");
@@ -109,7 +109,7 @@ describe("board handler", () => {
 
     expect(board.branches.map((b) => b.branch).sort()).toEqual(["feat/profile-ui", "feat/user-api"]);
     expect(board.contracts.map((c) => c.contract_id).sort()).toEqual(["ct_a", "ct_b"]);
-    // The two branches declare the same route — one collapsed collision finding.
+    // The two branches declare the same route - one collapsed collision finding.
     expect(board.findings).toEqual([
       expect.objectContaining({ rule: "ROUTE_COLLISION", severity: "block" }),
     ]);

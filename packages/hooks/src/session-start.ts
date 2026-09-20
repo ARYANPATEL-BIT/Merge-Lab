@@ -1,9 +1,9 @@
-// `handshake hook session-start` — the SessionStart hook. Resolves the repo and
+// `mergelab hook session-start` - the SessionStart hook. Resolves the repo and
 // branch from the payload's cwd, fetches the contracts this branch can consume
 // (excluding my own), and prints the rendered block for Claude Code to inject.
 // On ANY error, or when there is nothing to say, it prints nothing and exits 0.
 
-import { getContext, loadConfig, renderContext, resolveIdentity } from "@handshake/daemon";
+import { getContext, loadConfig, renderContext, resolveIdentity } from "@mergelab/daemon";
 import { context, SILENT, type HookOutcome } from "./outcome.js";
 
 interface SessionStartPayload {
@@ -21,7 +21,7 @@ export async function sessionStart(stdin: string): Promise<HookOutcome> {
     const { repo, branch, owner } = resolveIdentity(payload.cwd, cfg.owner);
     const { contracts } = await getContext(cfg, { repo, branch, exclude_owner: owner });
 
-    // Absence of data must read as absence — say nothing rather than a header
+    // Absence of data must read as absence - say nothing rather than a header
     // with an empty body that reads as "nobody is working on this."
     if (contracts.length === 0) return SILENT;
 

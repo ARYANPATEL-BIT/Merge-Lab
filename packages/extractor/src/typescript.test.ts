@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import type { Declaration } from "@handshake/shared";
+import type { Declaration } from "@mergelab/shared";
 import { beforeEach, describe, expect, it } from "vitest";
 import { typescriptExtractor } from "./index.js";
 import { extractFailed, resetExtractFailed } from "./counter.js";
@@ -19,7 +19,7 @@ const userShape = {
   created_at: "string",
 };
 
-describe("typescriptExtractor — repo-a/types.ts", () => {
+describe("typescriptExtractor - repo-a/types.ts", () => {
   it("extracts the User type; it provides itself and consumes nothing", () => {
     expect(extractFixture("fixtures/repo-a/types.ts")).toEqual([
       {
@@ -37,7 +37,7 @@ describe("typescriptExtractor — repo-a/types.ts", () => {
   });
 });
 
-describe("typescriptExtractor — repo-a/user.ts", () => {
+describe("typescriptExtractor - repo-a/user.ts", () => {
   it("per-declaration provides/consumes; getUser inlines User across files", () => {
     expect(extractFixture("fixtures/repo-a/user.ts")).toEqual([
       {
@@ -76,7 +76,7 @@ describe("typescriptExtractor — repo-a/user.ts", () => {
   });
 });
 
-describe("typescriptExtractor — repo-a/routes.ts", () => {
+describe("typescriptExtractor - repo-a/routes.ts", () => {
   it("routes provide their own symbol and consume only what the handler references", () => {
     expect(extractFixture("fixtures/repo-a/routes.ts")).toEqual([
       {
@@ -113,7 +113,7 @@ describe("typescriptExtractor — repo-a/routes.ts", () => {
   });
 });
 
-describe("typescriptExtractor — repo-b/profile.ts", () => {
+describe("typescriptExtractor - repo-b/profile.ts", () => {
   it("consumes getUser by symbol; Promise<void> inlines no shape", () => {
     expect(extractFixture("fixtures/repo-b/profile.ts")).toEqual([
       {
@@ -141,7 +141,7 @@ describe("typescriptExtractor — repo-b/profile.ts", () => {
   });
 });
 
-describe("typescriptExtractor — failure handling", () => {
+describe("typescriptExtractor - failure handling", () => {
   beforeEach(() => resetExtractFailed());
 
   it("returns [] and bumps extractFailed on a syntax error", () => {

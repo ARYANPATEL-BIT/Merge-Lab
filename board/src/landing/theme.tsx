@@ -2,7 +2,7 @@
 // one system. Effective theme = a stored manual override, else the OS preference
 // (kept live). The override is written to documentElement as [data-theme]; with
 // no override the attribute is removed and prefers-color-scheme governs. All
-// palette values live in theme.css — this only flips which set is active.
+// palette values live in theme.css - this only flips which set is active.
 
 import { useCallback, useEffect, useState } from "react";
 import { ThemeIcon } from "../components/icons.js";
@@ -53,7 +53,7 @@ export function useTheme(): { theme: Theme; toggle: () => void } {
       try {
         localStorage.setItem(KEY, next);
       } catch {
-        /* private mode — session-only toggle is fine */
+        /* private mode - session-only toggle is fine */
       }
       return next;
     });

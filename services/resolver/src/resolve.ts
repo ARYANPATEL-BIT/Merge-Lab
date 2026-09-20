@@ -1,5 +1,5 @@
 // Versioning + supersession. Pure and deterministic: it never invents a
-// contract_id or timestamp (those are P2's job) — it decides version, status,
+// contract_id or timestamp (those are P2's job) - it decides version, status,
 // and supersession from the incoming declarations and prior contracts alone.
 
 import {
@@ -7,7 +7,7 @@ import {
   type Contract,
   type ContractStatus,
   type Declaration,
-} from "@handshake/shared";
+} from "@mergelab/shared";
 
 /** Contract-only fields to drop when comparing a contract's shape to a declaration. */
 const CONTRACT_ONLY_KEYS = [

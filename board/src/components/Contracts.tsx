@@ -1,4 +1,4 @@
-import type { Contract } from "@handshake/shared";
+import type { Contract } from "@mergelab/shared";
 import { originLabel, shapeInline, statusClassName } from "../lib/format.js";
 import { EmptyState } from "./EmptyState.js";
 import { InboxIcon } from "./icons.js";

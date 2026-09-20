@@ -1,7 +1,7 @@
-// Rule scenarios for services/resolver — one per RuleId. Provider is dev-a on
+// Rule scenarios for services/resolver - one per RuleId. Provider is dev-a on
 // feat/user-api; consumer is dev-b on feat/profile-ui throughout.
 
-import type { Contract, Declaration, Finding, RuleId } from "@handshake/shared";
+import type { Contract, Declaration, Finding, RuleId } from "@mergelab/shared";
 
 export interface Scenario {
   name: string;

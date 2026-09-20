@@ -1,13 +1,13 @@
-/* Merge Lab — contract board. Shares ONE design system with the landing page
+/* Merge Lab - contract board. Shares ONE design system with the landing page
    (theme.css): warm paper, near-black ink, one accent, hairline borders, no
    shadows, no gradients, the same type scale and monospace labels. Regions are
-   titled headlines sitting on the paper — not cards — with hairline-divided
+   titled headlines sitting on the paper - not cards - with hairline-divided
    rows. Light is the default; dark mode uses the landing's inverted palette.
    Severity is always carried by icon + label + colour, never colour alone.
    This is a visual layer only: the three regions, their data and every field
    are unchanged. */
 
-/* ---- App shell — clears the fixed floating nav ---------------------------- */
+/* ---- App shell - clears the fixed floating nav ---------------------------- */
 .app {
   min-height: 100dvh;
   display: flex;
@@ -124,7 +124,7 @@
   overflow-y: auto;
 }
 
-/* ---- Regions — headlines on the paper, not cards -------------------------- */
+/* ---- Regions - headlines on the paper, not cards -------------------------- */
 .panel {
   display: flex;
   flex-direction: column;
@@ -169,7 +169,7 @@
   padding: 0;
 }
 
-/* ---- Branches — hairline rows --------------------------------------------- */
+/* ---- Branches - hairline rows --------------------------------------------- */
 .branch-list {
   list-style: none;
   margin: 0;
@@ -266,7 +266,7 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* ---- Contracts — numbered rows with hairline dividers --------------------- */
+/* ---- Contracts - numbered rows with hairline dividers --------------------- */
 .contract-group + .contract-group {
   margin-top: var(--sp-6);
 }
@@ -425,7 +425,7 @@
   background: color-mix(in srgb, var(--accent) 10%, transparent);
 }
 
-/* ---- Drift feed — hairline rows with a severity edge ---------------------- */
+/* ---- Drift feed - hairline rows with a severity edge ---------------------- */
 .drift-list {
   list-style: none;
   margin: 0;

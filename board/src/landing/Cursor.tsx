@@ -1,5 +1,5 @@
 // A small circle that lerps toward the pointer with GSAP quickTo, scales up over
-// interactive elements, and inverts over the dark section — trailed by a subtle
+// interactive elements, and inverts over the dark section - trailed by a subtle
 // accent "flow": short-lived dots seeded along the pointer's path that fade and
 // shrink. Dense when you move slowly, sparse on a fast flick, gone when idle.
 //

@@ -1,4 +1,4 @@
-// `handshake publish` — read the working tree, extract declarations from every
+// `mergelab publish` - read the working tree, extract declarations from every
 // changed source file plus package.json dep changes, and POST the batch. Prints
 // what it published. Names and types only; source code never leaves the tree.
 
@@ -8,7 +8,7 @@ import {
   PostDeclarationsRequestSchema,
   SCHEMA_VERSION,
   type Declaration,
-} from "@handshake/shared";
+} from "@mergelab/shared";
 import { ApiError, postDeclarations } from "./api.js";
 import { loadConfig } from "./config.js";
 import { changedSourceFiles } from "./git.js";
@@ -50,7 +50,7 @@ export async function cmdPublish(): Promise<void> {
   }
 
   if (declarations.length === 0) {
-    info("Nothing to publish — no changed declarations in the working tree.");
+    info("Nothing to publish - no changed declarations in the working tree.");
     return;
   }
 
