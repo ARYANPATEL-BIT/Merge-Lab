@@ -381,7 +381,8 @@ const rowStyle: CSSProperties = {
   display: "flex",
   alignItems: "center",
   justifyContent: "space-between",
-  gap: "1rem",
+  flexWrap: "wrap",
+  gap: "0.5rem",
   padding: "0.55rem 0",
   borderBottom: "1px solid var(--border)",
 };

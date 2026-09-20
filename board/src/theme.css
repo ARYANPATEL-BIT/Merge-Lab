@@ -332,3 +332,19 @@ h4 {
     scroll-behavior: auto !important;
   }
 }
+
+/* ---- Small screen shared overrides ---------------------------------------- */
+@media (max-width: 480px) {
+  .theme-toggle {
+    width: 34px;
+    height: 34px;
+  }
+  .theme-toggle svg {
+    width: 15px;
+    height: 15px;
+  }
+  .btn {
+    font-size: 0.9rem;
+    padding: 0.7rem 1.2rem;
+  }
+}

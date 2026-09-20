@@ -71,9 +71,18 @@
 }
 
 @media (max-width: 900px) {
-  .repo,
   .freshness {
     display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .repo {
+    display: none;
+  }
+  .mode-chip {
+    font-size: 0.64rem;
+    padding: 0.2rem 0.5rem;
   }
 }
 
@@ -92,7 +101,7 @@
 .grid {
   flex: 1 1 auto;
   display: grid;
-  grid-template-columns: minmax(340px, 0.95fr) 1.4fr;
+  grid-template-columns: minmax(min(340px, 100%), 0.95fr) 1.4fr;
   gap: clamp(2rem, 5vw, 5rem);
   padding: var(--sp-5) clamp(1.25rem, 5vw, 5rem) var(--sp-8);
   align-items: start;
@@ -627,5 +636,101 @@
   .col-left > .panel:nth-child(1) .panel-body {
     max-height: none;
     overflow-y: visible;
+  }
+}
+
+@media (max-width: 768px) {
+  .grid {
+    padding: var(--sp-4) var(--sp-3) var(--sp-6);
+    gap: var(--sp-5);
+  }
+  .col {
+    gap: var(--sp-5);
+  }
+  .panel-title {
+    font-size: clamp(1.4rem, 1rem + 1.2vw, 1.8rem);
+  }
+  .finding-reason {
+    font-size: 1rem;
+    max-width: none;
+  }
+  .contract {
+    padding-left: 2.2rem;
+  }
+  .contract::before {
+    font-size: 0.72rem;
+  }
+  .banner {
+    margin-left: var(--sp-3);
+    margin-right: var(--sp-3);
+    font-size: 0.88rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .app {
+    padding-top: clamp(4rem, 7vh, 5rem);
+  }
+  .grid {
+    padding: var(--sp-3) var(--sp-2) var(--sp-5);
+    gap: var(--sp-4);
+  }
+  .panel-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--sp-2);
+  }
+  .branch {
+    grid-template-columns: auto 1fr;
+    gap: var(--sp-2);
+  }
+  .branch-meta {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: var(--sp-3);
+    text-align: left;
+    padding-left: 1.6rem;
+  }
+  .contract {
+    padding-left: 0;
+    padding-right: 0;
+  }
+  .contract::before {
+    position: static;
+    display: block;
+    margin-bottom: var(--sp-1);
+  }
+  .contract-top {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--sp-2);
+  }
+  .status-badge {
+    margin-left: 0;
+  }
+  .contract-sig,
+  .contract-shape {
+    font-size: 0.82rem;
+    padding: var(--sp-2);
+  }
+  .contract-foot {
+    flex-wrap: wrap;
+  }
+  .finding {
+    padding: var(--sp-4) 0 var(--sp-4) var(--sp-3);
+  }
+  .finding-head {
+    gap: var(--sp-2);
+  }
+  .finding-reason {
+    font-size: 0.92rem;
+  }
+  .banner {
+    margin-left: var(--sp-2);
+    margin-right: var(--sp-2);
+    padding: var(--sp-2) var(--sp-3);
+    font-size: 0.82rem;
   }
 }

@@ -89,6 +89,7 @@
   backdrop-filter: saturate(140%) blur(14px);
   -webkit-backdrop-filter: saturate(140%) blur(14px);
   transition: border-color 250ms ease, background-color 250ms ease;
+  overflow: hidden;
 }
 
 .nav.is-scrolled {
@@ -122,7 +123,16 @@
   display: flex;
   align-items: center;
   gap: var(--sp-3);
-  flex: 0 0 auto;
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.nav-right::-webkit-scrollbar {
+  display: none;
 }
 
 .nav-cta {
@@ -147,7 +157,29 @@
   .nav-login {
     display: none;
   }
+  .nav {
+    padding: 0.4rem 0.5rem 0.4rem 0.9rem;
+    gap: var(--sp-2);
+  }
 }
+
+@media (max-width: 480px) {
+  .nav {
+    padding: 0.35rem 0.4rem 0.35rem 0.7rem;
+    gap: var(--sp-1);
+  }
+  .nav-right {
+    gap: var(--sp-2);
+  }
+  .nav-cta {
+    padding: 0.5rem 0.9rem;
+    font-size: 0.82rem;
+  }
+  .wordmark {
+    font-size: 1rem;
+  }
+}
+
 
 /* ---- Hero ----------------------------------------------------------------- */
 .hero {
@@ -972,4 +1004,138 @@
 
 .auth-footer a:hover {
   text-decoration: underline;
+}
+
+/* ---- Mobile-first responsive fixes ---------------------------------------- */
+@media (max-width: 480px) {
+  .landing {
+    --gutter: 1rem;
+  }
+  .section {
+    padding: clamp(2.5rem, 6vw, 4rem) 0;
+  }
+  .section-title {
+    max-width: none;
+  }
+  .hero {
+    min-height: auto;
+    padding: clamp(5.5rem, 10vh, 8rem) 0 clamp(2rem, 5vh, 4rem);
+  }
+  .hero-title {
+    font-size: clamp(2.2rem, 8vw, 4rem);
+    line-height: 1;
+  }
+  .hero-sub {
+    font-size: 1rem;
+    max-width: none;
+  }
+  .hero-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  .hero-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+  .problem-lede .section-title {
+    max-width: none;
+  }
+  .problem-body {
+    font-size: 1rem;
+  }
+  .step {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+  .step-n {
+    display: none;
+  }
+  .step-name {
+    font-size: clamp(1.1rem, 1rem + 0.5vw, 1.4rem);
+  }
+  .terminal-body {
+    font-size: 0.72rem;
+    padding: 0.8rem 0.9rem;
+  }
+  .cap-row {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .cap-n {
+    display: none;
+  }
+  .cap-art {
+    display: none;
+  }
+  .cap-title {
+    font-size: clamp(1.1rem, 1rem + 0.5vw, 1.4rem);
+  }
+  .stat-grid {
+    grid-template-columns: 1fr;
+  }
+  .stat {
+    padding: 1rem 1rem;
+  }
+  .stat-value {
+    font-size: clamp(1.8rem, 6vw, 2.4rem);
+  }
+  .aws-list {
+    grid-template-columns: 1fr;
+  }
+  .aws-item {
+    padding: 1rem;
+  }
+  .cta-title {
+    font-size: clamp(1.8rem, 6vw, 3rem);
+  }
+  .cta .hero-actions {
+    flex-direction: column;
+    width: 100%;
+    max-width: 20rem;
+  }
+  .footer-inner {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+  .footer-links {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .auth-card {
+    padding: clamp(1.25rem, 3vw, 1.75rem);
+  }
+  .auth-title {
+    font-size: clamp(1.6rem, 1.2rem + 1.5vw, 2.2rem);
+  }
+  .auth-main {
+    padding-left: var(--sp-3);
+    padding-right: var(--sp-3);
+  }
+}
+
+@media (max-width: 360px) {
+  .landing {
+    --gutter: 0.75rem;
+  }
+  .hero-title {
+    font-size: clamp(1.8rem, 7vw, 2.8rem);
+  }
+  .section-title {
+    font-size: clamp(1.4rem, 5vw, 2rem);
+  }
+  .stat-grid,
+  .rule-list,
+  .aws-list,
+  .timeline {
+    grid-template-columns: 1fr;
+  }
+  .terminal-body {
+    font-size: 0.68rem;
+    padding: 0.6rem 0.7rem;
+  }
+  .btn {
+    font-size: 0.88rem;
+    padding: 0.75rem 1.1rem;
+  }
 }

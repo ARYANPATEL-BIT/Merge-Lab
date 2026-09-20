@@ -26,6 +26,7 @@ export function tokenBox(): CSSProperties {
     fontSize: "0.8rem",
     fontFamily: "var(--font-mono)",
     overflowWrap: "anywhere",
+    wordBreak: "break-all",
   };
 }
 
