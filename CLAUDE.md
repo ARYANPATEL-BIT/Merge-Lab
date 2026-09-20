@@ -1,4 +1,4 @@
-# Handshake
+# Merge Lab
 
 A pre-push interface contract registry. A CLI/daemon reads each dev's working
 tree (including uncommitted changes) and publishes DECLARATIONS ONLY —

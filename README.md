@@ -1,10 +1,8 @@
 # Merge Lab
 
-The pre-push context layer. A local daemon watches each dev's
-working tree (including uncommitted changes) and publishes **declarations only**
-— exported signatures, data shapes, deps, env var names, routes. Never source
-code. Teammates' agents read those contracts at SessionStart and are blocked at
-PreToolUse when a write drifts from them.
+The pre-push context layer. 
+
+An interface decision — the shape of a User, the name of a route, the choice of HTTP client — is made in the first five minutes of a session, but its implementation takes the next three hours. Merge Lab is a linter for your teammates' unpushed decisions that moves these choices onto the wire the moment they exist, not the moment they ship.
 
 ## Hard rules
 
@@ -34,10 +32,58 @@ PreToolUse when a write drifts from them.
 Node 20, TypeScript, ts-morph, vitest, pnpm workspaces.
 AWS: Lambda + API Gateway + DynamoDB via SAM. Region `ap-south-1`.
 
+## Architecture
+
+```mermaid
+flowchart LR
+    subgraph Devs [Developer Machines]
+        A[Dev A] -->|Daemon publish| API
+        B[Dev B] -->|Daemon pre-write| API
+        B -->|Daemon session-start| API
+    end
+
+    subgraph AWS [AWS Control Plane ap-south-1]
+        API(API Gateway)
+        API --> Ingest[ingest Lambda]
+        API --> Context[context Lambda]
+        API --> Verdict[verdict Lambda]
+        API --> Resolver[resolver Lambda]
+        Ingest --> DB[(DynamoDB)]
+        Context --> DB
+        Verdict --> DB
+        Resolver --> DB
+    end
+
+    subgraph UI [Projector]
+        Board[Board UI] -->|polls| API
+    end
+```
+
 ## Getting started
 
+**One-command local setup:**
 ```sh
-pnpm install
-pnpm typecheck
-pnpm test
+pnpm install && pnpm typecheck && pnpm test
 ```
+
+**Running the Scenarios Table:**
+To view the deterministic drift scenarios (six rules):
+```sh
+pnpm --filter @handshake/resolver run test
+```
+Or check the `fixtures/scenarios.ts` file for the exact input/output shapes.
+
+## Authentication
+
+Authentication is a single static workspace token today (`HANDSHAKE_TOKEN`). Do not assume Cognito or any robust IAM setup exists yet.
+
+## Not yet built (the seams)
+
+- **Cognito** — auth is a single static `HANDSHAKE_TOKEN` bearer only.
+- **EventBridge + notify Lambda** — nothing publishes/consumes change events; STALE_BINDING is computed on demand, not pushed.
+- **GSI2** — only GSI1 exists; a second index for reverse (symbol → consumers) lookups is not modeled.
+- **The resolver's coupling graph** — `runRules` only sees the declarations in the request plus active contracts; there's no persisted provider→consumer graph.
+- **BIND row writes** — `verdict` *reads* `BIND#...` rows, but no endpoint *creates* them yet, so STALE_BINDING stays silent until a writer exists.
+- **GSI1 reads** — the index is populated on write but unused by queries so far.
+- **Status lifecycle** — only `declared` and `changed` are produced; `implementing` / `implemented` / `abandoned` transitions aren't managed here.
+- **Shared HTTP plumbing** — auth/log/DDB helpers are duplicated per service; no `services/common` package (kept out to preserve the ownership layout).

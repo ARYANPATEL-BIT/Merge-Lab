@@ -1,6 +1,6 @@
 # infra (P2)
 
-AWS SAM stack for Handshake: three Lambdas (`ingest`, `context`, `verdict`)
+AWS SAM stack for Merge Lab: three Lambdas (`ingest`, `context`, `verdict`)
 behind one HTTP API, backed by a single DynamoDB table. Region **ap-south-1**,
 Node 20, arm64.
 
