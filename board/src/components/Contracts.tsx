@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { Contract } from "@mergelab/shared";
 import { originLabel, shapeInline, statusClassName } from "../lib/format.js";
 import { EmptyState } from "./EmptyState.js";
@@ -13,7 +14,15 @@ function groupByBranch(contracts: Contract[]): Array<[string, Contract[]]> {
   return [...map.entries()];
 }
 
-export function Contracts({ contracts }: { contracts: Contract[] }) {
+export function Contracts({
+  contracts,
+  emptyTitle,
+  emptyHint,
+}: {
+  contracts: Contract[];
+  emptyTitle?: string;
+  emptyHint?: ReactNode;
+}) {
   const groups = groupByBranch(contracts);
   return (
     <section className="panel" aria-labelledby="contracts-title">
@@ -30,8 +39,11 @@ export function Contracts({ contracts }: { contracts: Contract[] }) {
         {contracts.length === 0 ? (
           <EmptyState
             icon={<InboxIcon />}
-            title="No contracts declared"
-            hint="Contracts appear as teammates publish their working-tree declarations."
+            title={emptyTitle || "No contracts declared"}
+            hint={
+              emptyHint ||
+              "Contracts appear as teammates publish their working-tree declarations."
+            }
           />
         ) : (
           groups.map(([branch, items]) => (

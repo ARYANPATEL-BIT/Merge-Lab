@@ -6,6 +6,7 @@ import { Landing } from "./landing/Landing.js";
 import { Login, Signup } from "./landing/Auth.js";
 import { Workspaces } from "./workspaces/Workspaces.js";
 import { WorkspaceDetail } from "./workspaces/WorkspaceDetail.js";
+import { ConnectWorkspace } from "./workspaces/ConnectWorkspace.js";
 
 import { RouteRipple } from "./landing/RippleTransition.js";
 import { applyStoredTheme } from "./landing/theme.js";
@@ -28,6 +29,8 @@ createRoot(root).render(
         <Route path="/signup" element={<Signup />} />
         <Route path="/workspaces" element={<Workspaces />} />
         <Route path="/workspaces/:id" element={<WorkspaceDetail />} />
+        <Route path="/workspaces/:id/connect" element={<ConnectWorkspace />} />
+        <Route path="/workspaces/:id/board" element={<App />} />
       </Routes>
       <RouteRipple />
     </BrowserRouter>
