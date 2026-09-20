@@ -56,6 +56,10 @@ export function loadDemo(): BoardSnapshot {
   return { board, nowMs, repos: [REPO], activeRepo: REPO };
 }
 
+function normalizeRepo(r: string): string {
+  return r.trim().replace(/\/+$/, "").replace(/\.git$/, "");
+}
+
 export async function fetchBoard(
   options: {
     workspaceId?: string;
@@ -89,16 +93,18 @@ export async function fetchBoard(
         };
       }
 
-      const activeRepo =
-        options.repo && repos.includes(options.repo) ? options.repo : repos[0];
+      const reqRepo = options.repo;
+      const activeRepo = reqRepo
+        ? repos.find((r) => normalizeRepo(r) === normalizeRepo(reqRepo)) ?? repos[0]
+        : repos[0];
       const allWsContracts = wsEntry?.contracts ?? [];
-      const repoContracts = allWsContracts.filter((c) => c.repo === activeRepo);
+      const repoContracts = allWsContracts.filter((c) => normalizeRepo(c.repo) === normalizeRepo(activeRepo));
       const board = assembleBoard(repoContracts, Date.now());
       return { board, nowMs: Date.now(), repos, activeRepo };
     }
 
     // Live mode inside workspace
-    const token = session?.token || API_TOKEN;
+    const token = getWorkspaceToken();
     const wsDetail = await getWorkspaceDetail(effectiveWs);
     const repos = wsDetail.repos ?? [];
 
@@ -111,8 +117,10 @@ export async function fetchBoard(
       };
     }
 
-    const activeRepo =
-      options.repo && repos.includes(options.repo) ? options.repo : repos[0];
+    const reqRepo = options.repo;
+    const activeRepo = reqRepo
+      ? repos.find((r) => normalizeRepo(r) === normalizeRepo(reqRepo)) ?? reqRepo
+      : repos[0];
     const url = new URL("/v1/board", API_URL);
     url.searchParams.set("repo", activeRepo);
     const res = await fetch(url, {

@@ -32,13 +32,32 @@ function bearer(event: APIGatewayProxyEventV2): string | undefined {
   return h.authorization ?? h.Authorization;
 }
 
-// Global token -> workspace lookup. Only reached for a workspace-prefixed token;
-// the legacy static token and any other token are resolved without this query.
-async function lookupToken(hash: string): Promise<unknown> {
-  const out = await ddb.send(
+// Global token -> workspace lookup. Checks SHA-256 hash in TOKEN# rows (SK: WORKSPACE or SESSION)
+// with fallback to plaintext token.
+async function lookupToken(hash: string, token?: string): Promise<unknown> {
+  const res1 = await ddb.send(
     new GetCommand({ TableName: TABLE, Key: { PK: `TOKEN#${hash}`, SK: "WORKSPACE" } }),
   );
-  return out.Item;
+  if (res1.Item) return res1.Item;
+
+  const res2 = await ddb.send(
+    new GetCommand({ TableName: TABLE, Key: { PK: `TOKEN#${hash}`, SK: "SESSION" } }),
+  );
+  if (res2.Item) return res2.Item;
+
+  if (token) {
+    const res3 = await ddb.send(
+      new GetCommand({ TableName: TABLE, Key: { PK: `TOKEN#${token}`, SK: "SESSION" } }),
+    );
+    if (res3.Item) return res3.Item;
+
+    const res4 = await ddb.send(
+      new GetCommand({ TableName: TABLE, Key: { PK: `TOKEN#${token}`, SK: "WORKSPACE" } }),
+    );
+    if (res4.Item) return res4.Item;
+  }
+
+  return undefined;
 }
 
 function reply(statusCode: number, body: unknown): APIGatewayProxyResultV2 {

@@ -9,6 +9,7 @@ import {
   AuthResponseSchema,
   LoginRequestSchema,
   SignupRequestSchema,
+  hashToken,
   type AuthResponse,
 } from "@mergelab/shared";
 import { routeWorkspaces } from "./workspaces.js";
@@ -83,6 +84,7 @@ async function handleSignup(event: APIGatewayProxyEventV2): Promise<APIGatewayPr
   const salt = randomBytes(16).toString("hex");
   const passwordHash = hashPassword(password, salt);
   const token = generateToken();
+  const tokenHash = hashToken(token);
   const now = new Date().toISOString();
 
   // 1. User Profile record
@@ -118,7 +120,27 @@ async function handleSignup(event: APIGatewayProxyEventV2): Promise<APIGatewayPr
     }),
   );
 
-  // 3. Token lookup record for CLI/daemon authorization
+  // 3. Token lookup records:
+  // SHA-256 hash lookup row for standard workspace resolution
+  await ddb.send(
+    new PutCommand({
+      TableName: TABLE,
+      Item: {
+        PK: `TOKEN#${tokenHash}`,
+        SK: "WORKSPACE",
+        entity: "TOKEN_LOOKUP",
+        workspace_id: workspace,
+        workspace,
+        role: "owner",
+        user_id: email,
+        email,
+        created_at: now,
+        revoked: false,
+      },
+    }),
+  );
+
+  // Legacy plaintext token lookup record
   await ddb.send(
     new PutCommand({
       TableName: TABLE,
@@ -127,6 +149,7 @@ async function handleSignup(event: APIGatewayProxyEventV2): Promise<APIGatewayPr
         SK: "SESSION",
         email,
         workspace,
+        workspace_id: workspace,
         created_at: now,
       },
     }),
@@ -175,15 +198,36 @@ async function handleLogin(event: APIGatewayProxyEventV2): Promise<APIGatewayPro
   }
 
   const token = item.token || generateToken();
+  const tokenHash = hashToken(token);
+  const ws = item.workspace || "default-ws";
+
+  // Ensure TOKEN#<hash> row exists
+  await ddb.send(
+    new PutCommand({
+      TableName: TABLE,
+      Item: {
+        PK: `TOKEN#${tokenHash}`,
+        SK: "WORKSPACE",
+        entity: "TOKEN_LOOKUP",
+        workspace_id: ws,
+        workspace: ws,
+        role: "owner",
+        user_id: item.email,
+        email: item.email,
+        created_at: new Date().toISOString(),
+        revoked: false,
+      },
+    }),
+  );
 
   const response: AuthResponse = {
     token,
     user: {
       name: item.name || email.split("@")[0],
       email: item.email,
-      workspace: item.workspace || "default-ws",
+      workspace: ws,
     },
-    workspace: item.workspace || "default-ws",
+    workspace: ws,
   };
 
   return reply(200, AuthResponseSchema.parse(response));

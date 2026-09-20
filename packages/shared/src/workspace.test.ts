@@ -67,6 +67,16 @@ describe("resolveWorkspaceContext", () => {
     expect(ctx).toEqual({ workspace_id: "ws_abc", role: "member", user_id: "usr_1" });
   });
 
+  it("resolves an ml_live_* token and normalizes workspace to workspace_id", async () => {
+    const token = "ml_live_f53a5b8d34334472c5224f20e5b9be1a6da529b8bd1205f8";
+    const lookup = vi.fn(async (hash: string) => {
+      expect(hash).toBe(hashToken(token));
+      return { workspace: "aryan", email: "tuhinrock121@gmail.com" };
+    });
+    const ctx = await resolveWorkspaceContext(`Bearer ${token}`, LEGACY, lookup);
+    expect(ctx).toEqual({ workspace_id: "aryan", role: "owner", user_id: "tuhinrock121@gmail.com" });
+  });
+
   it("treats a revoked or missing token row as unauthorized", async () => {
     const token = generateWorkspaceToken();
     expect(

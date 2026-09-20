@@ -84,11 +84,30 @@ function slugify(name: string): string {
   return s || "workspace";
 }
 
-async function lookupToken(hash: string): Promise<unknown> {
-  const out = await ddb.send(
+async function lookupToken(hash: string, token?: string): Promise<unknown> {
+  const res1 = await ddb.send(
     new GetCommand({ TableName: TABLE, Key: { PK: `TOKEN#${hash}`, SK: "WORKSPACE" } }),
   );
-  return out.Item;
+  if (res1.Item) return res1.Item;
+
+  const res2 = await ddb.send(
+    new GetCommand({ TableName: TABLE, Key: { PK: `TOKEN#${hash}`, SK: "SESSION" } }),
+  );
+  if (res2.Item) return res2.Item;
+
+  if (token) {
+    const res3 = await ddb.send(
+      new GetCommand({ TableName: TABLE, Key: { PK: `TOKEN#${token}`, SK: "SESSION" } }),
+    );
+    if (res3.Item) return res3.Item;
+
+    const res4 = await ddb.send(
+      new GetCommand({ TableName: TABLE, Key: { PK: `TOKEN#${token}`, SK: "WORKSPACE" } }),
+    );
+    if (res4.Item) return res4.Item;
+  }
+
+  return undefined;
 }
 
 async function context(event: APIGatewayProxyEventV2): Promise<WorkspaceContext | null> {

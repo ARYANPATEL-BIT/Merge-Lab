@@ -303,6 +303,7 @@ export const DEFAULT_WORKSPACE_ID = "default";
 
 /** Every minted workspace token starts with this. Never the legacy token. */
 export const WORKSPACE_TOKEN_PREFIX = "ml_ws_";
+export const LIVE_TOKEN_PREFIX = "ml_live_";
 
 /** Roles within a workspace. Owners can approve joins and mint/revoke tokens. */
 export const WorkspaceRoleSchema = z.enum(["owner", "member"]);
@@ -444,12 +445,25 @@ export interface WorkspaceContext {
 }
 
 /** The global TOKEN#<hash>/WORKSPACE lookup row that resolves token -> workspace. */
-export const WorkspaceTokenRowSchema = z.object({
-  workspace_id: z.string(),
-  role: WorkspaceRoleSchema,
-  user_id: z.string(),
-  revoked: z.boolean().optional(),
-});
+export const WorkspaceTokenRowSchema = z
+  .object({
+    workspace_id: z.string().optional(),
+    workspace: z.string().optional(),
+    role: WorkspaceRoleSchema.optional().default("owner"),
+    user_id: z.string().optional(),
+    email: z.string().optional(),
+    revoked: z.boolean().optional(),
+  })
+  .transform((data) => {
+    const ws = data.workspace_id || data.workspace;
+    if (!ws) throw new Error("Missing workspace_id or workspace");
+    return {
+      workspace_id: ws,
+      role: data.role || "owner",
+      user_id: data.user_id || data.email || "user",
+      revoked: Boolean(data.revoked),
+    };
+  });
 export type WorkspaceTokenRow = z.infer<typeof WorkspaceTokenRowSchema>;
 
 /** Mint a fresh workspace token. Plaintext is shown once; only its hash is stored. */
@@ -462,7 +476,7 @@ export function generateWorkspaceToken(): string {
  * every handler so scoping is identical everywhere:
  *   - missing/malformed Authorization        -> null (unauthorized)
  *   - the legacy static token                -> DEFAULT workspace, owner, NO lookup
- *   - a token without the workspace prefix   -> null, NO lookup
+ *   - a token without a workspace prefix     -> null, NO lookup
  *   - a workspace token                      -> lookupToken(hash); null if absent/revoked
  * The two NO-lookup branches are what keep the legacy CLI/hooks path - and the
  * existing "no DynamoDB on a wrong token" tests - working unchanged.
@@ -470,15 +484,19 @@ export function generateWorkspaceToken(): string {
 export async function resolveWorkspaceContext(
   authorization: string | undefined,
   legacyToken: string | undefined,
-  lookupToken: (hash: string) => Promise<unknown>,
+  lookupToken: (hash: string, token?: string) => Promise<unknown>,
 ): Promise<WorkspaceContext | null> {
   if (!authorization || !authorization.startsWith("Bearer ")) return null;
-  const token = authorization.slice("Bearer ".length);
+  const token = authorization.slice("Bearer ".length).trim();
   if (legacyToken && token === legacyToken) {
     return { workspace_id: DEFAULT_WORKSPACE_ID, role: "owner", user_id: "legacy" };
   }
-  if (!token.startsWith(WORKSPACE_TOKEN_PREFIX)) return null;
-  const parsed = WorkspaceTokenRowSchema.safeParse(await lookupToken(hashToken(token)));
+  const isWorkspaceToken =
+    token.startsWith(WORKSPACE_TOKEN_PREFIX) ||
+    token.startsWith(LIVE_TOKEN_PREFIX) ||
+    token.startsWith("ml_");
+  if (!isWorkspaceToken) return null;
+  const parsed = WorkspaceTokenRowSchema.safeParse(await lookupToken(hashToken(token), token));
   if (!parsed.success || parsed.data.revoked) return null;
   const { workspace_id, role, user_id } = parsed.data;
   return { workspace_id, role, user_id };

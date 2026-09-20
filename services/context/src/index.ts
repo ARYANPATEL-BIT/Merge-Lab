@@ -25,18 +25,37 @@ function bearer(event: APIGatewayProxyEventV2): string | undefined {
   return h.authorization ?? h.Authorization;
 }
 
-async function lookupToken(hash: string): Promise<unknown> {
-  const out = await ddb.send(
+async function lookupToken(hash: string, token?: string): Promise<unknown> {
+  const res1 = await ddb.send(
     new GetCommand({ TableName: TABLE, Key: { PK: `TOKEN#${hash}`, SK: "WORKSPACE" } }),
   );
-  return out.Item;
+  if (res1.Item) return res1.Item;
+
+  const res2 = await ddb.send(
+    new GetCommand({ TableName: TABLE, Key: { PK: `TOKEN#${hash}`, SK: "SESSION" } }),
+  );
+  if (res2.Item) return res2.Item;
+
+  if (token) {
+    const res3 = await ddb.send(
+      new GetCommand({ TableName: TABLE, Key: { PK: `TOKEN#${token}`, SK: "SESSION" } }),
+    );
+    if (res3.Item) return res3.Item;
+
+    const res4 = await ddb.send(
+      new GetCommand({ TableName: TABLE, Key: { PK: `TOKEN#${token}`, SK: "WORKSPACE" } }),
+    );
+    if (res4.Item) return res4.Item;
+  }
+
+  return undefined;
 }
 
 function reply(statusCode: number, body: unknown): APIGatewayProxyResultV2 {
   return { statusCode, headers: { "content-type": "application/json" }, body: JSON.stringify(body) };
 }
 
-async function activeContracts(repo: string): Promise<Contract[]> {
+async function queryActiveContracts(repo: string): Promise<Contract[]> {
   const contracts: Contract[] = [];
   let ExclusiveStartKey: Record<string, unknown> | undefined;
   do {
@@ -55,6 +74,13 @@ async function activeContracts(repo: string): Promise<Contract[]> {
     ExclusiveStartKey = out.LastEvaluatedKey;
   } while (ExclusiveStartKey);
   return contracts;
+}
+
+async function activeContracts(repo: string): Promise<Contract[]> {
+  const contracts = await queryActiveContracts(repo);
+  if (contracts.length > 0) return contracts;
+  const altRepo = repo.endsWith(".git") ? repo.slice(0, -4) : `${repo}.git`;
+  return queryActiveContracts(altRepo);
 }
 
 export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {

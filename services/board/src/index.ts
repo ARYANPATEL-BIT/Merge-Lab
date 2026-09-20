@@ -29,20 +29,37 @@ function bearer(event: APIGatewayProxyEventV2): string | undefined {
   return h.authorization ?? h.Authorization;
 }
 
-async function lookupToken(hash: string): Promise<unknown> {
-  const out = await ddb.send(
+async function lookupToken(hash: string, token?: string): Promise<unknown> {
+  const res1 = await ddb.send(
     new GetCommand({ TableName: TABLE, Key: { PK: `TOKEN#${hash}`, SK: "WORKSPACE" } }),
   );
-  return out.Item;
+  if (res1.Item) return res1.Item;
+
+  const res2 = await ddb.send(
+    new GetCommand({ TableName: TABLE, Key: { PK: `TOKEN#${hash}`, SK: "SESSION" } }),
+  );
+  if (res2.Item) return res2.Item;
+
+  if (token) {
+    const res3 = await ddb.send(
+      new GetCommand({ TableName: TABLE, Key: { PK: `TOKEN#${token}`, SK: "SESSION" } }),
+    );
+    if (res3.Item) return res3.Item;
+
+    const res4 = await ddb.send(
+      new GetCommand({ TableName: TABLE, Key: { PK: `TOKEN#${token}`, SK: "WORKSPACE" } }),
+    );
+    if (res4.Item) return res4.Item;
+  }
+
+  return undefined;
 }
 
 function reply(statusCode: number, body: unknown): APIGatewayProxyResultV2 {
   return { statusCode, headers: { "content-type": "application/json" }, body: JSON.stringify(body) };
 }
 
-// Every contract row for the repo, any status - assembleBoard decides what the
-// board displays and what the rule engine reasons over.
-async function allContracts(repo: string): Promise<Contract[]> {
+async function queryContracts(repo: string): Promise<Contract[]> {
   const contracts: Contract[] = [];
   let ExclusiveStartKey: Record<string, unknown> | undefined;
   do {
@@ -60,9 +77,18 @@ async function allContracts(repo: string): Promise<Contract[]> {
   return contracts;
 }
 
+// Every contract row for the repo, any status - assembleBoard decides what the
+// board displays and what the rule engine reasons over. Supports .git suffix fallback.
+async function allContracts(repo: string): Promise<Contract[]> {
+  const contracts = await queryContracts(repo);
+  if (contracts.length > 0) return contracts;
+  const altRepo = repo.endsWith(".git") ? repo.slice(0, -4) : `${repo}.git`;
+  return queryContracts(altRepo);
+}
+
 // BIND rows: PK=REPO#<repo>, SK=BIND#<branch>#<contract_id>, {symbol, bound_version}.
 // Grouped per branch to feed STALE_BINDING.
-async function bindingsByBranch(repo: string): Promise<Record<string, Binding[]>> {
+async function queryBindings(repo: string): Promise<Record<string, Binding[]>> {
   const byBranch: Record<string, Binding[]> = {};
   let ExclusiveStartKey: Record<string, unknown> | undefined;
   do {
@@ -85,8 +111,15 @@ async function bindingsByBranch(repo: string): Promise<Record<string, Binding[]>
   return byBranch;
 }
 
+async function bindingsByBranch(repo: string): Promise<Record<string, Binding[]>> {
+  const bindings = await queryBindings(repo);
+  if (Object.keys(bindings).length > 0) return bindings;
+  const altRepo = repo.endsWith(".git") ? repo.slice(0, -4) : `${repo}.git`;
+  return queryBindings(altRepo);
+}
+
 // Semantic advisory findings stored by the async semantic Lambda.
-async function semanticFindings(repo: string, workspaceId: string): Promise<Finding[]> {
+async function querySemanticFindings(repo: string, workspaceId: string): Promise<Finding[]> {
   const findings: Finding[] = [];
   let ExclusiveStartKey: Record<string, unknown> | undefined;
   do {
@@ -108,6 +141,13 @@ async function semanticFindings(repo: string, workspaceId: string): Promise<Find
     ExclusiveStartKey = out.LastEvaluatedKey;
   } while (ExclusiveStartKey);
   return findings;
+}
+
+async function semanticFindings(repo: string, workspaceId: string): Promise<Finding[]> {
+  const findings = await querySemanticFindings(repo, workspaceId);
+  if (findings.length > 0) return findings;
+  const altRepo = repo.endsWith(".git") ? repo.slice(0, -4) : `${repo}.git`;
+  return querySemanticFindings(altRepo, workspaceId);
 }
 
 export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
