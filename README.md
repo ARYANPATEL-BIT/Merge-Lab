@@ -1,74 +1,25 @@
 # Merge Lab
 
-The pre-push interface contract registry for developers and AI agents.
+**The pre-push interface contract registry for developers and AI agents.**
 
-<<<<<<< Updated upstream
-An interface decision—the shape of a data model, the casing of a field, or the choice of an HTTP client—is made in the first five minutes of a session, but its implementation takes the next several hours. Merge Lab linters your teammates' unpushed decisions across parallel git branches by publishing **declarations only** (exported signatures, types, routes, dependencies, and env names—never source code or literal values), enabling AI agents to coordinate at `SessionStart` and intercept breaking drift at `PreToolUse`.
-=======
-An interface decision - the shape of a User, the name of a route, the choice of HTTP client - is made in the first five minutes of a session, but its implementation takes the next three hours. Merge Lab is a linter for your teammates' unpushed decisions that moves these choices onto the wire the moment they exist, not the moment they ship. A local CLI reads each dev's working tree (including uncommitted changes) on demand - it is a command you run, not a filesystem watcher - and publishes **declarations only** - exported signatures, data shapes, deps, env var names, routes. Never source code. Teammates' agents read those contracts at SessionStart and are blocked at PreToolUse when a write drifts from them.
+Your teammate picks `axios` and names a field `user_id` in the first five minutes of work. Your AI agent, running on a separate branch, drafts `node-fetch` and `userId`. Neither side pushes for hours. By merge time, everything breaks.
 
-## Hard rules
+Merge Lab kills that problem at the root. A local CLI reads each dev's working tree (including uncommitted changes) on demand and publishes **declarations only**: exported signatures, data shapes, deps, env var names, routes. Never source code. Teammates' agents read those contracts at `SessionStart` and get blocked at `PreToolUse` the instant a write drifts from an established decision.
 
-- Never transmit file contents, diffs, or literal values. Names and types only.
-- Enforcement is deterministic. Never block on an LLM opinion.
-- Every hook fails open: on any error, print nothing, exit 0.
-- Extraction failure returns `[]` and increments a counter. Never guess.
-
-## Layout
-
-| Path                  | Tier | Role                                                            |
-| --------------------- | ---- | -------------------------------------------------------------- |
-| `packages/shared`     | P1   | Canonical DECLARATION contract types. Everyone imports here.    |
-| `packages/extractor`  | P1   | ts-morph walk of a working tree → `Declaration[]`.              |
-| `services/resolver`   | P1   | Resolves the authoritative contract set read at SessionStart.  |
-| `fixtures`            | P1   | Source trees + expected declarations for extractor tests.      |
-| `infra`               | P2   | SAM: Lambda + API Gateway + DynamoDB + Bedrock (ap-south-1).   |
-| `services/ingest`     | P2   | Accepts published declarations from the CLI.                   |
-| `services/context`    | P2   | Serves teammate contracts at SessionStart.                     |
-| `services/verdict`    | P2   | Deterministic drift check consumed at PreToolUse.              |
-| `services/board`      | P2   | Serves the projector board snapshot (GET /v1/board).          |
-| `services/auth`       | P2   | Email/password signup + login and workspace management.       |
-| `services/semantic`   | P2   | Async advisory semantic-duplicate check via Bedrock.          |
-| `packages/daemon`     | P3   | The CLI that walks the working tree. A deliberate choice over a background daemon for better visibility and control. |
-| `packages/hooks`      | P3   | SessionStart + PreToolUse hooks. Fail open.                    |
-| `board`               | P4   | Dashboard UI.                                                  |
-
-## Stack
-
-Node 20, TypeScript, ts-morph, vitest, pnpm workspaces.
-AWS: Lambda + API Gateway + DynamoDB + Bedrock via SAM. Region `ap-south-1`.
->>>>>>> Stashed changes
+Not a filesystem watcher. Not a background daemon. A command you run, with full visibility and control.
 
 ## Architecture
 
-Merge Lab is serverless, running in AWS region `ap-south-1`.
+Serverless, running in AWS region `ap-south-1`.
 
 ```mermaid
 flowchart TD
-    subgraph Devs [Developer Machines & AI Agents]
+    subgraph Devs [Developer Machines and AI Agents]
         DevA[Dev A: Claude Code / Cursor]
         DevB[Dev B: Claude Code / Cursor]
-        CLI[mergelab CLI / Daemon]
+        CLI[mergelab CLI]
     end
 
-<<<<<<< Updated upstream
-    subgraph AWS [AWS Serverless Control Plane ap-south-1]
-        API(Amazon API Gateway HTTP API)
-        
-        Ingest[Ingest Lambda]
-        Context[Context Lambda]
-        Verdict[Verdict Lambda]
-        BoardFn[Board Lambda]
-        AuthFn[Auth Lambda]
-        SemanticFn[Semantic Lambda]
-        
-        DDB[(Amazon DynamoDB MergelabTable)]
-        Bedrock[Amazon Bedrock Claude 3 Haiku]
-    end
-
-    subgraph UI [Projector Dashboard]
-        Board[React + Vite Projector UI]
-=======
     subgraph AWS [AWS Control Plane ap-south-1]
         API(API Gateway)
         API --> Ingest[ingest Lambda]
@@ -89,39 +40,44 @@ flowchart TD
 
     subgraph UI [Projector]
         BoardUI[Board UI] -->|polls| API
->>>>>>> Stashed changes
     end
 
     DevA -->|PostToolUse: mergelab publish| API
     DevB -->|SessionStart: mergelab hook session-start| API
     DevB -->|PreToolUse: mergelab hook pre-write| API
-    
-    API --> Ingest
-    API --> Context
-    API --> Verdict
-    API --> BoardFn
-    API --> AuthFn
-    API --> SemanticFn
-
-    Ingest -->|Write contracts| DDB
-    Ingest -.->|Async invoke| SemanticFn
-    SemanticFn -->|InvokeModel| Bedrock
-    SemanticFn -->|Advisory findings| DDB
-    Context -->|Query active contracts| DDB
-    Verdict -->|Sub-10ms point reads| DDB
-    BoardFn -->|Query board state| DDB
-    AuthFn -->|Tokens & Workspaces| DDB
-
-    Board -->|Polls /v1/board| API
 ```
+
+## Layout
+
+| Path | Role |
+| --- | --- |
+| `packages/shared` | Canonical declaration contract types. Everyone imports from here. |
+| `packages/extractor` | ts-morph walk of a working tree into `Declaration[]`. |
+| `services/resolver` | Six deterministic drift rules. Pure, no AWS, no LLM. |
+| `fixtures` | Source trees and expected declarations for extractor tests. |
+| `infra` | SAM: Lambda + API Gateway + DynamoDB + Bedrock (ap-south-1). |
+| `services/ingest` | Accepts published declarations from the CLI. |
+| `services/context` | Serves teammate contracts at `SessionStart`. |
+| `services/verdict` | Deterministic drift check consumed at `PreToolUse`. |
+| `services/board` | Serves the projector board snapshot (`GET /v1/board`). |
+| `services/auth` | Workspace tokens, join requests, credential hashing. |
+| `services/semantic` | Async advisory semantic-duplicate check via Bedrock. |
+| `packages/daemon` | The CLI that walks the working tree. Deliberate choice over a background daemon. |
+| `packages/hooks` | `SessionStart` + `PreToolUse` hooks. Fail open. |
+| `board` | Dashboard UI (React + Vite). |
+
+## Stack
+
+Node 20, TypeScript, ESM, ts-morph, vitest, pnpm workspaces.
+AWS: Lambda + API Gateway + DynamoDB + Bedrock via SAM. Region `ap-south-1`.
 
 ## Hard Rules
 
-- **Never transmit source code**: Only exported symbols, signatures, shapes, dependencies, env var names, and routes. Never file contents, diffs, or literal values.
-- **Deterministic enforcement**: Writes are blocked **only** by the 6 deterministic resolver rules, never on an LLM opinion. The 300ms budget is non-negotiable.
-- **Fail-open by design**: On any error, network timeout, missing config, or blown budget, hooks print nothing and exit `0`.
-- **Factual context**: Injected agent context contains only factual declarations about active contracts and repo conventions, never imperative instructions.
-- **Asynchronous advisory AI**: Amazon Bedrock runs purely asynchronously off the ingest path to flag fuzzy duplicate symbols (`SEMANTIC_DUPLICATE`); it is never in the blocking verdict path and its severity is strictly `warn`.
+- **Never transmit source code.** Only exported symbols, signatures, shapes, dependencies, env var names, and routes. Never file contents, diffs, or literal values.
+- **Deterministic enforcement.** Writes are blocked only by the 6 deterministic resolver rules. Never on an LLM opinion. The 300ms budget is non-negotiable.
+- **Fail-open by design.** On any error, network timeout, missing config, or blown budget, hooks print nothing and exit `0`.
+- **Factual context.** Injected agent context contains only factual declarations about active contracts and repo conventions. Never imperative instructions.
+- **Async advisory AI.** Amazon Bedrock runs purely asynchronously off the ingest path to flag fuzzy duplicate symbols (`SEMANTIC_DUPLICATE`). It is never in the blocking verdict path and its severity is strictly `warn`.
 
 ## Quickstart
 
@@ -130,7 +86,7 @@ flowchart TD
 - pnpm 9+
 
 ### 2. One-Command Setup
-Install dependencies, run typechecks across all 12 workspace packages, and execute the test suite:
+Install dependencies, run typechecks across all workspace packages, and execute the test suite:
 ```bash
 pnpm install && pnpm typecheck && pnpm test
 ```
@@ -150,11 +106,11 @@ pnpm --filter @mergelab/resolver run test:scenarios
 
 ## Connecting an IDE
 
-Developers configure the `mergelab` binary in their IDE hooks. First initialize your local configuration:
+Developers configure the `mergelab` binary in their IDE hooks. First initialize your local config:
 ```bash
 mergelab init --api-url https://<api-id>.execute-api.ap-south-1.amazonaws.com --token <workspace-token> --mode block
 ```
-*(Modes: `block` to deny drifting writes, `warn` to allow with context, or `off` to disable).*
+Modes: `block` to deny drifting writes, `warn` to allow with context, or `off` to disable.
 
 ### Claude Code Configuration
 Add Merge Lab hooks to your project's `.claude/settings.json`:
@@ -203,7 +159,7 @@ Add Merge Lab hooks to your project's `.cursor/hooks.json`:
 
 ## Running Tests
 
-Run all 137 unit and integration tests across all 21 test suites:
+Run the full test suite:
 ```bash
 pnpm test
 ```
@@ -212,14 +168,14 @@ Or run Vitest directly with threaded pool execution:
 npx vitest run --pool=threads
 ```
 
-## Known Seams (What Is Not Built)
+## Known Seams
 
-To maintain absolute transparency, the following capabilities are deliberately not built or remain manual in the current repository:
+Transparency on what is deliberately not built or remains manual:
 
-- **Cognito & IAM Federation**: Authentication uses hashed workspace tokens (`ml_ws_...`) and the legacy static bearer token (`MERGELAB_TOKEN`). There is no AWS Cognito User Pool or IAM federated identity provider.
-- **EventBridge & Real-time WebSockets**: There is no Amazon EventBridge event bus or WebSocket API Gateway. The Board UI polls `/v1/board` (every 3 seconds), and hooks query HTTP endpoints on demand.
-- **GSI2 (Reverse Symbol Index)**: DynamoDB provisions `GSI1` (branch-level partition queries). A second index (`GSI2`) for reverse lookups (symbol → all consumer branches) is not modeled.
-- **Persisted Coupling Graph**: `runRules` compares incoming declarations against active contracts loaded for the repo. There is no durable graph database or persisted dependency edge store.
+- **Cognito and IAM Federation**: Authentication uses hashed workspace tokens (`ml_ws_...`) and the legacy static bearer token (`MERGELAB_TOKEN`). No AWS Cognito User Pool or IAM federated identity provider.
+- **EventBridge and Real-time WebSockets**: No Amazon EventBridge event bus or WebSocket API Gateway. The Board UI polls `/v1/board` (every 3 seconds), and hooks query HTTP endpoints on demand.
+- **GSI2 (Reverse Symbol Index)**: DynamoDB provisions `GSI1` (branch-level partition queries). A second index (`GSI2`) for reverse lookups (symbol to all consumer branches) is not modeled.
+- **Persisted Coupling Graph**: `runRules` compares incoming declarations against active contracts loaded for the repo. No durable graph database or persisted dependency edge store.
 - **BIND Row Ingestion**: The `verdict` handler contains logic to evaluate `STALE_BINDING` by reading `BIND#<branch>#<contract_id>` items, but no public API endpoint currently writes `BIND` records. In practice, `STALE_BINDING` stays silent unless rows are manually seeded.
 - **Automated Branch Lifecycle**: Only `declared` and `changed` contract statuses are produced by the ingest handler. Lifecycle transitions (`implementing`, `implemented`, `abandoned`) are not automatically synchronized with git remote deletions.
-- **Shared HTTP Library**: Authentication, logging, and DynamoDB marshalling helpers are kept local to each Lambda package to preserve team ownership boundaries, rather than extracted into a common shared package.
+- **Shared HTTP Library**: Authentication, logging, and DynamoDB marshalling helpers are kept local to each Lambda package to preserve team ownership boundaries, rather than extracted into a shared package.

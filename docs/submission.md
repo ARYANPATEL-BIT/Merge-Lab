@@ -14,7 +14,7 @@ However, pull requests, CI checks, and merge conflict resolution do not occur un
 ### Who It Is For
 Merge Lab is designed for engineering teams that use autonomous coding agents and human pair programmers on multi-branch TypeScript and JavaScript codebases. 
 
-It acts as a pre-push interface contract registry and linter for teammates' unpushed decisions. A lightweight local CLI extracts **declarations only** (exported function signatures, TypeScript types/interfaces, package dependencies, environment variable names, and HTTP routes)—**never source code, implementation logic, diffs, or literal values**. Teammates' agents read those active contracts at `SessionStart` and are blocked deterministically at `PreToolUse` the instant a proposed write drifts from an established decision.
+It acts as a pre-push interface contract registry and linter for teammates' unpushed decisions. A lightweight local CLI extracts **declarations only** (exported function signatures, TypeScript types/interfaces, package dependencies, environment variable names, and HTTP routes) - **never source code, implementation logic, diffs, or literal values**. Teammates' agents read those active contracts at `SessionStart` and are blocked deterministically at `PreToolUse` the instant a proposed write drifts from an established decision.
 
 ---
 
@@ -59,7 +59,7 @@ Merge Lab's control plane is built serverless in the `ap-south-1` region using t
 - **Amazon API Gateway (HTTP API v2) Authentication Ergonomics**:
   While HTTP APIs are fast and cost-effective, they lack lightweight built-in header validation without provisioning a separate Lambda authorizer. We had to implement bearer token parsing and DynamoDB lookups repeatedly inside each Lambda handler.
 - **Amazon DynamoDB Single-Table Relational Deletions**:
-  Managing relational lifecycles—such as cascading contract deletions when a branch is abandoned or tracking reverse symbol bindings—is cumbersome in DynamoDB. The lack of declarative cascading deletes meant handling cleanup loops manually in application code.
+  Managing relational lifecycles (such as cascading contract deletions when a branch is abandoned or tracking reverse symbol bindings) is cumbersome in DynamoDB. The lack of declarative cascading deletes meant handling cleanup loops manually in application code.
 - **Amazon Bedrock Regional Availability & Rate Limits**:
   Configuring Claude 3 Haiku under `ap-south-1` required defensive fail-open exception handling. Any model throttling or transient Bedrock latency spikes could easily disrupt local developers if Bedrock were allowed near the critical path.
 

@@ -56,7 +56,7 @@ Before starting the recording, ensure the following environment is pre-staged:
 - **Exact Terminal Commands to Type**: None.
 
 > **Spoken Narration**:  
-> "Merge Lab is a pre-push interface contract registry that linters your teammates' unpushed decisions by publishing declarations—never source code—so your AI agent catches drift and breaking changes the exact second it tries to write."
+> "Merge Lab is a pre-push interface contract registry that linters your teammates' unpushed decisions by publishing declarations - never source code - so your AI agent catches drift and breaking changes the exact second it tries to write."
 
 ---
 

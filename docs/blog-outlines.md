@@ -88,7 +88,7 @@ Four article outlines authored by the Merge Lab team for the AWS Builder Center,
 - **Details**: Using `GSI1PK = REPO#<repo>#BRANCH#<branch>` and `GSI1SK = CONTRACT#<id>` to isolate branch-level queries without scanning the entire repository partition.
 
 ### Section 5: Why PAY_PER_REQUEST Is the Only Rational Choice for Developer Tooling
-- **Key Point**: Developer activity is inherently bursty—teams do not push or write declarations continuously, making provisioned capacity inefficient.
+- **Key Point**: Developer activity is inherently bursty - teams do not push or write declarations continuously, making provisioned capacity inefficient.
 - **Details**: Real-world cost analysis showing how DynamoDB on-demand billing delivers zero idle cost while handling instantaneous spikes when 10 agents trigger hooks simultaneously.
 
 ### Section 6: Honest Seams: Where Single-Table Design Adds Friction
