@@ -71,19 +71,10 @@ Resources:
   IngestFunction:
     Type: AWS::Serverless::Function
     Metadata:
-      BuildMethod: esbuild
-      BuildProperties:
-        Format: cjs
-        Target: node20
-        Sourcemap: true
-        Minify: false
-        EntryPoints:
-          - src/index.ts
-        External:
-          - "@aws-sdk/*"
+      BuildMethod: makefile
     Properties:
-      CodeUri: ../services/ingest
-      Handler: src/index.handler
+      CodeUri: ../
+      Handler: index.handler
       Environment:
         Variables:
           SEMANTIC_FUNCTION_NAME: !Ref SemanticFunction
@@ -102,19 +93,10 @@ Resources:
   ContextFunction:
     Type: AWS::Serverless::Function
     Metadata:
-      BuildMethod: esbuild
-      BuildProperties:
-        Format: cjs
-        Target: node20
-        Sourcemap: true
-        Minify: false
-        EntryPoints:
-          - src/index.ts
-        External:
-          - "@aws-sdk/*"
+      BuildMethod: makefile
     Properties:
-      CodeUri: ../services/context
-      Handler: src/index.handler
+      CodeUri: ../
+      Handler: index.handler
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref MergelabTable
@@ -128,19 +110,10 @@ Resources:
   VerdictFunction:
     Type: AWS::Serverless::Function
     Metadata:
-      BuildMethod: esbuild
-      BuildProperties:
-        Format: cjs
-        Target: node20
-        Sourcemap: true
-        Minify: false
-        EntryPoints:
-          - src/index.ts
-        External:
-          - "@aws-sdk/*"
+      BuildMethod: makefile
     Properties:
-      CodeUri: ../services/verdict
-      Handler: src/index.handler
+      CodeUri: ../
+      Handler: index.handler
       MemorySize: 1024
       Policies:
         - DynamoDBReadPolicy:
@@ -155,19 +128,10 @@ Resources:
   BoardFunction:
     Type: AWS::Serverless::Function
     Metadata:
-      BuildMethod: esbuild
-      BuildProperties:
-        Format: cjs
-        Target: node20
-        Sourcemap: true
-        Minify: false
-        EntryPoints:
-          - src/index.ts
-        External:
-          - "@aws-sdk/*"
+      BuildMethod: makefile
     Properties:
-      CodeUri: ../services/board
-      Handler: src/index.handler
+      CodeUri: ../
+      Handler: index.handler
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref MergelabTable
@@ -181,19 +145,10 @@ Resources:
   AuthFunction:
     Type: AWS::Serverless::Function
     Metadata:
-      BuildMethod: esbuild
-      BuildProperties:
-        Format: cjs
-        Target: node20
-        Sourcemap: true
-        Minify: false
-        EntryPoints:
-          - src/index.ts
-        External:
-          - "@aws-sdk/*"
+      BuildMethod: makefile
     Properties:
-      CodeUri: ../services/auth
-      Handler: src/index.handler
+      CodeUri: ../
+      Handler: index.handler
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref MergelabTable
@@ -252,19 +207,10 @@ Resources:
   SemanticFunction:
     Type: AWS::Serverless::Function
     Metadata:
-      BuildMethod: esbuild
-      BuildProperties:
-        Format: cjs
-        Target: node20
-        Sourcemap: true
-        Minify: false
-        EntryPoints:
-          - src/index.ts
-        External:
-          - "@aws-sdk/*"
+      BuildMethod: makefile
     Properties:
-      CodeUri: ../services/semantic
-      Handler: src/index.handler
+      CodeUri: ../
+      Handler: index.handler
       Timeout: 30
       Policies:
         - DynamoDBCrudPolicy:

@@ -11,6 +11,9 @@ importers:
       '@types/node':
         specifier: ^20.14.10
         version: 20.19.43
+      esbuild:
+        specifier: ^0.21.5
+        version: 0.21.5
       ts-morph:
         specifier: ^23.0.0
         version: 23.0.0
