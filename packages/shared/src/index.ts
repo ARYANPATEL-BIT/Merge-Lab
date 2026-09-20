@@ -6,7 +6,7 @@
 // Hard rule: declarations carry names and types only - never source code,
 // diffs, or literal values.
 
-import { createHash } from "node:crypto";
+import { createHash, randomBytes } from "node:crypto";
 import { z } from "zod";
 
 /** Bumped whenever any schema below changes. Wire payloads carry this. */
@@ -65,6 +65,12 @@ export const ContractSchema = DeclarationSchema.extend({
   /** contract_id this one replaces, if any. */
   supersedes: z.string().optional(),
   declared_at: z.string(),
+  /**
+   * Workspace that owns this contract. Optional and additive: rows written
+   * before workspaces existed (and rows written with the legacy static token)
+   * carry no workspace_id and are treated as the DEFAULT_WORKSPACE_ID.
+   */
+  workspace_id: z.string().optional(),
 });
 export type Contract = z.infer<typeof ContractSchema>;
 
@@ -270,4 +276,205 @@ export const AuthResponseSchema = z.object({
   workspace: z.string(),
 });
 export type AuthResponse = z.infer<typeof AuthResponseSchema>;
+
+// ---- Workspaces -----------------------------------------------------------
+// Workspace scoping is ADDITIVE on top of the legacy static bearer token.
+// A workspace token maps to exactly one workspace; the legacy MERGELAB_TOKEN
+// maps to DEFAULT_WORKSPACE_ID so the CLI and hooks keep working unchanged.
+
+/** The workspace legacy-token callers (CLI, hooks, demo) resolve to. */
+export const DEFAULT_WORKSPACE_ID = "default";
+
+/** Every minted workspace token starts with this. Never the legacy token. */
+export const WORKSPACE_TOKEN_PREFIX = "ml_ws_";
+
+/** Roles within a workspace. Owners can approve joins and mint/revoke tokens. */
+export const WorkspaceRoleSchema = z.enum(["owner", "member"]);
+export type WorkspaceRole = z.infer<typeof WorkspaceRoleSchema>;
+
+export const JoinRequestStatusSchema = z.enum(["pending", "approved", "denied"]);
+export type JoinRequestStatus = z.infer<typeof JoinRequestStatusSchema>;
+
+/**
+ * Stored, hashed representation of a workspace token. We persist SHA-256 of the
+ * token, never the token itself; the plaintext is shown to a human exactly once
+ * at mint time. The legacy MERGELAB_TOKEN is exempt (resolved without a lookup).
+ */
+export function hashToken(token: string): string {
+  return createHash("sha256").update(token).digest("hex");
+}
+
+const JOIN_CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // no I,O,0,1
+
+/**
+ * A short, screen-typeable join code like `ML-7K2QX`. Ambiguous glyphs are
+ * excluded so it survives being read off a projector. Not a secret: it only
+ * lets someone request to join; an owner still approves.
+ */
+export function generateJoinCode(bytes?: Uint8Array): string {
+  const raw = bytes ?? randomBytes(5);
+  let body = "";
+  for (let i = 0; i < 5; i++) body += JOIN_CODE_ALPHABET[raw[i] % JOIN_CODE_ALPHABET.length];
+  return `ML-${body}`;
+}
+
+export const WorkspaceSchema = z.object({
+  workspace_id: z.string(),
+  name: z.string(),
+  slug: z.string(),
+  owner_user_id: z.string(),
+  join_code: z.string(),
+  created_at: z.string(),
+});
+export type Workspace = z.infer<typeof WorkspaceSchema>;
+
+export const MemberSchema = z.object({
+  user_id: z.string(),
+  display_name: z.string(),
+  role: WorkspaceRoleSchema,
+  joined_at: z.string(),
+});
+export type Member = z.infer<typeof MemberSchema>;
+
+export const JoinRequestSchema = z.object({
+  user_id: z.string(),
+  display_name: z.string(),
+  requested_at: z.string(),
+  status: JoinRequestStatusSchema,
+});
+export type JoinRequest = z.infer<typeof JoinRequestSchema>;
+
+/** A token's public metadata. The plaintext token is never included here. */
+export const WorkspaceTokenSummarySchema = z.object({
+  hash: z.string(),
+  label: z.string(),
+  created_at: z.string(),
+  revoked: z.boolean(),
+});
+export type WorkspaceTokenSummary = z.infer<typeof WorkspaceTokenSummarySchema>;
+
+// ---- Workspace API request/response schemas -------------------------------
+
+/** POST /v1/workspaces - bootstrap a workspace; caller becomes owner. */
+export const CreateWorkspaceRequestSchema = z.object({
+  name: z.string().min(1, "Workspace name is required"),
+  display_name: z.string().min(1, "Your display name is required"),
+});
+export type CreateWorkspaceRequest = z.infer<typeof CreateWorkspaceRequestSchema>;
+
+/** Returned once at creation: includes the owner token in plaintext. */
+export const CreateWorkspaceResponseSchema = z.object({
+  workspace: WorkspaceSchema,
+  token: z.string(),
+});
+export type CreateWorkspaceResponse = z.infer<typeof CreateWorkspaceResponseSchema>;
+
+/** A workspace as it appears in a list: identity plus rollup counts. */
+export const WorkspaceSummarySchema = WorkspaceSchema.extend({
+  member_count: z.number().int(),
+  repo_count: z.number().int(),
+});
+export type WorkspaceSummary = z.infer<typeof WorkspaceSummarySchema>;
+
+export const ListWorkspacesResponseSchema = z.object({
+  workspaces: z.array(WorkspaceSummarySchema),
+});
+export type ListWorkspacesResponse = z.infer<typeof ListWorkspacesResponseSchema>;
+
+export const WorkspaceDetailResponseSchema = z.object({
+  workspace: WorkspaceSchema,
+  members: z.array(MemberSchema),
+  pending_requests: z.array(JoinRequestSchema),
+  repos: z.array(z.string()),
+  tokens: z.array(WorkspaceTokenSummarySchema),
+});
+export type WorkspaceDetailResponse = z.infer<typeof WorkspaceDetailResponseSchema>;
+
+/** POST /v1/workspaces/join - request to join by code, identified by name. */
+export const JoinWorkspaceRequestSchema = z.object({
+  join_code: z.string().min(1, "Join code is required"),
+  display_name: z.string().min(1, "Your display name is required"),
+});
+export type JoinWorkspaceRequest = z.infer<typeof JoinWorkspaceRequestSchema>;
+
+export const JoinWorkspaceResponseSchema = z.object({
+  workspace_id: z.string(),
+  workspace_name: z.string(),
+  request: JoinRequestSchema,
+});
+export type JoinWorkspaceResponse = z.infer<typeof JoinWorkspaceResponseSchema>;
+
+/** POST /v1/workspaces/:id/tokens - owner mints a labelled token. */
+export const MintTokenRequestSchema = z.object({
+  label: z.string().min(1, "A label is required"),
+});
+export type MintTokenRequest = z.infer<typeof MintTokenRequestSchema>;
+
+/** Returned once at mint/approve: plaintext token plus its summary. */
+export const MintTokenResponseSchema = z.object({
+  token: z.string(),
+  summary: WorkspaceTokenSummarySchema,
+});
+export type MintTokenResponse = z.infer<typeof MintTokenResponseSchema>;
+
+// ---- Workspace token resolution (shared by every handler) -----------------
+
+/** A caller's resolved workspace identity, derived from their bearer token. */
+export interface WorkspaceContext {
+  workspace_id: string;
+  role: WorkspaceRole;
+  /** The requester's user_id, or "legacy" for the static-token caller. */
+  user_id: string;
+}
+
+/** The global TOKEN#<hash>/WORKSPACE lookup row that resolves token -> workspace. */
+export const WorkspaceTokenRowSchema = z.object({
+  workspace_id: z.string(),
+  role: WorkspaceRoleSchema,
+  user_id: z.string(),
+  revoked: z.boolean().optional(),
+});
+export type WorkspaceTokenRow = z.infer<typeof WorkspaceTokenRowSchema>;
+
+/** Mint a fresh workspace token. Plaintext is shown once; only its hash is stored. */
+export function generateWorkspaceToken(): string {
+  return `${WORKSPACE_TOKEN_PREFIX}${randomBytes(24).toString("hex")}`;
+}
+
+/**
+ * Resolve which workspace a bearer token belongs to. The ordering is shared by
+ * every handler so scoping is identical everywhere:
+ *   - missing/malformed Authorization        -> null (unauthorized)
+ *   - the legacy static token                -> DEFAULT workspace, owner, NO lookup
+ *   - a token without the workspace prefix   -> null, NO lookup
+ *   - a workspace token                      -> lookupToken(hash); null if absent/revoked
+ * The two NO-lookup branches are what keep the legacy CLI/hooks path - and the
+ * existing "no DynamoDB on a wrong token" tests - working unchanged.
+ */
+export async function resolveWorkspaceContext(
+  authorization: string | undefined,
+  legacyToken: string | undefined,
+  lookupToken: (hash: string) => Promise<unknown>,
+): Promise<WorkspaceContext | null> {
+  if (!authorization || !authorization.startsWith("Bearer ")) return null;
+  const token = authorization.slice("Bearer ".length);
+  if (legacyToken && token === legacyToken) {
+    return { workspace_id: DEFAULT_WORKSPACE_ID, role: "owner", user_id: "legacy" };
+  }
+  if (!token.startsWith(WORKSPACE_TOKEN_PREFIX)) return null;
+  const parsed = WorkspaceTokenRowSchema.safeParse(await lookupToken(hashToken(token)));
+  if (!parsed.success || parsed.data.revoked) return null;
+  const { workspace_id, role, user_id } = parsed.data;
+  return { workspace_id, role, user_id };
+}
+
+/**
+ * Whether a contract belongs to the given workspace. A contract with no
+ * workspace_id (legacy rows, or rows written with the static token) is treated
+ * as belonging to DEFAULT_WORKSPACE_ID, so legacy data stays visible to the
+ * legacy caller and invisible to real workspaces.
+ */
+export function contractInWorkspace(c: Contract, workspaceId: string): boolean {
+  return (c.workspace_id ?? DEFAULT_WORKSPACE_ID) === workspaceId;
+}
 

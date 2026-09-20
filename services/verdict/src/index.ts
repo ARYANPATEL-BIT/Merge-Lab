@@ -2,11 +2,13 @@
 // (services/resolver) against teammate contracts + branch bindings. No LLM.
 
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient, QueryCommand } from "@aws-sdk/lib-dynamodb";
+import { DynamoDBDocumentClient, GetCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
 import type { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
 import {
   ContractSchema,
   PostVerdictRequestSchema,
+  contractInWorkspace,
+  resolveWorkspaceContext,
   type Contract,
   type Finding,
   type VerdictDecision,
@@ -24,6 +26,13 @@ const ddb = DynamoDBDocumentClient.from(new DynamoDBClient({}), {
 function bearer(event: APIGatewayProxyEventV2): string | undefined {
   const h = event.headers ?? {};
   return h.authorization ?? h.Authorization;
+}
+
+async function lookupToken(hash: string): Promise<unknown> {
+  const out = await ddb.send(
+    new GetCommand({ TableName: TABLE, Key: { PK: `TOKEN#${hash}`, SK: "WORKSPACE" } }),
+  );
+  return out.Item;
 }
 
 function reply(statusCode: number, body: unknown): APIGatewayProxyResultV2 {
@@ -82,7 +91,8 @@ function decide(findings: Finding[]): VerdictDecision {
 
 export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
   const started = Date.now();
-  if (bearer(event) !== `Bearer ${TOKEN}`) return reply(401, { error: "unauthorized" });
+  const ctx = await resolveWorkspaceContext(bearer(event), TOKEN, lookupToken);
+  if (!ctx) return reply(401, { error: "unauthorized" });
 
   let payload: unknown;
   try {
@@ -94,8 +104,10 @@ export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGateway
   if (!parsed.success) return reply(400, { error: "invalid_request", issues: parsed.error.issues });
 
   const { repo, branch, owner, declarations } = parsed.data;
-  // active = other developers' contracts (the context this writer sees).
-  const active = (await activeContracts(repo)).filter((c) => c.owner !== owner);
+  // active = other developers' contracts in this workspace (the context this writer sees).
+  const active = (await activeContracts(repo))
+    .filter((c) => contractInWorkspace(c, ctx.workspace_id))
+    .filter((c) => c.owner !== owner);
   const bindings = await branchBindings(repo, branch);
 
   const findings = runRules(declarations, active, bindings);

@@ -70,6 +70,9 @@ export function Landing() {
         }
       >
         <ThemeToggle />
+        <Link className="btn btn-secondary" to="/workspaces" style={{ fontSize: "0.85rem", padding: "0.4rem 0.75rem" }}>
+          Workspaces
+        </Link>
         <Link className="btn btn-secondary" to="/login" style={{ fontSize: "0.85rem", padding: "0.4rem 0.75rem" }}>
           Log in
         </Link>
@@ -98,7 +101,7 @@ export function Landing() {
             anything is committed.
           </p>
           <div className="hero-actions">
-            <Link className="btn btn-primary" to="/signup">
+            <Link className="btn btn-primary" to="/workspaces">
               Create workspace
               <ArrowRight />
             </Link>
