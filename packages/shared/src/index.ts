@@ -83,19 +83,35 @@ export const RuleIdSchema = z.enum([
   "ROUTE_COLLISION",
   "SHAPE_MISMATCH",
   "STALE_BINDING",
+  "SEMANTIC_DUPLICATE",
 ]);
 export type RuleId = z.infer<typeof RuleIdSchema>;
 
 export const SeveritySchema = z.enum(["block", "warn", "notify"]);
 export type Severity = z.infer<typeof SeveritySchema>;
 
+export const FindingOriginSchema = z.enum(["deterministic", "inferred"]);
+export type FindingOrigin = z.infer<typeof FindingOriginSchema>;
+
 export const FindingSchema = z.object({
   rule: RuleIdSchema,
   severity: SeveritySchema,
   reason: z.string(),
   contract_ids: z.array(z.string()),
+  origin: FindingOriginSchema.optional(),
+  confidence: z.number().min(0).max(1).optional(),
 });
 export type Finding = z.infer<typeof FindingSchema>;
+
+/** Output shape returned by Bedrock semantic duplicate analysis. */
+export const SemanticComparisonResultSchema = z.object({
+  duplicate: z.boolean(),
+  confidence: z.number().min(0).max(1),
+  reason: z.string(),
+});
+export type SemanticComparisonResult = z.infer<
+  typeof SemanticComparisonResultSchema
+>;
 
 export const VerdictDecisionSchema = z.enum(["allow", "warn", "block"]);
 export type VerdictDecision = z.infer<typeof VerdictDecisionSchema>;

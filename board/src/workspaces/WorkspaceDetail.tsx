@@ -153,7 +153,7 @@ export function WorkspaceDetail() {
                 </p>
                 <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
                   <span className="mono" style={{ ...tokenBox(), fontSize: "1rem", letterSpacing: "0.05em" }}>
-                    {detail.workspace.join_code || "—"}
+                    {detail.workspace.join_code || "-"}
                   </span>
                   {detail.workspace.join_code ? <CopyButton value={detail.workspace.join_code} /> : null}
                 </div>
@@ -215,7 +215,7 @@ export function WorkspaceDetail() {
               {/* Tokens issued this session (plaintext, shown once) */}
               {issued.length > 0 ? (
                 <section style={panel()}>
-                  <p className="label">New tokens — copy them now</p>
+                  <p className="label">New tokens - copy them now</p>
                   <Notice tone="success">
                     These are shown once. Hand each to its owner to run{" "}
                     <span className="mono">mergelab init</span>.

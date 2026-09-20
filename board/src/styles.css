@@ -506,6 +506,45 @@
   letter-spacing: 0.02em;
 }
 
+.finding.finding-inferred {
+  border-left-style: dashed;
+  background: rgba(168, 85, 247, 0.03);
+}
+
+.origin-badge {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  border-radius: var(--radius-pill);
+  padding: 0.2rem 0.55rem;
+}
+
+.origin-badge.badge-inferred {
+  color: #c084fc;
+  background: rgba(168, 85, 247, 0.12);
+  border: 1px solid rgba(168, 85, 247, 0.35);
+}
+
+.origin-badge.badge-fact {
+  color: var(--fg-muted);
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+}
+
+.confidence-badge {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: #c084fc;
+  background: rgba(168, 85, 247, 0.08);
+  border-radius: var(--radius-pill);
+  padding: 0.2rem 0.5rem;
+  border: 1px dashed rgba(168, 85, 247, 0.3);
+}
+
 .finding-reason {
   margin: 0;
   font-size: 1.2rem;
