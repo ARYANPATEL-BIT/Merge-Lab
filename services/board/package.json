@@ -1,13 +1,13 @@
 {
-  "name": "@handshake/board-service",
+  "name": "@mergelab/board-service",
   "version": "0.0.0",
   "private": true,
   "scripts": {
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@handshake/resolver": "workspace:*",
-    "@handshake/shared": "workspace:*"
+    "@mergelab/resolver": "workspace:*",
+    "@mergelab/shared": "workspace:*"
   },
   "devDependencies": {
     "@aws-sdk/client-dynamodb": "^3.600.0",

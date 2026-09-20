@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
-  /** Base URL of the Handshake API. Unset → the board runs in demo mode. */
+  /** Base URL of the Merge Lab API. Unset → the board runs in demo mode. */
   readonly VITE_API_URL?: string;
   /** Bearer token sent as `Authorization: Bearer <token>`. */
   readonly VITE_API_TOKEN?: string;

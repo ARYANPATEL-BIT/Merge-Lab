@@ -1,4 +1,4 @@
-// `handshake hook pre-write` — the PreToolUse hook. Extracts declarations from
+// `mergelab hook pre-write` - the PreToolUse hook. Extracts declarations from
 // the PROPOSED file content (never the on-disk version), asks the registry for
 // a deterministic verdict, and enforces it up to the configured mode.
 //
@@ -8,7 +8,7 @@
 // (or a "block" softened by mode "warn") surfaces the reason as context.
 
 import { isAbsolute, relative, resolve } from "node:path";
-import type { Verdict } from "@handshake/shared";
+import type { Verdict } from "@mergelab/shared";
 import {
   extractFile,
   isSourceFile,
@@ -16,7 +16,7 @@ import {
   postVerdict,
   resolveIdentity,
   toPosix,
-} from "@handshake/daemon";
+} from "@mergelab/daemon";
 import { allowWithContext, deny, SILENT, type HookOutcome } from "./outcome.js";
 
 /** Hard budget for the verdict round-trip. Past this we abort and allow. */

@@ -1,12 +1,12 @@
-// @handshake/extractor — turns a working tree's source + manifests into
+// @mergelab/extractor - turns a working tree's source + manifests into
 // Declarations. P1-owned. Imports the frozen contract types from
-// @handshake/shared; never redefines them.
+// @mergelab/shared; never redefines them.
 //
 // Hard rules:
 //  - Emit names and types only (enforced by the redactor before return).
 //  - Any parse error returns [] and bumps `extractFailed`. Never throws.
 
-import type { Declaration } from "@handshake/shared";
+import type { Declaration } from "@mergelab/shared";
 
 /** A source-file extractor for one family of file extensions. */
 export interface Extractor {

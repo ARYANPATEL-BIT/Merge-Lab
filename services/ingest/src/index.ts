@@ -1,16 +1,16 @@
-// @handshake/ingest — POST /v1/declarations. Validates the request with the
+// @mergelab/ingest - POST /v1/declarations. Validates the request with the
 // shared schema, resolves versioning via services/resolver, and persists
 // Contracts. Does NOT reimplement validation, resolution, or versioning.
 
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
 import type { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
-import { ContractSchema, PostDeclarationsRequestSchema, type Contract } from "@handshake/shared";
-import { resolve } from "@handshake/resolver";
+import { ContractSchema, PostDeclarationsRequestSchema, type Contract } from "@mergelab/shared";
+import { resolve } from "@mergelab/resolver";
 import { ulid } from "ulid";
 
 const TABLE = process.env.TABLE_NAME as string;
-const TOKEN = process.env.HANDSHAKE_TOKEN as string;
+const TOKEN = process.env.MERGELAB_TOKEN as string;
 const ACTIVE = new Set(["declared", "implementing", "implemented"]);
 
 const ddb = DynamoDBDocumentClient.from(new DynamoDBClient({}), {

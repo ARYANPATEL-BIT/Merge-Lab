@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-  Round-trips fixtures/declarations.sample.json through a deployed Handshake API:
+  Round-trips fixtures/declarations.sample.json through a deployed Merge Lab API:
   POST /v1/declarations, then GET /v1/context, and checks every posted symbol
   came back. Uses a unique throwaway repo so it never collides with real data.
 

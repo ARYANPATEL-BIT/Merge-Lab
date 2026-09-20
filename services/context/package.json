@@ -1,12 +1,12 @@
 {
-  "name": "@handshake/context",
+  "name": "@mergelab/context",
   "version": "0.0.0",
   "private": true,
   "scripts": {
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@handshake/shared": "workspace:*"
+    "@mergelab/shared": "workspace:*"
   },
   "devDependencies": {
     "@aws-sdk/client-dynamodb": "^3.600.0",

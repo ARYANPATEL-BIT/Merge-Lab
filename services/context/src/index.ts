@@ -1,13 +1,13 @@
-// @handshake/context — GET /v1/context. Returns the active teammate contracts
+// @mergelab/context - GET /v1/context. Returns the active teammate contracts
 // for a repo, dropping the caller's own owner. Read-only.
 
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, QueryCommand } from "@aws-sdk/lib-dynamodb";
 import type { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
-import { ContractSchema, GetContextRequestSchema, type Contract } from "@handshake/shared";
+import { ContractSchema, GetContextRequestSchema, type Contract } from "@mergelab/shared";
 
 const TABLE = process.env.TABLE_NAME as string;
-const TOKEN = process.env.HANDSHAKE_TOKEN as string;
+const TOKEN = process.env.MERGELAB_TOKEN as string;
 const ACTIVE = new Set(["declared", "implementing", "implemented"]);
 
 const ddb = DynamoDBDocumentClient.from(new DynamoDBClient({}), {

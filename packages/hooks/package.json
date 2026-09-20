@@ -1,5 +1,5 @@
 {
-  "name": "@handshake/hooks",
+  "name": "@mergelab/hooks",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -10,8 +10,8 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@handshake/daemon": "workspace:*",
-    "@handshake/extractor": "workspace:*",
-    "@handshake/shared": "workspace:*"
+    "@mergelab/daemon": "workspace:*",
+    "@mergelab/extractor": "workspace:*",
+    "@mergelab/shared": "workspace:*"
   }
 }

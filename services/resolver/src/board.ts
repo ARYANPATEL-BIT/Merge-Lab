@@ -1,6 +1,6 @@
 // Pure board projection. Groups active contracts into branches (with a
 // heartbeat-derived status) and runs the deterministic rule engine across
-// branches to produce the drift feed. No AWS, no HTTP, no env, no LLM — the
+// branches to produce the drift feed. No AWS, no HTTP, no env, no LLM - the
 // Lambda handler and the frontend's demo mode both call this so what a judge
 // sees offline is exactly what the deployed board computes.
 
@@ -12,10 +12,10 @@ import {
   type Finding,
   type GetBoardResponse,
   type Severity,
-} from "@handshake/shared";
+} from "@mergelab/shared";
 import { runRules, type Binding } from "./rules.js";
 
-/** Statuses shown on the board — includes `changed`, unlike the rule context. */
+/** Statuses shown on the board - includes `changed`, unlike the rule context. */
 const DISPLAYED = new Set(["declared", "implementing", "implemented", "changed"]);
 /** Statuses that form the live context the rule engine reasons over. */
 const RULE_ACTIVE = new Set(["declared", "implementing", "implemented"]);
@@ -27,7 +27,7 @@ const SEVERITY_RANK: Record<Severity, number> = { block: 0, warn: 1, notify: 2 }
  * Rules where a conflict between two branches is found from both sides (each
  * branch's declarations flag the other), so the feed would list it twice. The
  * board collapses these to one entry per (rule, branch pair). The remaining
- * rules are directional — only the consuming/pinned branch fires — so they
+ * rules are directional - only the consuming/pinned branch fires - so they
  * already appear once.
  */
 const SYMMETRIC_RULES = new Set(["DEP_CONFLICT", "DUP_SYMBOL", "ROUTE_COLLISION"]);

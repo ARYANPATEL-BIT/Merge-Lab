@@ -1,4 +1,4 @@
-import type { Severity } from "@handshake/shared";
+import type { Severity } from "@mergelab/shared";
 
 const base = {
   width: 20,
@@ -33,7 +33,7 @@ export function SeverityIcon({ severity }: { severity: Severity }) {
       </svg>
     );
   }
-  // notify — info circle.
+  // notify - info circle.
   return (
     <svg {...base}>
       <circle cx="12" cy="12" r="9" />
@@ -43,7 +43,7 @@ export function SeverityIcon({ severity }: { severity: Severity }) {
   );
 }
 
-/** A small crossed-arrows "handshake" mark for the wordmark. */
+/** A small crossed-arrows "mergelab" mark for the wordmark. */
 export function BrandMark() {
   return (
     <svg width={26} height={26} viewBox="0 0 24 24" fill="none" aria-hidden={true}>

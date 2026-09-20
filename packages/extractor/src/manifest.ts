@@ -1,7 +1,7 @@
-// Manifest extractor — diffs two package.json texts and emits dependency
+// Manifest extractor - diffs two package.json texts and emits dependency
 // Declarations for added or changed deps, formatted "name@version".
 
-import type { Declaration } from "@handshake/shared";
+import type { Declaration } from "@mergelab/shared";
 import { bumpExtractFailed } from "./counter.js";
 import { redact } from "./redactor.js";
 

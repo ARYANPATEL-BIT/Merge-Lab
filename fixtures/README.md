@@ -14,5 +14,5 @@ fixtures/
 
 Rules mirrored from the extractor:
 
-- Expected output holds names and types only — never source, diffs, or literals.
+- Expected output holds names and types only - never source, diffs, or literals.
 - A fixture whose extraction is expected to fail pins `expected.json` to `[]`.

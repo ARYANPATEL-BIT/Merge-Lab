@@ -1,5 +1,5 @@
 // GLSL for the hero water surface. A full-screen quad drives every pass, so the
-// vertex shader just passes uv straight through — no camera matrices involved.
+// vertex shader just passes uv straight through - no camera matrices involved.
 //
 // The simulation is a damped 2D wave equation on a ping-pong height field:
 // each texel stores the current height in .r and the previous height in .g, so
@@ -59,7 +59,7 @@ export const DROP_FRAG = /* glsl */ `
 // Display, dark-matter variant. The output is TRANSPARENT: calm water is fully
 // clear (so the theme-adaptive page shows through, with no captured colour to go
 // stale when the theme flips), and disturbed water reads as flowing dark density
-// — the surface darkens by gradient magnitude — rimmed with a faint luminous edge
+// - the surface darkens by gradient magnitude - rimmed with a faint luminous edge
 // tinted by the brand accent, which keeps it visible on both light and dark paper.
 export const DISPLAY_FRAG = /* glsl */ `
   precision highp float;

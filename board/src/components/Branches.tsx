@@ -1,4 +1,4 @@
-import type { BranchSummary } from "@handshake/shared";
+import type { BranchSummary } from "@mergelab/shared";
 import { relativeTime } from "../lib/format.js";
 import { EmptyState } from "./EmptyState.js";
 import { InboxIcon } from "./icons.js";
@@ -26,7 +26,7 @@ export function Branches({
           <EmptyState
             icon={<InboxIcon />}
             title="No branches reporting"
-            hint="Run the CLI publish from a working tree and its branch shows up here."
+            hint="Run mergelab publish from a working tree and its branch shows up here."
           />
         ) : (
           <ul className="branch-list">

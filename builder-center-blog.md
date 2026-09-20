@@ -2,7 +2,7 @@
 
 *By the Merge Lab Team (AWS Builder Center Submission)*
 
-Merge Lab is a pre-push context layer. It watches developers' working trees and publishes interface decisions — exported signatures, data shapes, dependencies, environment variable names, and routes — before they are even committed. 
+Merge Lab is a pre-push context layer. It watches developers' working trees and publishes interface decisions - exported signatures, data shapes, dependencies, environment variable names, and routes - before they are even committed. 
 
 But publishing the context is only half the battle. The real magic happens when teammates' AI agents consume these contracts and are blocked from deviating from them in real-time. In this post, we’ll explore the technical challenges of building LLM-driven hook contracts across Claude Code, Codex, and Antigravity, and the most surprising constraint we discovered along the way.
 

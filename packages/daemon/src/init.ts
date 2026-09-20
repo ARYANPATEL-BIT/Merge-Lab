@@ -1,7 +1,7 @@
-// `handshake init` — write the config from flags (or env). Kept non-interactive
+// `mergelab init` - write the config from flags (or env). Kept non-interactive
 // so it runs cleanly in a demo or CI: no prompts to hang on.
-//   handshake init --api-url <url> --token <token> [--owner <name>] [--mode warn]
-// Falls back to HANDSHAKE_API_URL / HANDSHAKE_TOKEN. The token is never echoed.
+//   mergelab init --api-url <url> --token <token> [--owner <name>] [--mode warn]
+// Falls back to MERGELAB_API_URL / MERGELAB_TOKEN. The token is never echoed.
 
 import { configPath, ModeSchema, writeConfig, type Config } from "./config.js";
 import { info } from "./log.js";
@@ -27,13 +27,13 @@ export function parseFlags(argv: string[]): Record<string, string> {
 
 export async function cmdInit(argv: string[]): Promise<void> {
   const flags = parseFlags(argv);
-  const apiUrl = flags["api-url"] || process.env.HANDSHAKE_API_URL;
-  const token = flags["token"] || process.env.HANDSHAKE_TOKEN;
+  const apiUrl = flags["api-url"] || process.env.MERGELAB_API_URL;
+  const token = flags["token"] || process.env.MERGELAB_TOKEN;
   const owner = flags["owner"] || undefined;
 
   if (!apiUrl || !token) {
     throw new Error(
-      "usage: handshake init --api-url <url> --token <token> [--owner <name>] [--mode off|warn|block]",
+      "usage: mergelab init --api-url <url> --token <token> [--owner <name>] [--mode off|warn|block]",
     );
   }
 

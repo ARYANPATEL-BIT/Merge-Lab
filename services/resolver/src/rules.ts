@@ -1,5 +1,5 @@
 // Deterministic rule engine. Pure functions over declarations + contracts.
-// No AWS, no HTTP, no env, no LLM — P2 wraps this.
+// No AWS, no HTTP, no env, no LLM - P2 wraps this.
 //
 // Convention: `active` holds contracts owned by OTHER developers (the context a
 // writer sees), so any symbol/route match is by definition a different owner.
@@ -11,7 +11,7 @@ import {
   type Declaration,
   type Finding,
   type FunctionalClass,
-} from "@handshake/shared";
+} from "@mergelab/shared";
 
 /** Human phrasing per functional class: [what it does, plural noun for rivals]. */
 const CLASS_PHRASE: Record<FunctionalClass, [string, string]> = {

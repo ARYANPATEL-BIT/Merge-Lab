@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { Contract } from "@handshake/shared";
+import type { Contract } from "@mergelab/shared";
 import { renderContext } from "./render.js";
 
 function contract(partial: Partial<Contract> & Pick<Contract, "kind" | "symbol">): Contract {
@@ -34,7 +34,7 @@ const getUser = contract({
 describe("renderContext", () => {
   it("renders the header with repo, branch, and HH:MM", () => {
     const out = renderContext({ repo: "acme/widgets", branch: "feat/user-api", contracts: [getUser], now: NOW });
-    expect(out.startsWith("Handshake — repo acme/widgets, branch feat/user-api, as of 09:05.")).toBe(true);
+    expect(out.startsWith("Merge Lab - repo acme/widgets, branch feat/user-api, as of 09:05.")).toBe(true);
   });
 
   it("inlines a function's return shape as names and types", () => {
@@ -94,7 +94,7 @@ describe("renderContext", () => {
     );
     const out = renderContext({ repo: "acme/widgets", branch: "feat/user-api", contracts: many, now: NOW });
     expect(Math.ceil(out.length / 4)).toBeLessThanOrEqual(600);
-    expect(out).toContain("Handshake — repo acme/widgets");
+    expect(out).toContain("Merge Lab - repo acme/widgets");
     expect(out).toContain("Reporting branches:");
     // Conventions are the first casualty of the budget.
     expect(out).not.toContain("Conventions in force on this repo:");

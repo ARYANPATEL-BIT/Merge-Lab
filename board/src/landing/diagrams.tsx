@@ -1,5 +1,5 @@
 // Simple hairline line-art diagrams for the numbered capability rows and the
-// AWS architecture. All monochrome, stroke = currentColor, no fills — they read
+// AWS architecture. All monochrome, stroke = currentColor, no fills - they read
 // as schematic marks beside the prose, not illustrations.
 
 const stroke = {
@@ -20,7 +20,7 @@ const frame = {
   preserveAspectRatio: "xMidYMid meet",
 };
 
-/** 01 — a file tree with one node still "dirty" (uncommitted), pushed to the wire. */
+/** 01 - a file tree with one node still "dirty" (uncommitted), pushed to the wire. */
 export function ExtractionDiagram() {
   return (
     <svg {...frame}>
@@ -36,7 +36,7 @@ export function ExtractionDiagram() {
   );
 }
 
-/** 02 — six inputs converge into a gate that emits allow / warn / block. */
+/** 02 - six inputs converge into a gate that emits allow / warn / block. */
 export function RulesDiagram() {
   return (
     <svg {...frame}>
@@ -53,7 +53,7 @@ export function RulesDiagram() {
   );
 }
 
-/** 03 — one working tree's declarations become another agent's context. */
+/** 03 - one working tree's declarations become another agent's context. */
 export function InjectionDiagram() {
   return (
     <svg {...frame}>
@@ -68,7 +68,7 @@ export function InjectionDiagram() {
   );
 }
 
-/** 04 — a payload where source is struck out and only names/types pass. */
+/** 04 - a payload where source is struck out and only names/types pass. */
 export function DeclarationsDiagram() {
   return (
     <svg {...frame}>

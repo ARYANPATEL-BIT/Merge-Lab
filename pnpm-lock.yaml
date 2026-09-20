@@ -23,10 +23,10 @@ importers:
 
   board:
     dependencies:
-      '@handshake/resolver':
+      '@mergelab/resolver':
         specifier: workspace:*
         version: link:../services/resolver
-      '@handshake/shared':
+      '@mergelab/shared':
         specifier: workspace:*
         version: link:../packages/shared
       gsap:
@@ -69,13 +69,13 @@ importers:
 
   packages/daemon:
     dependencies:
-      '@handshake/extractor':
+      '@mergelab/extractor':
         specifier: workspace:*
         version: link:../extractor
-      '@handshake/hooks':
+      '@mergelab/hooks':
         specifier: workspace:*
         version: link:../hooks
-      '@handshake/shared':
+      '@mergelab/shared':
         specifier: workspace:*
         version: link:../shared
       zod:
@@ -88,7 +88,7 @@ importers:
 
   packages/extractor:
     dependencies:
-      '@handshake/shared':
+      '@mergelab/shared':
         specifier: workspace:*
         version: link:../shared
       ts-morph:
@@ -97,13 +97,13 @@ importers:
 
   packages/hooks:
     dependencies:
-      '@handshake/daemon':
+      '@mergelab/daemon':
         specifier: workspace:*
         version: link:../daemon
-      '@handshake/extractor':
+      '@mergelab/extractor':
         specifier: workspace:*
         version: link:../extractor
-      '@handshake/shared':
+      '@mergelab/shared':
         specifier: workspace:*
         version: link:../shared
 
@@ -113,12 +113,34 @@ importers:
         specifier: ^3.23.8
         version: 3.25.76
 
+  services/auth:
+    dependencies:
+      '@mergelab/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
+    devDependencies:
+      '@aws-sdk/client-dynamodb':
+        specifier: ^3.600.0
+        version: 3.1135.0
+      '@aws-sdk/lib-dynamodb':
+        specifier: ^3.600.0
+        version: 3.1135.0(@aws-sdk/client-dynamodb@3.1135.0)
+      '@types/aws-lambda':
+        specifier: ^8.10.145
+        version: 8.10.163
+      aws-sdk-client-mock:
+        specifier: ^4.1.0
+        version: 4.1.0
+      esbuild:
+        specifier: ^0.21.5
+        version: 0.21.5
+
   services/board:
     dependencies:
-      '@handshake/resolver':
+      '@mergelab/resolver':
         specifier: workspace:*
         version: link:../resolver
-      '@handshake/shared':
+      '@mergelab/shared':
         specifier: workspace:*
         version: link:../../packages/shared
     devDependencies:
@@ -140,7 +162,7 @@ importers:
 
   services/context:
     dependencies:
-      '@handshake/shared':
+      '@mergelab/shared':
         specifier: workspace:*
         version: link:../../packages/shared
     devDependencies:
@@ -162,10 +184,10 @@ importers:
 
   services/ingest:
     dependencies:
-      '@handshake/resolver':
+      '@mergelab/resolver':
         specifier: workspace:*
         version: link:../resolver
-      '@handshake/shared':
+      '@mergelab/shared':
         specifier: workspace:*
         version: link:../../packages/shared
       ulid:
@@ -190,7 +212,7 @@ importers:
 
   services/resolver:
     dependencies:
-      '@handshake/shared':
+      '@mergelab/shared':
         specifier: workspace:*
         version: link:../../packages/shared
     devDependencies:
@@ -200,10 +222,10 @@ importers:
 
   services/verdict:
     dependencies:
-      '@handshake/resolver':
+      '@mergelab/resolver':
         specifier: workspace:*
         version: link:../resolver
-      '@handshake/shared':
+      '@mergelab/shared':
         specifier: workspace:*
         version: link:../../packages/shared
     devDependencies:

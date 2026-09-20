@@ -4,18 +4,18 @@ import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { configPath, loadConfig, writeConfig } from "./config.js";
 
-// Every test here redirects the config dir so nothing ever touches ~/.handshake.
-describe("config with HANDSHAKE_CONFIG_DIR", () => {
+// Every test here redirects the config dir so nothing ever touches ~/.mergelab.
+describe("config with MERGELAB_CONFIG_DIR", () => {
   let dir: string;
-  const saved = process.env.HANDSHAKE_CONFIG_DIR;
+  const saved = process.env.MERGELAB_CONFIG_DIR;
 
   beforeEach(() => {
-    dir = mkdtempSync(join(tmpdir(), "hs-cfg-"));
-    process.env.HANDSHAKE_CONFIG_DIR = dir;
+    dir = mkdtempSync(join(tmpdir(), "ml-cfg-"));
+    process.env.MERGELAB_CONFIG_DIR = dir;
   });
   afterEach(() => {
-    if (saved === undefined) delete process.env.HANDSHAKE_CONFIG_DIR;
-    else process.env.HANDSHAKE_CONFIG_DIR = saved;
+    if (saved === undefined) delete process.env.MERGELAB_CONFIG_DIR;
+    else process.env.MERGELAB_CONFIG_DIR = saved;
     rmSync(dir, { recursive: true, force: true });
   });
 

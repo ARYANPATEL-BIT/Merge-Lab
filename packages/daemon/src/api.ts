@@ -1,6 +1,6 @@
-// HTTP client for the Handshake API. Every response is validated against the
+// HTTP client for the Merge Lab API. Every response is validated against the
 // shared schemas so the daemon never acts on a payload the registry did not
-// promise. All failures — transport, non-2xx, malformed body — surface as
+// promise. All failures - transport, non-2xx, malformed body - surface as
 // ApiError, which the commands catch to fail open (warn + exit 0).
 
 import {
@@ -12,7 +12,7 @@ import {
   type PostDeclarationsResponse,
   type PostVerdictRequest,
   type Verdict,
-} from "@handshake/shared";
+} from "@mergelab/shared";
 import type { Config } from "./config.js";
 
 export class ApiError extends Error {}

@@ -1,7 +1,7 @@
 // TypeScript/JavaScript extractor built on ts-morph.
 
 import { Node, Project, SyntaxKind, ts } from "ts-morph";
-import type { Declaration } from "@handshake/shared";
+import type { Declaration } from "@mergelab/shared";
 import type { Extractor } from "./index.js";
 import { bumpExtractFailed } from "./counter.js";
 import { redact } from "./redactor.js";
@@ -129,7 +129,7 @@ function extractTs(path: string, content: string): Declaration[] {
   });
   const sf = project.createSourceFile(path, content, { overwrite: true });
 
-  // Syntax errors only — a missing module/type is semantic, not a parse failure.
+  // Syntax errors only - a missing module/type is semantic, not a parse failure.
   const syntactic = project
     .getProgram()
     .compilerObject.getSyntacticDiagnostics(sf.compilerNode);

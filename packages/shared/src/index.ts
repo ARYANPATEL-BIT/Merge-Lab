@@ -1,9 +1,9 @@
-// @handshake/shared — canonical contract types, single source of truth.
+// @mergelab/shared - canonical contract types, single source of truth.
 // P1-owned. Everyone (extractor, daemon, hooks, ingest, context, verdict)
 // imports from here so every tier validates against the exact same objects.
 //
 // zod schemas are authoritative; TypeScript types are inferred from them.
-// Hard rule: declarations carry names and types only — never source code,
+// Hard rule: declarations carry names and types only - never source code,
 // diffs, or literal values.
 
 import { createHash } from "node:crypto";
@@ -166,7 +166,7 @@ export function shapeHash(d: Declaration): string {
 // Shared so P2 (ingest/context/verdict) validates the same objects the
 // daemon and hooks produce.
 
-/** POST /v1/declarations — daemon publishes a working tree's declarations. */
+/** POST /v1/declarations - daemon publishes a working tree's declarations. */
 export const PostDeclarationsRequestSchema = z.object({
   schema_version: z.literal(SCHEMA_VERSION),
   repo: z.string(),
@@ -186,7 +186,7 @@ export type PostDeclarationsResponse = z.infer<
   typeof PostDeclarationsResponseSchema
 >;
 
-/** GET /v1/context — teammate contracts read at SessionStart. */
+/** GET /v1/context - teammate contracts read at SessionStart. */
 export const GetContextRequestSchema = z.object({
   repo: z.string(),
   branch: z.string().optional(),
@@ -200,7 +200,7 @@ export const GetContextResponseSchema = z.object({
 });
 export type GetContextResponse = z.infer<typeof GetContextResponseSchema>;
 
-/** POST /v1/verdict — PreToolUse drift check for a pending write. */
+/** POST /v1/verdict - PreToolUse drift check for a pending write. */
 export const PostVerdictRequestSchema = z.object({
   repo: z.string(),
   branch: z.string(),
@@ -213,7 +213,7 @@ export const PostVerdictResponseSchema = VerdictSchema;
 export type PostVerdictResponse = Verdict;
 
 /**
- * GET /v1/board — one-shot snapshot for the projector board. A branch is
+ * GET /v1/board - one-shot snapshot for the projector board. A branch is
  * `active` when it reported within the heartbeat window, else `dormant`.
  * A dormant branch is still returned so absence never reads as "nobody here".
  */
@@ -240,3 +240,34 @@ export type GetBoardResponse = z.infer<typeof GetBoardResponseSchema>;
 
 /** A branch is active if it reported within this window (ms). */
 export const HEARTBEAT_WINDOW_MS = 5 * 60 * 1000;
+
+// ---- Auth & Workspace -----------------------------------------------------
+
+export const SignupRequestSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  email: z.string().email("Valid email required"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  workspace: z.string().optional(),
+});
+export type SignupRequest = z.infer<typeof SignupRequestSchema>;
+
+export const LoginRequestSchema = z.object({
+  email: z.string().email("Valid email required"),
+  password: z.string().min(1, "Password is required"),
+});
+export type LoginRequest = z.infer<typeof LoginRequestSchema>;
+
+export const UserProfileSchema = z.object({
+  name: z.string(),
+  email: z.string(),
+  workspace: z.string(),
+});
+export type UserProfile = z.infer<typeof UserProfileSchema>;
+
+export const AuthResponseSchema = z.object({
+  token: z.string(),
+  user: UserProfileSchema,
+  workspace: z.string(),
+});
+export type AuthResponse = z.infer<typeof AuthResponseSchema>;
+

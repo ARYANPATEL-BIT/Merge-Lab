@@ -308,7 +308,7 @@
 }
 
 /* When the whole page is already dark, the inverted band would vanish into the
-   background — lift it to a slightly raised surface with hairline edges so it
+   background - lift it to a slightly raised surface with hairline edges so it
    still reads as a distinct section. */
 :root[data-theme="dark"] .invert {
   --bg: #1c1a16;

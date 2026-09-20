@@ -48,7 +48,7 @@ export function Landing() {
   const rootRef = useRef<HTMLDivElement>(null);
   const [rich, setRich] = useState(false);
 
-  useDocumentTitle("Merge Lab — the pre-push context layer");
+  useDocumentTitle("Merge Lab - the pre-push context layer");
   useReveals(rootRef);
 
   // Enable WebGL + custom cursor only on desktop, fine-pointer, motion-allowed.
@@ -70,13 +70,16 @@ export function Landing() {
         }
       >
         <ThemeToggle />
+        <Link className="btn btn-secondary" to="/login" style={{ fontSize: "0.85rem", padding: "0.4rem 0.75rem" }}>
+          Log in
+        </Link>
         <Link className="btn btn-primary nav-cta" to="/board">
           Open the board
           <ArrowRight />
         </Link>
       </PillNav>
 
-      {/* 1 — HERO */}
+      {/* 1 - HERO */}
       <header className="hero">
         {rich ? (
           <Suspense fallback={null}>
@@ -84,30 +87,33 @@ export function Landing() {
           </Suspense>
         ) : null}
         <div className="hero-inner" data-reveal>
-          <p className="label">Merge&nbsp;Lab — The pre-push context layer</p>
+          <p className="label">Merge&nbsp;Lab - The pre-push context layer</p>
           <h1 className="hero-title">
             <span className="line-ink">Stop waiting</span>
             <span className="line-grey">for the push.</span>
           </h1>
           <p className="hero-sub">
-            Merge Lab publishes your teammates' interface decisions — signatures,
-            data shapes, deps, routes — straight from their working tree, before
+            Merge Lab publishes your teammates' interface decisions - signatures,
+            data shapes, deps, routes - straight from their working tree, before
             anything is committed.
           </p>
           <div className="hero-actions">
-            <Link className="btn btn-primary" to="/board">
-              Open the board
+            <Link className="btn btn-primary" to="/signup">
+              Create workspace
               <ArrowRight />
             </Link>
+            <Link className="btn btn-secondary" to="/board">
+              Open the board
+            </Link>
             <a className="btn btn-secondary" href={GITHUB_URL} target="_blank" rel="noreferrer">
-              Read the docs
+              Docs
             </a>
           </div>
         </div>
         <div className="hero-fade" aria-hidden={true} />
       </header>
 
-      {/* 2 — THE PROBLEM */}
+      {/* 2 - THE PROBLEM */}
       <section className="section problem" aria-labelledby="problem-title">
         <div className="section-inner">
           <div className="problem-grid" data-reveal>
@@ -119,14 +125,14 @@ export function Landing() {
             </div>
             <div className="problem-body">
               <p>
-                An interface decision — the shape of <code className="mono">User</code>,
-                the name of a route, which HTTP client the repo standardises on — is
+                An interface decision - the shape of <code className="mono">User</code>,
+                the name of a route, which HTTP client the repo standardises on - is
                 made in the first five minutes of a session.
               </p>
               <p>
                 Its implementation takes the next three hours. Today the push is the
                 only channel that carries it, so the developer who depends on that
-                decision waits the full three hours to find out what it was — and
+                decision waits the full three hours to find out what it was - and
                 builds against a guess in the meantime.
               </p>
               <p className="problem-punch">
@@ -152,13 +158,13 @@ export function Landing() {
         </div>
       </section>
 
-      {/* 3 — HOW IT WORKS (inverted) */}
+      {/* 3 - HOW IT WORKS (inverted) */}
       <section className="section invert" id="how" aria-labelledby="how-title">
         <div className="section-inner">
           <div className="how-head" data-reveal>
             <p className="label">How it works</p>
             <h2 id="how-title" className="section-title">
-              Declare, inject, block — three deterministic steps.
+              Declare, inject, block - three deterministic steps.
             </h2>
           </div>
           <div className="how-grid">
@@ -185,7 +191,7 @@ export function Landing() {
               </div>
               <pre className="terminal-body mono">{CONTEXT_BLOCK}</pre>
               <figcaption className="terminal-cap mono">
-                The exact block render.ts emits for the demo dataset — the whole
+                The exact block render.ts emits for the demo dataset - the whole
                 payload is names and types.
               </figcaption>
             </figure>
@@ -193,7 +199,7 @@ export function Landing() {
         </div>
       </section>
 
-      {/* 4 — CAPABILITIES */}
+      {/* 4 - CAPABILITIES */}
       <section className="section caps" id="caps" aria-labelledby="caps-title">
         <div className="section-inner">
           <div className="caps-head" data-reveal>
@@ -219,7 +225,7 @@ export function Landing() {
         </div>
       </section>
 
-      {/* 5 — THE RULES */}
+      {/* 5 - THE RULES */}
       <section className="section rules" id="rules" aria-labelledby="rules-title">
         <div className="section-inner">
           <div className="rules-head" data-reveal>
@@ -229,7 +235,7 @@ export function Landing() {
             </h2>
             <p className="rules-note">
               Every verdict is one of these, decided deterministically. The reason
-              is a plain string the writer can read — shown here as emitted for the
+              is a plain string the writer can read - shown here as emitted for the
               demo dataset.
             </p>
           </div>
@@ -247,7 +253,7 @@ export function Landing() {
         </div>
       </section>
 
-      {/* 6 — NUMBERS */}
+      {/* 6 - NUMBERS */}
       <section className="section numbers" aria-labelledby="numbers-title">
         <div className="section-inner">
           <div className="numbers-head" data-reveal>
@@ -267,7 +273,7 @@ export function Landing() {
         </div>
       </section>
 
-      {/* 7 — BUILT ON AWS */}
+      {/* 7 - BUILT ON AWS */}
       <section className="section aws" id="aws" aria-labelledby="aws-title">
         <div className="section-inner">
           <div className="aws-head" data-reveal>
@@ -290,7 +296,7 @@ export function Landing() {
         </div>
       </section>
 
-      {/* 8 — CTA + FOOTER */}
+      {/* 8 - CTA + FOOTER */}
       <section className="section cta" aria-labelledby="cta-title">
         <div className="section-inner cta-inner" data-reveal>
           <p className="label">Open the board</p>
@@ -317,6 +323,8 @@ export function Landing() {
           <p className="footer-tag mono">The pre-push context layer</p>
           <div className="footer-links">
             <Link to="/board">Board</Link>
+            <Link to="/login">Log in</Link>
+            <Link to="/signup">Sign up</Link>
             <a href={GITHUB_URL} target="_blank" rel="noreferrer">
               GitHub
             </a>

@@ -1,7 +1,7 @@
-// ~/.handshake/config.json — apiUrl + bearer token, optional owner override,
+// ~/.mergelab/config.json - apiUrl + bearer token, optional owner override,
 // and the hook enforcement mode. The token lives here, in the developer's home,
 // and is never read from the repo: publishing must not depend on a secret being
-// checked in. The directory is overridable via HANDSHAKE_CONFIG_DIR so tests
+// checked in. The directory is overridable via MERGELAB_CONFIG_DIR so tests
 // (and sandboxes) never touch the real home.
 
 import { mkdir, readFile, writeFile } from "node:fs/promises";
@@ -22,7 +22,7 @@ export const ConfigSchema = z.object({
 export type Config = z.infer<typeof ConfigSchema>;
 
 export function configDir(): string {
-  return process.env.HANDSHAKE_CONFIG_DIR ?? join(homedir(), ".handshake");
+  return process.env.MERGELAB_CONFIG_DIR ?? join(homedir(), ".mergelab");
 }
 
 export function configPath(): string {
@@ -35,7 +35,7 @@ export async function loadConfig(): Promise<Config> {
     raw = await readFile(configPath(), "utf8");
   } catch {
     throw new Error(
-      `no config at ${configPath()} — run: handshake init --api-url <url> --token <token>`,
+      `no config at ${configPath()} - run: mergelab init --api-url <url> --token <token>`,
     );
   }
   let json: unknown;

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { fetchBoard, isDemo, repo, type BoardSnapshot } from "./data.js";
+import { Link } from "react-router-dom";
+import { fetchBoard, getStoredSession, isDemo, repo, type BoardSnapshot } from "./data.js";
 import { relativeTime } from "./lib/format.js";
 import { useDocumentTitle } from "./landing/motion.js";
 import { PillNav } from "./landing/Nav.js";
@@ -55,7 +56,7 @@ function useBoard() {
 export function App() {
   const { snapshot, status, error, updatedMs } = useBoard();
 
-  useDocumentTitle("Merge Lab — Contract Board");
+  useDocumentTitle("Merge Lab - Contract Board");
 
   // One-second ticker so the header freshness label counts up between polls.
   const [, setTick] = useState(0);
@@ -70,6 +71,18 @@ export function App() {
   return (
     <div className="app">
       <PillNav>
+        <Link
+          to="/"
+          style={{
+            color: "var(--text-dim)",
+            textDecoration: "none",
+            fontSize: "0.85rem",
+            padding: "0.2rem 0.4rem",
+            fontWeight: 500,
+          }}
+        >
+          Home
+        </Link>
         <span className="repo mono" title="repository">
           {repo}
         </span>
@@ -77,12 +90,25 @@ export function App() {
           <span className="mode-dot" aria-hidden={true} />
           {isDemo ? "Demo" : "Live"}
         </span>
+        {getStoredSession() ? (
+          <span className="mono" style={{ fontSize: "0.8rem", color: "var(--text-dim)", padding: "0 0.25rem" }}>
+            {getStoredSession()?.user.name} ({getStoredSession()?.workspace})
+          </span>
+        ) : (
+          <Link
+            to="/login"
+            className="btn btn-secondary"
+            style={{ fontSize: "0.75rem", padding: "0.2rem 0.5rem", minHeight: "auto" }}
+          >
+            Log in
+          </Link>
+        )}
         <span className="freshness" role="status" aria-live="polite">
           {status === "loading"
             ? "connecting…"
             : updatedMs
               ? `updated ${relativeTime(new Date(updatedMs).toISOString(), Date.now())}`
-              : "—"}
+              : "-"}
         </span>
         <ThemeToggle />
       </PillNav>
@@ -90,7 +116,7 @@ export function App() {
       {status === "error" ? (
         <div className="banner" role="status" aria-live="polite">
           Can't reach the registry{error ? ` (${error})` : ""}. Showing the last
-          known snapshot — retrying every {POLL_MS / 1000}s.
+          known snapshot - retrying every {POLL_MS / 1000}s.
         </div>
       ) : null}
 

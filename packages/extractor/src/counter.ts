@@ -8,7 +8,7 @@ export function bumpExtractFailed(): void {
   extractFailed += 1;
 }
 
-/** Test hook — reset the counter between cases. */
+/** Test hook - reset the counter between cases. */
 export function resetExtractFailed(): void {
   extractFailed = 0;
 }

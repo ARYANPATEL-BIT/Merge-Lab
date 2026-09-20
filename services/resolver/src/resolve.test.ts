@@ -1,4 +1,4 @@
-import type { Contract, Declaration } from "@handshake/shared";
+import type { Contract, Declaration } from "@mergelab/shared";
 import { describe, expect, it } from "vitest";
 import { resolve } from "./index.js";
 

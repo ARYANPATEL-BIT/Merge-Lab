@@ -1,4 +1,4 @@
-import type { Finding } from "@handshake/shared";
+import type { Finding } from "@mergelab/shared";
 import { severityMeta } from "../lib/format.js";
 import { EmptyState } from "./EmptyState.js";
 import { SeverityIcon, ShieldCheck } from "./icons.js";
