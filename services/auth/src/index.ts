@@ -11,6 +11,7 @@ import {
   SignupRequestSchema,
   type AuthResponse,
 } from "@mergelab/shared";
+import { routeWorkspaces } from "./workspaces.js";
 
 const TABLE = process.env.TABLE_NAME || "mergelab";
 
@@ -203,6 +204,11 @@ export async function handler(event: APIGatewayProxyEventV2): Promise<APIGateway
   if (method === "POST" && path.endsWith("/login")) {
     return handleLogin(event);
   }
+
+  // Workspace routes (create/list/detail/join/requests/tokens). Additive; the
+  // legacy static token and the signup/login flow above are untouched.
+  const ws = await routeWorkspaces(event, method, path);
+  if (ws) return ws;
 
   return reply(404, { error: `not found: ${method} ${path}` });
 }

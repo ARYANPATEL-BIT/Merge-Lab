@@ -24,6 +24,7 @@ Globals:
       AllowMethods:
         - GET
         - POST
+        - DELETE
         - OPTIONS
   Function:
     Runtime: nodejs20.x
@@ -201,6 +202,46 @@ Resources:
           Properties:
             Path: /v1/auth/login
             Method: POST
+        WorkspacesCreate:
+          Type: HttpApi
+          Properties:
+            Path: /v1/workspaces
+            Method: POST
+        WorkspacesList:
+          Type: HttpApi
+          Properties:
+            Path: /v1/workspaces
+            Method: GET
+        WorkspaceJoin:
+          Type: HttpApi
+          Properties:
+            Path: /v1/workspaces/join
+            Method: POST
+        WorkspaceDetail:
+          Type: HttpApi
+          Properties:
+            Path: /v1/workspaces/{id}
+            Method: GET
+        WorkspaceApprove:
+          Type: HttpApi
+          Properties:
+            Path: /v1/workspaces/{id}/requests/{userId}/approve
+            Method: POST
+        WorkspaceDeny:
+          Type: HttpApi
+          Properties:
+            Path: /v1/workspaces/{id}/requests/{userId}/deny
+            Method: POST
+        WorkspaceMintToken:
+          Type: HttpApi
+          Properties:
+            Path: /v1/workspaces/{id}/tokens
+            Method: POST
+        WorkspaceRevokeToken:
+          Type: HttpApi
+          Properties:
+            Path: /v1/workspaces/{id}/tokens/{hash}
+            Method: DELETE
 
 Outputs:
   ApiUrl:

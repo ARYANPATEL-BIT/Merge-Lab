@@ -4,9 +4,14 @@
 // assembleBoard so the deployed board and the frontend's demo mode agree.
 
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient, QueryCommand } from "@aws-sdk/lib-dynamodb";
+import { DynamoDBDocumentClient, GetCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
 import type { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
-import { ContractSchema, type Contract } from "@mergelab/shared";
+import {
+  ContractSchema,
+  contractInWorkspace,
+  resolveWorkspaceContext,
+  type Contract,
+} from "@mergelab/shared";
 import { assembleBoard, type Binding } from "@mergelab/resolver";
 
 const TABLE = process.env.TABLE_NAME as string;
@@ -19,6 +24,13 @@ const ddb = DynamoDBDocumentClient.from(new DynamoDBClient({}), {
 function bearer(event: APIGatewayProxyEventV2): string | undefined {
   const h = event.headers ?? {};
   return h.authorization ?? h.Authorization;
+}
+
+async function lookupToken(hash: string): Promise<unknown> {
+  const out = await ddb.send(
+    new GetCommand({ TableName: TABLE, Key: { PK: `TOKEN#${hash}`, SK: "WORKSPACE" } }),
+  );
+  return out.Item;
 }
 
 function reply(statusCode: number, body: unknown): APIGatewayProxyResultV2 {
@@ -72,12 +84,14 @@ async function bindingsByBranch(repo: string): Promise<Record<string, Binding[]>
 
 export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
   const started = Date.now();
-  if (bearer(event) !== `Bearer ${TOKEN}`) return reply(401, { error: "unauthorized" });
+  const ctx = await resolveWorkspaceContext(bearer(event), TOKEN, lookupToken);
+  if (!ctx) return reply(401, { error: "unauthorized" });
 
   const repo = (event.queryStringParameters ?? {}).repo;
   if (!repo) return reply(400, { error: "invalid_request", issues: [{ path: ["repo"], message: "required" }] });
 
-  const [contracts, bindings] = await Promise.all([allContracts(repo), bindingsByBranch(repo)]);
+  const [allRepoContracts, bindings] = await Promise.all([allContracts(repo), bindingsByBranch(repo)]);
+  const contracts = allRepoContracts.filter((c) => contractInWorkspace(c, ctx.workspace_id));
   const board = assembleBoard(contracts, Date.now(), bindings);
 
   console.log(

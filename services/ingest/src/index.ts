@@ -3,9 +3,16 @@
 // Contracts. Does NOT reimplement validation, resolution, or versioning.
 
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient, PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
+import { DynamoDBDocumentClient, GetCommand, PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
 import type { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
-import { ContractSchema, PostDeclarationsRequestSchema, type Contract } from "@mergelab/shared";
+import {
+  ContractSchema,
+  DEFAULT_WORKSPACE_ID,
+  PostDeclarationsRequestSchema,
+  contractInWorkspace,
+  resolveWorkspaceContext,
+  type Contract,
+} from "@mergelab/shared";
 import { resolve } from "@mergelab/resolver";
 import { ulid } from "ulid";
 
@@ -20,6 +27,15 @@ const ddb = DynamoDBDocumentClient.from(new DynamoDBClient({}), {
 function bearer(event: APIGatewayProxyEventV2): string | undefined {
   const h = event.headers ?? {};
   return h.authorization ?? h.Authorization;
+}
+
+// Global token -> workspace lookup. Only reached for a workspace-prefixed token;
+// the legacy static token and any other token are resolved without this query.
+async function lookupToken(hash: string): Promise<unknown> {
+  const out = await ddb.send(
+    new GetCommand({ TableName: TABLE, Key: { PK: `TOKEN#${hash}`, SK: "WORKSPACE" } }),
+  );
+  return out.Item;
 }
 
 function reply(statusCode: number, body: unknown): APIGatewayProxyResultV2 {
@@ -65,7 +81,8 @@ async function activeContracts(repo: string): Promise<Contract[]> {
 
 export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
   const started = Date.now();
-  if (bearer(event) !== `Bearer ${TOKEN}`) return reply(401, { error: "unauthorized" });
+  const ctx = await resolveWorkspaceContext(bearer(event), TOKEN, lookupToken);
+  if (!ctx) return reply(401, { error: "unauthorized" });
 
   let payload: unknown;
   try {
@@ -77,7 +94,14 @@ export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGateway
   if (!parsed.success) return reply(400, { error: "invalid_request", issues: parsed.error.issues });
 
   const { repo, branch, owner, declarations } = parsed.data;
-  const { resolutions, superseded } = resolve(declarations, await activeContracts(repo));
+  // Version resolution only sees prior contracts in the caller's workspace, so
+  // two workspaces sharing a repo name never collide on versions.
+  const priors = (await activeContracts(repo)).filter((c) => contractInWorkspace(c, ctx.workspace_id));
+  const { resolutions, superseded } = resolve(declarations, priors);
+
+  // A real workspace stamps workspace_id onto its rows; the legacy/default
+  // caller writes exactly what it always did (no workspace_id, no extra rows).
+  const scoped = ctx.workspace_id !== DEFAULT_WORKSPACE_ID;
 
   const contracts: Contract[] = [];
   const writes: Promise<unknown>[] = [];
@@ -97,12 +121,31 @@ export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGateway
       status: "declared",
       ...(r.supersedes ? { supersedes: r.supersedes } : {}),
       declared_at: new Date().toISOString(),
+      ...(scoped ? { workspace_id: ctx.workspace_id } : {}),
     };
     contracts.push(contract);
     writes.push(ddb.send(new PutCommand({ TableName: TABLE, Item: contractItem(contract) })));
   }
   for (const prior of superseded) {
     writes.push(ddb.send(new PutCommand({ TableName: TABLE, Item: contractItem(prior) })));
+  }
+  // Record repo membership so a workspace's detail view can list its repos.
+  // Idempotent; only for real workspaces (the default caller tracks no repos).
+  if (scoped && contracts.length > 0) {
+    writes.push(
+      ddb.send(
+        new PutCommand({
+          TableName: TABLE,
+          Item: {
+            PK: `WS#${ctx.workspace_id}`,
+            SK: `REPO#${repo}`,
+            entity: "WORKSPACE_REPO",
+            repo,
+            last_seen: new Date().toISOString(),
+          },
+        }),
+      ),
+    );
   }
   await Promise.all(writes);
 

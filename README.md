@@ -75,11 +75,21 @@ Or check the `fixtures/scenarios.ts` file for the exact input/output shapes.
 
 ## Authentication
 
-Authentication is a single static workspace token today (`MERGELAB_TOKEN`). Do not assume Cognito or any robust IAM setup exists yet.
+Two token paths, both bearer tokens on `Authorization: Bearer <token>`:
+
+- **Workspace tokens** (`ml_ws_...`) scope every request to one workspace. Create
+  a workspace at `/workspaces` (or `POST /v1/workspaces`) to get a join code and an
+  owner token; owners approve join requests and mint/revoke labelled tokens. Tokens
+  are stored hashed, never in plaintext.
+- **The legacy static token** (`MERGELAB_TOKEN`) still works unchanged and maps to a
+  `default` workspace, so the existing CLI and hooks keep publishing without changes.
+
+There is a separate email/password signup at `/signup` for the hosted console. There
+is still no Cognito or IAM federation - do not assume one exists.
 
 ## Not yet built (the seams)
 
-- **Cognito** - auth is a single static `MERGELAB_TOKEN` bearer only.
+- **Cognito / IAM federation** - workspace tokens and the legacy `MERGELAB_TOKEN` bearer are the only auth; there is no federated identity provider.
 - **EventBridge + notify Lambda** - nothing publishes/consumes change events; STALE_BINDING is computed on demand, not pushed.
 - **GSI2** - only GSI1 exists; a second index for reverse (symbol → consumers) lookups is not modeled.
 - **The resolver's coupling graph** - `runRules` only sees the declarations in the request plus active contracts; there's no persisted provider→consumer graph.

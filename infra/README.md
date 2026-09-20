@@ -19,8 +19,8 @@ Built ahead by P1 so P2 can pick up from working code. The handlers import
 
 | Name              | Where              | Purpose                                             |
 | ----------------- | ------------------ | --------------------------------------------------- |
-| `MergelabToken`  | deploy parameter   | Static workspace token; becomes each Lambda's `MERGELAB_TOKEN`. Callers send `Authorization: Bearer <token>`. |
-| `MERGELAB_TOKEN` | Lambda env (auto)  | Set from the parameter by the template.             |
+| `MergelabToken`  | deploy parameter   | Legacy static token; becomes each Lambda's `MERGELAB_TOKEN` and maps to the `default` workspace. Callers send `Authorization: Bearer <token>`. |
+| `MERGELAB_TOKEN` | Lambda env (auto)  | Set from the parameter by the template. Also lets the auth service resolve the legacy token to the default workspace. |
 | `TABLE_NAME`      | Lambda env (auto)  | Set to the `mergelab` table by the template.       |
 
 ## Deploy (PowerShell)
@@ -70,7 +70,7 @@ yet (see below).
 
 ## Not yet built (the seams - for whoever picks this up)
 
-- **Cognito** - auth is a single static `MERGELAB_TOKEN` bearer only.
+- **Cognito / IAM federation** - auth is workspace tokens (`ml_ws_...`, via the auth service) plus the legacy static `MERGELAB_TOKEN` bearer; no federated identity provider.
 - **EventBridge + notify Lambda** - nothing publishes/consumes change events;
   STALE_BINDING is computed on demand, not pushed.
 - **GSI2** - only GSI1 exists; a second index for reverse (symbol → consumers)
