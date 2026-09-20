@@ -23,7 +23,7 @@ An interface decision — the shape of a User, the name of a route, the choice o
 | `services/ingest`     | P2   | Accepts published declarations from daemons.                   |
 | `services/context`    | P2   | Serves teammate contracts at SessionStart.                     |
 | `services/verdict`    | P2   | Deterministic drift check consumed at PreToolUse.              |
-| `packages/daemon`     | P3   | Watches the working tree and publishes declarations.           |
+| `packages/daemon`     | P3   | The CLI that walks the working tree. A deliberate choice over a background daemon for better visibility and control. |
 | `packages/hooks`      | P3   | SessionStart + PreToolUse hooks. Fail open.                    |
 | `board`               | P4   | Dashboard UI.                                                  |
 
@@ -37,9 +37,9 @@ AWS: Lambda + API Gateway + DynamoDB via SAM. Region `ap-south-1`.
 ```mermaid
 flowchart LR
     subgraph Devs [Developer Machines]
-        A[Dev A] -->|Daemon publish| API
-        B[Dev B] -->|Daemon pre-write| API
-        B -->|Daemon session-start| API
+        A[Dev A] -->|CLI publish| API
+        B[Dev B] -->|CLI pre-write| API
+        B -->|CLI session-start| API
     end
 
     subgraph AWS [AWS Control Plane ap-south-1]
@@ -47,11 +47,11 @@ flowchart LR
         API --> Ingest[ingest Lambda]
         API --> Context[context Lambda]
         API --> Verdict[verdict Lambda]
-        API --> Resolver[resolver Lambda]
+        API --> Board[board Lambda]
         Ingest --> DB[(DynamoDB)]
         Context --> DB
         Verdict --> DB
-        Resolver --> DB
+        Board --> DB
     end
 
     subgraph UI [Projector]
@@ -69,7 +69,7 @@ pnpm install && pnpm typecheck && pnpm test
 **Running the Scenarios Table:**
 To view the deterministic drift scenarios (six rules):
 ```sh
-pnpm --filter @handshake/resolver run test
+pnpm --filter @handshake/resolver run test:scenarios
 ```
 Or check the `fixtures/scenarios.ts` file for the exact input/output shapes.
 
