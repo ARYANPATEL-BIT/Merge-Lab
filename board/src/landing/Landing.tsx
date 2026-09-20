@@ -70,9 +70,6 @@ export function Landing() {
         }
       >
         <ThemeToggle />
-        <Link className="nav-login" to="/login">
-          Log in
-        </Link>
         <Link className="btn btn-primary nav-cta" to="/board">
           Open the board
           <ArrowRight />

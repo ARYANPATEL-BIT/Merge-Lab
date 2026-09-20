@@ -26,7 +26,7 @@ export function Branches({
           <EmptyState
             icon={<InboxIcon />}
             title="No branches reporting"
-            hint="Run handshake publish from a working tree and its branch shows up here."
+            hint="Run the CLI publish from a working tree and its branch shows up here."
           />
         ) : (
           <ul className="branch-list">

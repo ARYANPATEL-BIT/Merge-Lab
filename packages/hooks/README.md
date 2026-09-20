@@ -1,6 +1,6 @@
 # @handshake/hooks
 
-Claude Code hooks for Handshake, dispatched by the `handshake` bin so you
+Claude Code hooks for Merge Lab, dispatched by the `handshake` bin so you
 configure a single command. Two entrypoints:
 
 - **`handshake hook session-start`** (SessionStart) — resolves the repo/branch
