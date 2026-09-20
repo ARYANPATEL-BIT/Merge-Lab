@@ -8,6 +8,7 @@ import type { RuleId, Severity } from "@mergelab/shared";
 import generatedStats from "../generated/stats.json";
 
 export const GITHUB_URL = "https://github.com/ARYANPATEL-BIT/Merge-Lab";
+export const DOCS_URL = "https://github.com/ARYANPATEL-BIT/Merge-Lab/blob/main/README.md";
 
 /** The six deterministic rules, with the actual linter-style reason strings the
  *  engine emits. Rules 1/2/3/6 are the exact messages produced for the demo

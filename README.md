@@ -2,6 +2,12 @@
 
 **The pre-push interface contract registry for developers and AI agents.**
 
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-AWS%20Amplify-FF9900?style=for-the-badge&logo=amazonaws)](https://main.dm8i0zl4w1m4z.amplifyapp.com/)
+[![Video Demo](https://img.shields.io/badge/Demo%20Video-YouTube-FF0000?style=for-the-badge&logo=youtube)](https://youtu.be/27SFZ19AJ5s?si=4X6rblSmGCwq4Gzw)
+
+- **Live Application:** [https://main.dm8i0zl4w1m4z.amplifyapp.com/](https://main.dm8i0zl4w1m4z.amplifyapp.com/)
+- **Demo Video:** [https://youtu.be/27SFZ19AJ5s](https://youtu.be/27SFZ19AJ5s?si=4X6rblSmGCwq4Gzw)
+
 Your teammate picks `axios` and names a field `user_id` in the first five minutes of work. Your AI agent, running on a separate branch, drafts `node-fetch` and `userId`. Neither side pushes for hours. By merge time, everything breaks.
 
 Merge Lab kills that problem at the root. A local CLI reads each dev's working tree (including uncommitted changes) on demand and publishes **declarations only**: exported signatures, data shapes, deps, env var names, routes. Never source code. Teammates' agents read those contracts at `SessionStart` and get blocked at `PreToolUse` the instant a write drifts from an established decision.

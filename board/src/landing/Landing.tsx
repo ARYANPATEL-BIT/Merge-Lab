@@ -18,6 +18,7 @@ import {
   AWS_SERVICES,
   CAPABILITIES,
   CONTEXT_BLOCK,
+  DOCS_URL,
   GITHUB_URL,
   RULES,
   STATS,
@@ -108,7 +109,7 @@ export function Landing() {
             <Link className="btn btn-secondary" to="/board">
               Open the board
             </Link>
-            <a className="btn btn-secondary" href={GITHUB_URL} target="_blank" rel="noreferrer">
+            <a className="btn btn-secondary" href={DOCS_URL} target="_blank" rel="noreferrer">
               Docs
             </a>
           </div>
@@ -313,7 +314,7 @@ export function Landing() {
               Open the board
               <ArrowRight />
             </Link>
-            <a className="btn btn-secondary" href={GITHUB_URL} target="_blank" rel="noreferrer">
+            <a className="btn btn-secondary" href={DOCS_URL} target="_blank" rel="noreferrer">
               Read the docs
             </a>
           </div>
