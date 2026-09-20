@@ -1,10 +1,10 @@
-// `handshake check <file>` — extract one file, ask the registry for a verdict
+// `mergelab check <file>` - extract one file, ask the registry for a verdict
 // against active teammate contracts, and print the findings. Read-only: this is
 // the same deterministic drift check the PreToolUse hook will run.
 
 import { readFileSync } from "node:fs";
 import { relative, resolve as resolvePath } from "node:path";
-import { PostVerdictRequestSchema } from "@handshake/shared";
+import { PostVerdictRequestSchema } from "@mergelab/shared";
 import { ApiError, postVerdict } from "./api.js";
 import { loadConfig } from "./config.js";
 import { toPosix } from "./git.js";
@@ -13,7 +13,7 @@ import { resolveIdentity } from "./identity.js";
 import { info, warn } from "./log.js";
 
 export async function cmdCheck(target: string | undefined): Promise<void> {
-  if (!target) throw new Error("usage: handshake check <file>");
+  if (!target) throw new Error("usage: mergelab check <file>");
   const cfg = await loadConfig();
   const { repo, branch, owner, root } = resolveIdentity(process.cwd(), cfg.owner);
 

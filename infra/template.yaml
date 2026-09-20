@@ -1,11 +1,11 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  Handshake registry (P2) — ingest / context / verdict / board Lambdas behind
+  Merge Lab registry (P2) - ingest / context / verdict / board Lambdas behind
   one HTTP API, backed by a single DynamoDB table. Deploy to ap-south-1.
 
 Parameters:
-  HandshakeToken:
+  MergelabToken:
     Type: String
     NoEcho: true
     MinLength: 1
@@ -33,14 +33,14 @@ Globals:
     Timeout: 10
     Environment:
       Variables:
-        TABLE_NAME: !Ref HandshakeTable
-        HANDSHAKE_TOKEN: !Ref HandshakeToken
+        TABLE_NAME: !Ref MergelabTable
+        MERGELAB_TOKEN: !Ref MergelabToken
 
 Resources:
-  HandshakeTable:
+  MergelabTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: handshake
+      TableName: mergelab
       BillingMode: PAY_PER_REQUEST
       AttributeDefinitions:
         - AttributeName: PK
@@ -84,7 +84,7 @@ Resources:
       Handler: src/index.handler
       Policies:
         - DynamoDBCrudPolicy:
-            TableName: !Ref HandshakeTable
+            TableName: !Ref MergelabTable
       Events:
         Post:
           Type: HttpApi
@@ -110,7 +110,7 @@ Resources:
       Handler: src/index.handler
       Policies:
         - DynamoDBReadPolicy:
-            TableName: !Ref HandshakeTable
+            TableName: !Ref MergelabTable
       Events:
         Get:
           Type: HttpApi
@@ -137,7 +137,7 @@ Resources:
       MemorySize: 1024
       Policies:
         - DynamoDBReadPolicy:
-            TableName: !Ref HandshakeTable
+            TableName: !Ref MergelabTable
       Events:
         Post:
           Type: HttpApi
@@ -163,7 +163,7 @@ Resources:
       Handler: src/index.handler
       Policies:
         - DynamoDBReadPolicy:
-            TableName: !Ref HandshakeTable
+            TableName: !Ref MergelabTable
       Events:
         Get:
           Type: HttpApi
@@ -171,10 +171,41 @@ Resources:
             Path: /v1/board
             Method: GET
 
+  AuthFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: cjs
+        Target: node20
+        Sourcemap: true
+        Minify: false
+        EntryPoints:
+          - src/index.ts
+        External:
+          - "@aws-sdk/*"
+    Properties:
+      CodeUri: ../services/auth
+      Handler: src/index.handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref MergelabTable
+      Events:
+        Signup:
+          Type: HttpApi
+          Properties:
+            Path: /v1/auth/signup
+            Method: POST
+        Login:
+          Type: HttpApi
+          Properties:
+            Path: /v1/auth/login
+            Method: POST
+
 Outputs:
   ApiUrl:
-    Description: Base URL of the Handshake HTTP API.
+    Description: Base URL of the Merge Lab HTTP API.
     Value: !Sub "https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com"
   TableName:
     Description: DynamoDB table name.
-    Value: !Ref HandshakeTable
+    Value: !Ref MergelabTable

@@ -1,10 +1,10 @@
-// Turns on-disk files into Declarations by delegating to @handshake/extractor.
-// The daemon never parses source itself — it only decides which extractor a
+// Turns on-disk files into Declarations by delegating to @mergelab/extractor.
+// The daemon never parses source itself - it only decides which extractor a
 // path belongs to and diffs package.json against HEAD for dependency changes.
 
 import { basename } from "node:path";
-import type { Declaration } from "@handshake/shared";
-import { extractManifestDeps, typescriptExtractor } from "@handshake/extractor";
+import type { Declaration } from "@mergelab/shared";
+import { extractManifestDeps, typescriptExtractor } from "@mergelab/extractor";
 import { headFileText } from "./git.js";
 
 /**

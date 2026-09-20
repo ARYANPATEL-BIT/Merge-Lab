@@ -1,15 +1,15 @@
-# @handshake/hooks
+# @mergelab/hooks
 
-Claude Code hooks for Merge Lab, dispatched by the `handshake` bin so you
+Claude Code hooks for Merge Lab, dispatched by the `mergelab` bin so you
 configure a single command. Two entrypoints:
 
-- **`handshake hook session-start`** (SessionStart) — resolves the repo/branch
+- **`mergelab hook session-start`** (SessionStart) - resolves the repo/branch
   from the session's `cwd`, fetches the contracts this branch can consume
   (excluding your own), and prints the rendered block to stdout. Claude Code
   injects that stdout into the session context. Nothing to say, or any error →
   prints nothing, exits 0.
 
-- **`handshake hook pre-write`** (PreToolUse, `Write`) — extracts declarations
+- **`mergelab hook pre-write`** (PreToolUse, `Write`) - extracts declarations
   from the **proposed** file content, asks `/v1/verdict` for a deterministic
   ruling, and enforces it up to your configured `mode`:
   - `block` verdict + `mode: "block"` → denies the write and hands the agent
@@ -22,7 +22,7 @@ configure a single command. Two entrypoints:
 ## Install
 
 Add both hooks to your project's `.claude/settings.json` (assumes the
-`handshake` bin is on your `PATH` — see the daemon README for building/linking):
+`mergelab` bin is on your `PATH` - see the daemon README for building/linking):
 
 ```json
 {
@@ -30,7 +30,7 @@ Add both hooks to your project's `.claude/settings.json` (assumes the
     "SessionStart": [
       {
         "hooks": [
-          { "type": "command", "command": "handshake hook session-start" }
+          { "type": "command", "command": "mergelab hook session-start" }
         ]
       }
     ],
@@ -38,7 +38,7 @@ Add both hooks to your project's `.claude/settings.json` (assumes the
       {
         "matcher": "Write",
         "hooks": [
-          { "type": "command", "command": "handshake hook pre-write" }
+          { "type": "command", "command": "mergelab hook pre-write" }
         ]
       }
     ]
@@ -55,16 +55,16 @@ If the bin is not linked, replace the command with the bundled file, e.g.
 
 ## Configuration
 
-Both hooks read `~/.handshake/config.json` (override the directory with
-`HANDSHAKE_CONFIG_DIR`). The `mode` field — `"off" | "warn" | "block"`,
-default `"warn"` — governs `pre-write` enforcement. Set it with
-`handshake init --mode block`.
+Both hooks read `~/.mergelab/config.json` (override the directory with
+`MERGELAB_CONFIG_DIR`). The `mode` field - `"off" | "warn" | "block"`,
+default `"warn"` - governs `pre-write` enforcement. Set it with
+`mergelab init --mode block`.
 
 ## Hooks must fail open
 
-Every entrypoint is fail-open by construction: on any error — missing config,
+Every entrypoint is fail-open by construction: on any error - missing config,
 no repo, a malformed payload, the API being unreachable, or the 300 ms verdict
-budget being blown — it prints nothing and exits 0, never blocking your work.
+budget being blown - it prints nothing and exits 0, never blocking your work.
 A hard block happens only on an explicit `block` verdict under `mode: "block"`.
 Enforcement is deterministic and never depends on an LLM opinion, and the deny
-message carries names and types only — never source, diffs, or literals.
+message carries names and types only - never source, diffs, or literals.

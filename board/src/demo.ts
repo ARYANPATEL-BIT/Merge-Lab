@@ -1,5 +1,5 @@
 // Demo dataset for the board. Timestamps are stamped relative to load time so
-// every branch reads ACTIVE — matching a live demo where all three branches are
+// every branch reads ACTIVE - matching a live demo where all three branches are
 // actively publishing. The data is seeded to exercise a realistic spread of the
 // rule engine: DEP_CONFLICT + NAMING_DRIFT (block), DUP_SYMBOL (warn) and
 // STALE_BINDING (notify).
@@ -7,15 +7,15 @@
 // Roles mirror the resolver's scenarios table (fixtures/scenarios.ts):
 // feat/user-api (dev-a) is the established provider; feat/profile-ui (dev-b) is
 // the incoming branch whose declarations conflict with it. So feat/profile-ui
-// reports most recently — the collapse keeps the fresher side, which frames each
+// reports most recently - the collapse keeps the fresher side, which frames each
 // conflict as "...declared by dev-a on feat/user-api" (axios established,
 // node-fetch incoming), exactly as the table specifies.
 //
 // Set VITE_DEMO_DORMANT=1 (or append ?dormant to the URL) to push one branch
 // outside the 5-minute heartbeat window and exercise the "not reporting" state.
 
-import type { Contract } from "@handshake/shared";
-import type { Binding } from "@handshake/resolver";
+import type { Contract } from "@mergelab/shared";
+import type { Binding } from "@mergelab/resolver";
 
 const REPO = "acme/app";
 
@@ -33,7 +33,7 @@ const DORMANT_BRANCH = "feat/search";
 const DORMANT_SECONDS = 47 * 60;
 
 /** Registry binding: feat/search is pinned to User v1 while feat/user-api ships
- *  v2 — the STALE_BINDING (notify) case. */
+ *  v2 - the STALE_BINDING (notify) case. */
 const BINDINGS: Record<string, Binding[]> = {
   "feat/search": [{ symbol: "User", version: 1 }],
 };
@@ -42,7 +42,7 @@ const BINDINGS: Record<string, Binding[]> = {
 type Seed = Omit<Contract, "repo" | "declared_at">;
 
 const SEEDS: Seed[] = [
-  // ── feat/user-api (dev-a) — the established provider ─────────────────────────
+  // ── feat/user-api (dev-a) - the established provider ─────────────────────────
   {
     contract_id: "ct_ua_user",
     branch: "feat/user-api",
@@ -124,7 +124,7 @@ const SEEDS: Seed[] = [
     confidence: 0.85,
   },
 
-  // ── feat/profile-ui (dev-b) — the incoming branch ───────────────────────────
+  // ── feat/profile-ui (dev-b) - the incoming branch ───────────────────────────
   {
     contract_id: "ct_pu_dep_node_fetch",
     branch: "feat/profile-ui",
@@ -224,7 +224,7 @@ const SEEDS: Seed[] = [
     confidence: 0.8,
   },
 
-  // ── feat/search (dev-c) — pinned consumer; drives STALE_BINDING ──────────────
+  // ── feat/search (dev-c) - pinned consumer; drives STALE_BINDING ──────────────
   {
     contract_id: "ct_se_search_users",
     branch: "feat/search",

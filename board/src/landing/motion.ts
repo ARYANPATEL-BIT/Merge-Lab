@@ -15,7 +15,7 @@ export function prefersReducedMotion(): boolean {
   );
 }
 
-/** Desktop, fine pointer, motion allowed — the bar for WebGL + custom cursor. */
+/** Desktop, fine pointer, motion allowed - the bar for WebGL + custom cursor. */
 export function richMotionAllowed(): boolean {
   return (
     typeof window !== "undefined" &&

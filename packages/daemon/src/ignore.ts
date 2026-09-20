@@ -1,4 +1,4 @@
-// .handshakeignore support. A pragmatic subset of .gitignore semantics: blank
+// .mergelabignore support. A pragmatic subset of .gitignore semantics: blank
 // lines and `#` comments are skipped; a leading `/` anchors to the repo root; a
 // trailing `/` matches a directory and everything under it; `*` matches within
 // a path segment and `**` across segments; a pattern with no slash matches by
@@ -60,8 +60,8 @@ function compileRule(raw: string): Rule | null {
   return { negated, regex: new RegExp(`${prefix}${body}${suffix}`) };
 }
 
-/** Parse .handshakeignore text into a predicate over repo-relative posix paths. */
-export function parseHandshakeIgnore(text: string): (path: string) => boolean {
+/** Parse .mergelabignore text into a predicate over repo-relative posix paths. */
+export function parseMergelabIgnore(text: string): (path: string) => boolean {
   const rules: Rule[] = [];
   for (const line of text.split(/\r?\n/)) {
     const rule = compileRule(line);
@@ -77,13 +77,13 @@ export function parseHandshakeIgnore(text: string): (path: string) => boolean {
   };
 }
 
-/** Load `<root>/.handshakeignore`. Absent file → nothing is ignored. */
-export function compileHandshakeIgnore(root: string): (path: string) => boolean {
+/** Load `<root>/.mergelabignore`. Absent file → nothing is ignored. */
+export function compileMergelabIgnore(root: string): (path: string) => boolean {
   let text: string;
   try {
-    text = readFileSync(join(root, ".handshakeignore"), "utf8");
+    text = readFileSync(join(root, ".mergelabignore"), "utf8");
   } catch {
     return () => false;
   }
-  return parseHandshakeIgnore(text);
+  return parseMergelabIgnore(text);
 }

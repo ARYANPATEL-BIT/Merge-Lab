@@ -1,5 +1,5 @@
-// Renders the context block read at SessionStart (and printed by `handshake
-// context`). Plain factual statements only — never imperative instructions —
+// Renders the context block read at SessionStart (and printed by `mergelab
+// context`). Plain factual statements only - never imperative instructions -
 // because text framed as commands trips the model's prompt-injection defences
 // and gets surfaced to the user instead of used. Lives here so the CLI and the
 // hook render identically.
@@ -10,7 +10,7 @@ import {
   FUNCTIONAL_CLASSES,
   type Contract,
   type FunctionalClass,
-} from "@handshake/shared";
+} from "@mergelab/shared";
 
 export interface RenderInput {
   repo: string;
@@ -110,7 +110,7 @@ function deriveConventions(contracts: Contract[]): string[] {
 
 /**
  * The reporting-branches line, always printed. With no contracts it reads
- * "none" — absence of data must read as absence, never as "nobody is here."
+ * "none" - absence of data must read as absence, never as "nobody is here."
  */
 function renderReporting(contracts: Contract[]): string {
   const ownerByBranch = new Map<string, string>();
@@ -143,7 +143,7 @@ function assemble(
 export function renderContext(input: RenderInput): string {
   const { repo, branch, contracts, now } = input;
   const time = `${pad2(now.getHours())}:${pad2(now.getMinutes())}`;
-  const header = `Handshake — repo ${repo}, branch ${branch}, as of ${time}.`;
+  const header = `Merge Lab - repo ${repo}, branch ${branch}, as of ${time}.`;
 
   const contractBlocks = contracts
     .filter((c) => CONSUMABLE_KINDS.has(c.kind))

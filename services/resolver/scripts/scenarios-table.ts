@@ -1,7 +1,7 @@
 // Prints a legible pass/fail table for the rule scenarios. No test-runner noise.
-// Run: pnpm --filter @handshake/resolver run test:scenarios
+// Run: pnpm --filter @mergelab/resolver run test:scenarios
 
-import type { Finding } from "@handshake/shared";
+import type { Finding } from "@mergelab/shared";
 import { runRules } from "../src/index.js";
 import { scenarios } from "../../../fixtures/scenarios.js";
 
@@ -58,7 +58,7 @@ const line = (cols: string[]): string =>
 const passed = rows.filter((r) => r.pass).length;
 
 console.log("");
-console.log("Handshake · resolver rule scenarios");
+console.log("Merge Lab · resolver rule scenarios");
 console.log("");
 console.log(line(headers));
 console.log(widths.map((w) => "-".repeat(w)).join("  "));

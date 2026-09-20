@@ -1,4 +1,4 @@
-import { HEARTBEAT_WINDOW_MS, type Contract } from "@handshake/shared";
+import { HEARTBEAT_WINDOW_MS, type Contract } from "@mergelab/shared";
 import { describe, expect, it } from "vitest";
 import { assembleBoard } from "./index.js";
 
@@ -23,7 +23,7 @@ function contract(over: Partial<Contract> & Pick<Contract, "contract_id" | "symb
 
 const NOW = Date.parse("2026-09-18T10:00:00Z");
 
-describe("assembleBoard — branches", () => {
+describe("assembleBoard - branches", () => {
   it("groups contracts by branch with owner, count and heartbeat", () => {
     const contracts = [
       contract({ contract_id: "1", symbol: "getUser", branch: "feat/a", owner: "dev-a", declared_at: "2026-09-18T09:58:00Z" }),
@@ -70,7 +70,7 @@ describe("assembleBoard — branches", () => {
   });
 });
 
-describe("assembleBoard — drift feed", () => {
+describe("assembleBoard - drift feed", () => {
   it("surfaces cross-branch findings from the deterministic rule engine", () => {
     const contracts = [
       contract({ contract_id: "a-route", kind: "route", symbol: "POST /users", provides: ["POST /users"], branch: "feat/a", owner: "dev-a" }),

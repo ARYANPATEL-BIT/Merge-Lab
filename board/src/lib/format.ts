@@ -1,4 +1,4 @@
-import type { ContractStatus, Origin, Severity } from "@handshake/shared";
+import type { ContractStatus, Origin, Severity } from "@mergelab/shared";
 
 /** "just now", "12s ago", "4m ago", "2h ago", "3d ago" against a reference clock. */
 export function relativeTime(iso: string, nowMs: number): string {

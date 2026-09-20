@@ -1,24 +1,24 @@
-// @handshake/daemon — the CLI publisher and the reusable library the hooks
+// @mergelab/daemon - the CLI publisher and the reusable library the hooks
 // build on. Reads a developer's working tree and publishes DECLARATIONS ONLY to
 // the registry; reads back the contracts this branch can consume; runs a
 // one-file drift check; and dispatches the Claude Code hooks. Not a filesystem
-// watcher — a command you run.
+// watcher - a command you run.
 //
-//   handshake init --api-url <url> --token <token> [--owner <name>] [--mode m]
-//   handshake publish              publish the working tree's declarations
-//   handshake context              print the contracts this branch can consume
-//   handshake check <file>         drift-check one file against active contracts
-//   handshake hook session-start   SessionStart hook (reads stdin)
-//   handshake hook pre-write       PreToolUse hook (reads stdin)
+//   mergelab init --api-url <url> --token <token> [--owner <name>] [--mode m]
+//   mergelab publish              publish the working tree's declarations
+//   mergelab context              print the contracts this branch can consume
+//   mergelab check <file>         drift-check one file against active contracts
+//   mergelab hook session-start   SessionStart hook (reads stdin)
+//   mergelab hook pre-write       PreToolUse hook (reads stdin)
 
-import { runHook } from "@handshake/hooks";
+import { runHook } from "@mergelab/hooks";
 import { cmdCheck } from "./check.js";
 import { cmdContext } from "./context.js";
 import { cmdInit } from "./init.js";
 import { cmdPublish } from "./publish.js";
 import { readStdin } from "./stdin.js";
 
-// Public library surface — imported by @handshake/hooks so the hooks reuse the
+// Public library surface - imported by @mergelab/hooks so the hooks reuse the
 // exact config, identity, transport, extraction, and rendering the CLI uses.
 export { loadConfig, type Config, type Mode } from "./config.js";
 export { resolveIdentity, type Identity } from "./identity.js";
@@ -27,15 +27,15 @@ export { extractFile } from "./extract.js";
 export { renderContext } from "./render.js";
 export { isSourceFile, repoRoot, toPosix } from "./git.js";
 
-const USAGE = `handshake — pre-push interface contract registry
+const USAGE = `mergelab - pre-push interface contract registry
 
 Usage:
-  handshake init --api-url <url> --token <token> [--owner <name>] [--mode off|warn|block]
-  handshake publish
-  handshake context
-  handshake check <file>
-  handshake hook session-start
-  handshake hook pre-write`;
+  mergelab init --api-url <url> --token <token> [--owner <name>] [--mode off|warn|block]
+  mergelab publish
+  mergelab context
+  mergelab check <file>
+  mergelab hook session-start
+  mergelab hook pre-write`;
 
 /** Dispatch one CLI invocation. Rejects on local errors; network fails open. */
 export async function runCli(argv: string[]): Promise<void> {
@@ -62,7 +62,7 @@ export async function runCli(argv: string[]): Promise<void> {
       process.stdout.write(`${USAGE}\n`);
       return;
     default:
-      process.stderr.write(`handshake: unknown command '${command}'\n${USAGE}\n`);
+      process.stderr.write(`mergelab: unknown command '${command}'\n${USAGE}\n`);
       process.exitCode = 1;
       return;
   }

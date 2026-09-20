@@ -1,7 +1,7 @@
 // The shape every hook entrypoint returns: what to write to stdout and which
 // exit code to leave. Keeping entrypoints pure (payload string in, outcome out)
 // is what lets the tests assert exit codes and stdout without touching process
-// I/O — the daemon bin does the actual reading and writing.
+// I/O - the daemon bin does the actual reading and writing.
 
 /** Claude Code blocks a tool call on exit code 2 (see docs/hooks). */
 export const BLOCK_EXIT_CODE = 2;

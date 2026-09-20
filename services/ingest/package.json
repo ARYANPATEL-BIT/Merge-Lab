@@ -1,13 +1,13 @@
 {
-  "name": "@handshake/ingest",
+  "name": "@mergelab/ingest",
   "version": "0.0.0",
   "private": true,
   "scripts": {
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@handshake/resolver": "workspace:*",
-    "@handshake/shared": "workspace:*",
+    "@mergelab/resolver": "workspace:*",
+    "@mergelab/shared": "workspace:*",
     "ulid": "^2.3.0"
   },
   "devDependencies": {

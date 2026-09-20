@@ -4,7 +4,7 @@ import { createServer, type Server } from "node:http";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
-import type { Mode } from "@handshake/daemon";
+import type { Mode } from "@mergelab/daemon";
 import { preWrite, sessionStart } from "./index.js";
 
 type Handler = (path: string, respond: (status: number, body: unknown) => void) => void;
@@ -14,7 +14,7 @@ let apiUrl: string;
 let handler: Handler;
 let repoDir: string;
 let configDir: string;
-const savedConfigDir = process.env.HANDSHAKE_CONFIG_DIR;
+const savedConfigDir = process.env.MERGELAB_CONFIG_DIR;
 
 function git(args: string[], cwd: string): void {
   execFileSync("git", args, { cwd, stdio: "ignore" });
@@ -39,14 +39,14 @@ function freePort(): Promise<number> {
 }
 
 beforeAll(async () => {
-  repoDir = realpathSync(mkdtempSync(join(tmpdir(), "hs-hook-repo-")));
+  repoDir = realpathSync(mkdtempSync(join(tmpdir(), "ml-hook-repo-")));
   git(["init", "-b", "feat/orders"], repoDir);
   git(["config", "user.name", "Dev B"], repoDir);
   git(["config", "user.email", "dev-b@example.com"], repoDir);
   execFileSync("git", ["commit", "--allow-empty", "-m", "init"], { cwd: repoDir, stdio: "ignore" });
 
-  configDir = mkdtempSync(join(tmpdir(), "hs-hook-cfg-"));
-  process.env.HANDSHAKE_CONFIG_DIR = configDir;
+  configDir = mkdtempSync(join(tmpdir(), "ml-hook-cfg-"));
+  process.env.MERGELAB_CONFIG_DIR = configDir;
 
   await new Promise<void>((resolve) => {
     server = createServer((req, res) => {
@@ -65,8 +65,8 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await new Promise<void>((resolve) => server.close(() => resolve()));
-  if (savedConfigDir === undefined) delete process.env.HANDSHAKE_CONFIG_DIR;
-  else process.env.HANDSHAKE_CONFIG_DIR = savedConfigDir;
+  if (savedConfigDir === undefined) delete process.env.MERGELAB_CONFIG_DIR;
+  else process.env.MERGELAB_CONFIG_DIR = savedConfigDir;
   rmSync(repoDir, { recursive: true, force: true });
   rmSync(configDir, { recursive: true, force: true });
 });
@@ -112,7 +112,7 @@ describe("session-start hook", () => {
     };
     const out = await sessionStart(sessionPayload());
     expect(out.exitCode).toBe(0);
-    expect(out.stdout).toContain("Handshake — repo");
+    expect(out.stdout).toContain("Merge Lab - repo");
     expect(out.stdout).toContain("- getUser(id: string) -> { user_id: string, full_name: string }");
   });
 

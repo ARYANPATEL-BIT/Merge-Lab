@@ -1,7 +1,7 @@
 # Merge Lab
 
 A pre-push interface contract registry. A CLI/daemon reads each dev's working
-tree (including uncommitted changes) and publishes DECLARATIONS ONLY —
+tree (including uncommitted changes) and publishes DECLARATIONS ONLY -
 exported signatures, data shapes, deps, env var names, routes. Never source
 code. Teammates' agents read those contracts at SessionStart and are blocked
 at PreToolUse when a write drifts from them.
@@ -13,7 +13,7 @@ at PreToolUse when a write drifts from them.
 - Extraction failure returns [] and increments a counter. Never guess.
 - Never leave a TODO in a deliverable. If a design choice is unclear, ask
   before writing, not after.
-- Import from @handshake/shared and services/resolver. Never reimplement
+- Import from @mergelab/shared and services/resolver. Never reimplement
   validation, rules, or versioning.
 
 ## Stack
@@ -23,8 +23,8 @@ AWS: Lambda + API Gateway + DynamoDB, SAM. Region ap-south-1.
 ## State
 Done: packages/shared, packages/extractor, services/resolver, infra + handlers,
 packages/daemon (CLI publisher), packages/hooks (Claude Code SessionStart +
-PreToolUse, via the handshake bin), services/board (GET /v1/board), board
+PreToolUse, via the mergelab bin), services/board (GET /v1/board), board
 (React + Vite projector UI; demo mode reuses resolver's assembleBoard).
 
-- Tests must never touch ~/.handshake. Config path comes from a
-  HANDSHAKE_CONFIG_DIR override; tests set it to a temp dir.
+- Tests must never touch ~/.mergelab. Config path comes from a
+  MERGELAB_CONFIG_DIR override; tests set it to a temp dir.

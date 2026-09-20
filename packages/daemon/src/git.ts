@@ -1,9 +1,9 @@
 // Git plumbing. All reads go through the CLI so the daemon sees the working
-// tree exactly as the developer left it — including uncommitted and untracked
-// work, which is the entire point of Handshake.
+// tree exactly as the developer left it - including uncommitted and untracked
+// work, which is the entire point of Merge Lab.
 
 import { execFileSync } from "node:child_process";
-import { compileHandshakeIgnore } from "./ignore.js";
+import { compileMergelabIgnore } from "./ignore.js";
 
 const SOURCE_EXTENSIONS = [".ts", ".tsx", ".js", ".jsx"];
 
@@ -29,12 +29,12 @@ export function tryGit(args: string[], cwd: string): string | null {
 export function repoRoot(cwd: string): string {
   const root = tryGit(["rev-parse", "--show-toplevel"], cwd);
   if (!root) {
-    throw new Error("not a git repository (run handshake inside a repo)");
+    throw new Error("not a git repository (run mergelab inside a repo)");
   }
   return toPosix(root);
 }
 
-/** Forward slashes on every platform — declaration source_refs must be stable. */
+/** Forward slashes on every platform - declaration source_refs must be stable. */
 export function toPosix(p: string): string {
   return p.replace(/\\/g, "/");
 }
@@ -48,7 +48,7 @@ export function isSourceFile(path: string): boolean {
  * Repo-relative paths of changed source files: tracked modifications since HEAD
  * (`git diff HEAD`) plus untracked files (`git ls-files --others`). Untracked
  * respects .gitignore via --exclude-standard; both lists are then filtered to
- * source extensions and passed through .handshakeignore.
+ * source extensions and passed through .mergelabignore.
  */
 export function changedSourceFiles(root: string): string[] {
   const tracked = tryGit(["diff", "HEAD", "--name-only"], root) ?? "";
@@ -60,7 +60,7 @@ export function changedSourceFiles(root: string): string[] {
     if (p) paths.add(p);
   }
 
-  const ignored = compileHandshakeIgnore(root);
+  const ignored = compileMergelabIgnore(root);
   return [...paths]
     .filter(isSourceFile)
     .filter((p) => !ignored(p))

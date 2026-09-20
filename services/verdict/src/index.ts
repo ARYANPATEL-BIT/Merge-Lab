@@ -1,4 +1,4 @@
-// @handshake/verdict — POST /v1/verdict. Runs the deterministic rule engine
+// @mergelab/verdict - POST /v1/verdict. Runs the deterministic rule engine
 // (services/resolver) against teammate contracts + branch bindings. No LLM.
 
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
@@ -10,11 +10,11 @@ import {
   type Contract,
   type Finding,
   type VerdictDecision,
-} from "@handshake/shared";
-import { runRules, type Binding } from "@handshake/resolver";
+} from "@mergelab/shared";
+import { runRules, type Binding } from "@mergelab/resolver";
 
 const TABLE = process.env.TABLE_NAME as string;
-const TOKEN = process.env.HANDSHAKE_TOKEN as string;
+const TOKEN = process.env.MERGELAB_TOKEN as string;
 const ACTIVE = new Set(["declared", "implementing", "implemented"]);
 
 const ddb = DynamoDBDocumentClient.from(new DynamoDBClient({}), {

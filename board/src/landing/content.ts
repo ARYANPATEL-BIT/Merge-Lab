@@ -4,7 +4,7 @@
 // verbatim output of packages/daemon/src/render.ts for that dataset; the
 // numbers are counted from the repo. No invented statistics, no placeholders.
 
-import type { RuleId, Severity } from "@handshake/shared";
+import type { RuleId, Severity } from "@mergelab/shared";
 
 export const GITHUB_URL = "https://github.com/ARYANPATEL-BIT/Merge-Lab";
 
@@ -70,13 +70,13 @@ export const STEPS: Step[] = [
     n: "01",
     name: "Declare",
     where: "your working tree",
-    body: "The daemon walks your working tree with ts-morph — uncommitted edits included — and publishes exported signatures, data shapes, deps, routes and env var names. Names and types only.",
+    body: "The daemon walks your working tree with ts-morph - uncommitted edits included - and publishes exported signatures, data shapes, deps, routes and env var names. Names and types only.",
   },
   {
     n: "02",
     name: "Inject",
     where: "SessionStart",
-    body: "A SessionStart hook fetches the contracts your branch can consume and renders them into your teammate's agent context, as plain factual statements — never source code, never instructions.",
+    body: "A SessionStart hook fetches the contracts your branch can consume and renders them into your teammate's agent context, as plain factual statements - never source code, never instructions.",
   },
   {
     n: "03",
@@ -97,12 +97,12 @@ export const CAPABILITIES: Capability[] = [
   {
     n: "01",
     title: "Working-tree extraction",
-    body: "A ts-morph walk reads the tree as it is right now — staged, unstaged and untracked source files alike. The decision you made five minutes ago is publishable before it is committed, let alone pushed.",
+    body: "A ts-morph walk reads the tree as it is right now - staged, unstaged and untracked source files alike. The decision you made five minutes ago is publishable before it is committed, let alone pushed.",
   },
   {
     n: "02",
     title: "Deterministic drift rules",
-    body: "Six pure rules over declarations and contracts decide allow, warn or block. No model sits in the enforcement path — the same inputs always produce the same verdict, and the reason is a plain string you can read.",
+    body: "Six pure rules over declarations and contracts decide allow, warn or block. No model sits in the enforcement path - the same inputs always produce the same verdict, and the reason is a plain string you can read.",
   },
   {
     n: "03",
@@ -112,7 +112,7 @@ export const CAPABILITIES: Capability[] = [
   {
     n: "04",
     title: "Declarations only",
-    body: "The wire carries names and types — never file contents, never diffs, never literal values, never secrets. Extraction failure returns an empty set and increments a counter rather than guessing.",
+    body: "The wire carries names and types - never file contents, never diffs, never literal values, never secrets. Extraction failure returns an empty set and increments a counter rather than guessing.",
   },
 ];
 
@@ -145,9 +145,9 @@ export const AWS_SERVICES: AwsService[] = [
 
 /** Verbatim output of renderContext() (packages/daemon/src/render.ts) for the
  *  demo dataset, as seen by feat/profile-ui (dev-b) at SessionStart. This is the
- *  real rendered block — the header keeps the internal "Handshake" wordmark the
+ *  real rendered block - the header keeps the internal "Merge Lab" wordmark the
  *  binary still prints. */
-export const CONTEXT_BLOCK = `Handshake — repo acme/app, branch feat/profile-ui, as of 09:41.
+export const CONTEXT_BLOCK = `Merge Lab - repo acme/app, branch feat/profile-ui, as of 09:41.
 
 Contracts this branch can consume:
 - User { user_id: string, full_name: string, created_at: string }

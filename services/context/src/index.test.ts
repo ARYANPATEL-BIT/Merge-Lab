@@ -1,17 +1,17 @@
-// Handler tests for @handshake/context. aws-sdk-client-mock stands in for
+// Handler tests for @mergelab/context. aws-sdk-client-mock stands in for
 // DynamoDB. Asserts the query key shape and the active/owner filtering, not just
 // the HTTP status.
 
 import { DynamoDBDocumentClient, QueryCommand } from "@aws-sdk/lib-dynamodb";
 import type { APIGatewayProxyEventV2, APIGatewayProxyStructuredResultV2 } from "aws-lambda";
-import type { Contract, ContractStatus } from "@handshake/shared";
+import type { Contract, ContractStatus } from "@mergelab/shared";
 import { mockClient } from "aws-sdk-client-mock";
 import { beforeEach, describe, expect, it } from "vitest";
 
-const TABLE = "handshake-test";
+const TABLE = "mergelab-test";
 const TOKEN = "s3cr3t";
 process.env.TABLE_NAME = TABLE;
-process.env.HANDSHAKE_TOKEN = TOKEN;
+process.env.MERGELAB_TOKEN = TOKEN;
 
 const ddbMock = mockClient(DynamoDBDocumentClient);
 const { handler } = await import("./index.js");

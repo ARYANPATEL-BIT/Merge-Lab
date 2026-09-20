@@ -1,4 +1,4 @@
-// @handshake/board-service — GET /v1/board. One read-only snapshot for the
+// @mergelab/board-service - GET /v1/board. One read-only snapshot for the
 // projector board: branches (with heartbeat status), contracts, and the
 // cross-branch drift feed. All projection logic lives in services/resolver's
 // assembleBoard so the deployed board and the frontend's demo mode agree.
@@ -6,11 +6,11 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, QueryCommand } from "@aws-sdk/lib-dynamodb";
 import type { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
-import { ContractSchema, type Contract } from "@handshake/shared";
-import { assembleBoard, type Binding } from "@handshake/resolver";
+import { ContractSchema, type Contract } from "@mergelab/shared";
+import { assembleBoard, type Binding } from "@mergelab/resolver";
 
 const TABLE = process.env.TABLE_NAME as string;
-const TOKEN = process.env.HANDSHAKE_TOKEN as string;
+const TOKEN = process.env.MERGELAB_TOKEN as string;
 
 const ddb = DynamoDBDocumentClient.from(new DynamoDBClient({}), {
   marshallOptions: { removeUndefinedValues: true },
@@ -25,7 +25,7 @@ function reply(statusCode: number, body: unknown): APIGatewayProxyResultV2 {
   return { statusCode, headers: { "content-type": "application/json" }, body: JSON.stringify(body) };
 }
 
-// Every contract row for the repo, any status — assembleBoard decides what the
+// Every contract row for the repo, any status - assembleBoard decides what the
 // board displays and what the rule engine reasons over.
 async function allContracts(repo: string): Promise<Contract[]> {
   const contracts: Contract[] = [];

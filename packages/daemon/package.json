@@ -1,12 +1,12 @@
 {
-  "name": "@handshake/daemon",
+  "name": "@mergelab/daemon",
   "version": "0.0.0",
   "private": true,
   "type": "module",
   "main": "src/index.ts",
   "types": "src/index.ts",
   "bin": {
-    "handshake": "dist/cli.cjs"
+    "mergelab": "dist/cli.cjs"
   },
   "scripts": {
     "build": "esbuild src/cli.ts --bundle --platform=node --target=node20 --format=cjs --outfile=dist/cli.cjs",
@@ -14,9 +14,9 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@handshake/extractor": "workspace:*",
-    "@handshake/hooks": "workspace:*",
-    "@handshake/shared": "workspace:*",
+    "@mergelab/extractor": "workspace:*",
+    "@mergelab/hooks": "workspace:*",
+    "@mergelab/shared": "workspace:*",
     "zod": "^3.23.8"
   },
   "devDependencies": {

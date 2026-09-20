@@ -4,7 +4,7 @@
     "outDir": "dist",
     "baseUrl": ".",
     "paths": {
-      "@handshake/shared": ["../../packages/shared/src/index.ts"]
+      "@mergelab/shared": ["../../packages/shared/src/index.ts"]
     }
   },
   "include": ["src", "scripts"]
