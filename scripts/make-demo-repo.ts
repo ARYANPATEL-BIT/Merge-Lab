@@ -93,8 +93,10 @@ async function main() {
   // 2. Initialize Git repo and baseline files on main
   console.log(`\n1. Initializing repository on main...`);
   run("git init -b main", devAPath);
-  run('git config user.name "dev-a"', devAPath);
-  run('git config user.email "dev-a@example.com"', devAPath);
+  run("git config extensions.worktreeConfig true", devAPath);
+  run('git config --worktree user.name "dev-a"', devAPath);
+  run('git config --worktree user.email "dev-a@example.com"', devAPath);
+  run("git remote add origin https://github.com/acme/demo-orders.git", devAPath);
 
   writeFile(
     resolve(devAPath, ".gitignore"),
@@ -129,6 +131,8 @@ async function main() {
   // 3. Create branch feat/user-api and write uncommitted work for Dev A
   console.log(`2. Setting up feat/user-api (Dev A) with uncommitted work...`);
   run("git checkout -b feat/user-api", devAPath);
+  run('git config --worktree user.name "dev-a"', devAPath);
+  run('git config --worktree user.email "dev-a@example.com"', devAPath);
 
   writeFile(
     resolve(devAPath, "src/types.ts"),
@@ -192,8 +196,8 @@ app.post("/api/users", async (req, res) => {
   // 4. Create linked worktree for feat/profile-ui (Dev B)
   console.log(`3. Setting up feat/profile-ui (Dev B) via linked worktree...`);
   run(`git worktree add "${devBPath}" -b feat/profile-ui main`, devAPath);
-  run('git config user.name "dev-b"', devBPath);
-  run('git config user.email "dev-b@example.com"', devBPath);
+  run('git config --worktree user.name "dev-b"', devBPath);
+  run('git config --worktree user.email "dev-b@example.com"', devBPath);
 
   writeFile(
     resolve(devBPath, "src/profile.ts"),
