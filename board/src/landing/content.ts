@@ -123,8 +123,8 @@ export interface Stat {
 }
 
 export const STATS: Stat[] = [
-  { value: "10", label: "packages & services" },
-  { value: "95", label: "passing tests" },
+  { value: "12", label: "packages & services" },
+  { value: "137", label: "passing tests" },
   { value: "6", label: "deterministic rules" },
   { value: "300ms", label: "verdict budget" },
   { value: "0", label: "bytes of source code sent" },

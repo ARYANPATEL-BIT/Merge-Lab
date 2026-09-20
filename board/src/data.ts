@@ -8,6 +8,7 @@ import {
   GetBoardResponseSchema,
   generateJoinCode,
   generateWorkspaceToken,
+  type Contract,
   type CreateWorkspaceResponse,
   type GetBoardResponse,
   type JoinWorkspaceResponse,
@@ -21,13 +22,15 @@ const API_URL = import.meta.env.VITE_API_URL;
 const API_TOKEN = import.meta.env.VITE_API_TOKEN;
 const REPO = import.meta.env.VITE_REPO ?? "acme/app";
 
-/** No API URL configured → render from the bundled demo dataset. */
+/** No API URL configured -> render from the bundled demo dataset for public preview. */
 export const isDemo = !API_URL;
 export const repo = REPO;
 
 export interface BoardSnapshot {
   board: GetBoardResponse;
   nowMs: number;
+  repos?: string[];
+  activeRepo?: string;
 }
 
 // Dormant example is opt-in (?dormant or VITE_DEMO_DORMANT=1); by default every
@@ -50,15 +53,84 @@ export function loadDemo(): BoardSnapshot {
     origin: "inferred",
     confidence: 0.88,
   });
-  return { board, nowMs };
+  return { board, nowMs, repos: [REPO], activeRepo: REPO };
 }
 
-export async function fetchBoard(signal?: AbortSignal): Promise<BoardSnapshot> {
+export async function fetchBoard(
+  options: {
+    workspaceId?: string;
+    repo?: string;
+    signal?: AbortSignal;
+  } = {},
+): Promise<BoardSnapshot> {
+  const { workspaceId, signal } = options;
+  const session = getStoredSession();
+  const effectiveWs = workspaceId || session?.workspace;
+
+  // Case A: Inside a workspace (never render demo fixture)
+  if (effectiveWs) {
+    if (isDemo) {
+      const store = demoLoad();
+      const wsEntry =
+        store[effectiveWs] ||
+        Object.values(store).find(
+          (x) =>
+            x.workspace.name === effectiveWs ||
+            x.workspace.workspace_id === effectiveWs,
+        );
+
+      const repos = wsEntry?.repos ?? [];
+      if (repos.length === 0) {
+        return {
+          board: { branches: [], contracts: [], findings: [] },
+          nowMs: Date.now(),
+          repos: [],
+          activeRepo: undefined,
+        };
+      }
+
+      const activeRepo =
+        options.repo && repos.includes(options.repo) ? options.repo : repos[0];
+      const allWsContracts = wsEntry?.contracts ?? [];
+      const repoContracts = allWsContracts.filter((c) => c.repo === activeRepo);
+      const board = assembleBoard(repoContracts, Date.now());
+      return { board, nowMs: Date.now(), repos, activeRepo };
+    }
+
+    // Live mode inside workspace
+    const token = session?.token || API_TOKEN;
+    const wsDetail = await getWorkspaceDetail(effectiveWs);
+    const repos = wsDetail.repos ?? [];
+
+    if (repos.length === 0) {
+      return {
+        board: { branches: [], contracts: [], findings: [] },
+        nowMs: Date.now(),
+        repos: [],
+        activeRepo: undefined,
+      };
+    }
+
+    const activeRepo =
+      options.repo && repos.includes(options.repo) ? options.repo : repos[0];
+    const url = new URL("/v1/board", API_URL);
+    url.searchParams.set("repo", activeRepo);
+    const res = await fetch(url, {
+      headers: token ? { authorization: `Bearer ${token}` } : {},
+      signal,
+    });
+    if (!res.ok) throw new Error(`registry returned HTTP ${res.status}`);
+
+    const parsed = GetBoardResponseSchema.safeParse(await res.json());
+    if (!parsed.success)
+      throw new Error("registry returned an unexpected board shape");
+    return { board: parsed.data, nowMs: Date.now(), repos, activeRepo };
+  }
+
+  // Case B: Public landing page preview (no session / no workspace specified)
   if (isDemo) return loadDemo();
 
-  const session = getStoredSession();
-  const token = session?.token || API_TOKEN;
-
+  const token = API_TOKEN;
   const url = new URL("/v1/board", API_URL);
   url.searchParams.set("repo", REPO);
   const res = await fetch(url, {
@@ -68,8 +140,9 @@ export async function fetchBoard(signal?: AbortSignal): Promise<BoardSnapshot> {
   if (!res.ok) throw new Error(`registry returned HTTP ${res.status}`);
 
   const parsed = GetBoardResponseSchema.safeParse(await res.json());
-  if (!parsed.success) throw new Error("registry returned an unexpected board shape");
-  return { board: parsed.data, nowMs: Date.now() };
+  if (!parsed.success)
+    throw new Error("registry returned an unexpected board shape");
+  return { board: parsed.data, nowMs: Date.now(), repos: [REPO], activeRepo: REPO };
 }
 
 // ---- Session & Auth -------------------------------------------------------
@@ -320,6 +393,7 @@ interface DemoWorkspace {
   pending_requests: WorkspaceDetailResponse["pending_requests"];
   repos: string[];
   tokens: WorkspaceDetailResponse["tokens"];
+  contracts?: Contract[];
 }
 
 const DEMO_WS_KEY = "mergelab_ws_demo";
@@ -459,4 +533,58 @@ function demoRevokeToken(id: string, hash: string): void {
   if (t) t.revoked = true;
   demoSave(store);
 }
+
+/** Simulate publishing declarations to a workspace in demo mode. */
+export function demoPublishToWorkspace(
+  workspaceId: string,
+  repoName: string,
+  branch: string,
+  owner: string,
+  declarations: Array<{
+    kind: "function" | "type" | "dependency" | "route" | "env";
+    symbol: string;
+    signature?: string;
+    shape?: Record<string, string>;
+  }>,
+): void {
+  const store = demoLoad();
+  const wsEntry =
+    store[workspaceId] ||
+    Object.values(store).find(
+      (x) =>
+        x.workspace.name === workspaceId ||
+        x.workspace.workspace_id === workspaceId,
+    );
+  if (!wsEntry) return;
+
+  if (!wsEntry.repos.includes(repoName)) {
+    wsEntry.repos.push(repoName);
+  }
+
+  const now = new Date().toISOString();
+  const newContracts: Contract[] = declarations.map((d, i) => ({
+    kind: d.kind,
+    symbol: d.symbol,
+    signature: d.signature,
+    shape: d.shape,
+    provides: [d.symbol],
+    consumes: [],
+    deps: [],
+    source_ref: `src/${d.symbol}.ts:1`,
+    origin: "working_tree",
+    confidence: 1,
+    contract_id: `ct_demo_${Date.now()}_${i}`,
+    repo: repoName,
+    branch,
+    owner,
+    version: 1,
+    status: "declared",
+    declared_at: now,
+    workspace_id: wsEntry.workspace.workspace_id,
+  }));
+
+  wsEntry.contracts = [...(wsEntry.contracts ?? []), ...newContracts];
+  demoSave(store);
+}
+
 

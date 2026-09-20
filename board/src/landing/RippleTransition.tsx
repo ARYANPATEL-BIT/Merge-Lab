@@ -20,7 +20,9 @@ export function RouteRipple() {
     const from = prevPath.current;
     const to = location.pathname;
     prevPath.current = to;
-    if (from === "/" && to === "/board" && richMotionAllowed()) {
+    const isTargetBoard = to === "/board" || to.endsWith("/board");
+    const isSourceLandingOrConnect = from === "/" || from.endsWith("/connect");
+    if (isSourceLandingOrConnect && isTargetBoard && richMotionAllowed()) {
       setToken((t) => t + 1);
       setActive(true);
     }

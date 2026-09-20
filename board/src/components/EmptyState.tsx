@@ -8,13 +8,13 @@ export function EmptyState({
 }: {
   icon: ReactNode;
   title: string;
-  hint: string;
+  hint: ReactNode;
 }) {
   return (
     <div className="empty">
       <div className="empty-icon">{icon}</div>
       <p className="empty-title">{title}</p>
-      <p className="empty-hint">{hint}</p>
+      <div className="empty-hint">{hint}</div>
     </div>
   );
 }

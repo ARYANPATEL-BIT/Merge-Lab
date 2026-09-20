@@ -135,14 +135,27 @@ export function WorkspaceDetail() {
             <>
               <header>
                 <p className="label">Workspace</p>
-                <h1 className="auth-title" style={{ marginBottom: "0.25rem" }}>
-                  {detail.workspace.name}
-                </h1>
-                <p className="auth-sub" style={{ margin: 0 }}>
-                  <Link to="/board" className="mono" style={{ color: "var(--accent)" }}>
-                    Open board →
-                  </Link>
-                </p>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.5rem" }}>
+                  <h1 className="auth-title" style={{ margin: 0 }}>
+                    {detail.workspace.name}
+                  </h1>
+                  <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+                    <Link
+                      to={`/workspaces/${encodeURIComponent(id)}/connect`}
+                      className="btn btn-secondary"
+                      style={{ ...smallBtn, textDecoration: "none" }}
+                    >
+                      Connect instructions
+                    </Link>
+                    <Link
+                      to={`/workspaces/${encodeURIComponent(id)}/board`}
+                      className="mono"
+                      style={{ color: "var(--accent)", textDecoration: "none", fontSize: "0.9rem" }}
+                    >
+                      Open board →
+                    </Link>
+                  </div>
+                </div>
               </header>
 
               {/* Join code */}
@@ -279,8 +292,16 @@ export function WorkspaceDetail() {
 
               {/* Connect your IDE */}
               <section style={panel()}>
-                <p className="label">Connect your IDE</p>
-                <p style={{ fontSize: "var(--fs-small)", color: "var(--fg-muted)", marginTop: 0 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <p className="label" style={{ margin: 0 }}>Connect your IDE</p>
+                  <Link
+                    to={`/workspaces/${encodeURIComponent(id)}/connect`}
+                    style={{ fontSize: "0.8rem", color: "var(--accent)", textDecoration: "none" }}
+                  >
+                    Guided setup page →
+                  </Link>
+                </div>
+                <p style={{ fontSize: "var(--fs-small)", color: "var(--fg-muted)", marginTop: "0.5rem" }}>
                   Point the CLI at this workspace, then wire the hooks into your agent.
                 </p>
                 <Snippet title="1. Initialize the CLI" value={initCmd} />
