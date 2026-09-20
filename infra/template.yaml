@@ -83,9 +83,14 @@ Resources:
     Properties:
       CodeUri: ../services/ingest
       Handler: src/index.handler
+      Environment:
+        Variables:
+          SEMANTIC_FUNCTION_NAME: !Ref SemanticFunction
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref MergelabTable
+        - LambdaInvokePolicy:
+            FunctionName: !Ref SemanticFunction
       Events:
         Post:
           Type: HttpApi
@@ -242,6 +247,38 @@ Resources:
           Properties:
             Path: /v1/workspaces/{id}/tokens/{hash}
             Method: DELETE
+
+  SemanticFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: cjs
+        Target: node20
+        Sourcemap: true
+        Minify: false
+        EntryPoints:
+          - src/index.ts
+        External:
+          - "@aws-sdk/*"
+    Properties:
+      CodeUri: ../services/semantic
+      Handler: src/index.handler
+      Timeout: 30
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref MergelabTable
+        - Statement:
+            - Effect: Allow
+              Action:
+                - bedrock:InvokeModel
+              Resource: "*"
+      Events:
+        Post:
+          Type: HttpApi
+          Properties:
+            Path: /v1/semantic
+            Method: POST
 
 Outputs:
   ApiUrl:

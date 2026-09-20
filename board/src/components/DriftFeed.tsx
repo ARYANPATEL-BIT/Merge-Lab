@@ -1,5 +1,5 @@
 import type { Finding } from "@mergelab/shared";
-import { severityMeta } from "../lib/format.js";
+import { findingOriginMeta, severityMeta } from "../lib/format.js";
 import { EmptyState } from "./EmptyState.js";
 import { SeverityIcon, ShieldCheck } from "./icons.js";
 
@@ -26,13 +26,28 @@ export function DriftFeed({ findings }: { findings: Finding[] }) {
           <ul className="drift-list">
             {findings.map((f, i) => {
               const sev = severityMeta(f.severity);
+              const origin = findingOriginMeta(f.origin, f.confidence);
+              const inferredClass = origin.isOpinion
+                ? "finding-inferred"
+                : "finding-deterministic";
               return (
-                <li className={`finding ${sev.className}`} key={`${f.rule}-${i}`}>
+                <li
+                  className={`finding ${sev.className} ${inferredClass}`}
+                  key={`${f.rule}-${i}`}
+                >
                   <div className="finding-head">
                     <span className="sev-badge">
                       <SeverityIcon severity={f.severity} />
                       {sev.label}
                     </span>
+                    <span className={`origin-badge ${origin.badgeClass}`}>
+                      {origin.badgeLabel}
+                    </span>
+                    {origin.confidenceText ? (
+                      <span className="confidence-badge mono">
+                        {origin.confidenceText}
+                      </span>
+                    ) : null}
                     <span className="rule-name mono">{f.rule}</span>
                   </div>
                   <p className="finding-reason">{f.reason}</p>

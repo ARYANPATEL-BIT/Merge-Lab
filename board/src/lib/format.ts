@@ -44,7 +44,36 @@ export function severityMeta(severity: Severity): SeverityMeta {
   }
 }
 
-/** Contract lifecycle status → CSS modifier for its badge. */
+/** Contract lifecycle status -> CSS modifier for its badge. */
 export function statusClassName(status: ContractStatus): string {
   return `status-${status}`;
+}
+
+export interface FindingOriginMeta {
+  isOpinion: boolean;
+  badgeLabel: string;
+  badgeClass: string;
+  confidenceText?: string;
+}
+
+/** Inferred vs deterministic finding metadata. Color, label and confidence. */
+export function findingOriginMeta(
+  origin?: "deterministic" | "inferred",
+  confidence?: number,
+): FindingOriginMeta {
+  if (origin === "inferred") {
+    const pct =
+      typeof confidence === "number" ? `${Math.round(confidence * 100)}%` : "";
+    return {
+      isOpinion: true,
+      badgeLabel: "AI Advisory",
+      badgeClass: "badge-inferred",
+      confidenceText: pct ? `${pct} confidence` : undefined,
+    };
+  }
+  return {
+    isOpinion: false,
+    badgeLabel: "Rule Fact",
+    badgeClass: "badge-fact",
+  };
 }

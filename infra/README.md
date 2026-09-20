@@ -1,8 +1,8 @@
 # infra (P2)
 
-AWS SAM stack for Merge Lab: three Lambdas (`ingest`, `context`, `verdict`)
-behind one HTTP API, backed by a single DynamoDB table. Region **ap-south-1**,
-Node 20, arm64.
+AWS SAM stack for Merge Lab: serverless Lambdas (`ingest`, `context`, `verdict`,
+`board`, `auth`, `semantic`) behind one HTTP API, backed by a single DynamoDB table.
+Region **ap-south-1**, Node 20, arm64.
 
 Built ahead by P1 so P2 can pick up from working code. The handlers import
 `@mergelab/shared` (schemas/types) and `@mergelab/resolver` (`resolve`,

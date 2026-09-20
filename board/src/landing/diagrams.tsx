@@ -84,15 +84,15 @@ export function DeclarationsDiagram() {
   );
 }
 
-/** The deploy topology: daemon → HTTP API → three Lambdas → one DynamoDB table. */
+/** The deploy topology: daemon -> HTTP API -> Lambdas -> DynamoDB + Bedrock. */
 export function ArchitectureDiagram() {
   return (
     <svg
-      viewBox="0 0 900 260"
+      viewBox="0 0 940 310"
       width="100%"
       height="100%"
       role="img"
-      aria-label="Daemon and hooks call one API Gateway HTTP API, which fans out to ingest, context and verdict Lambda functions, all backed by a single DynamoDB table."
+      aria-label="Daemon and hooks call API Gateway HTTP API, fanning out to ingest, context and verdict Lambdas backed by DynamoDB, with async Bedrock semantic analysis."
       preserveAspectRatio="xMidYMid meet"
     >
       <g fill="none" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke">
@@ -118,14 +118,25 @@ export function ArchitectureDiagram() {
         <rect x="422" y="164" width="150" height="52" rx="6" />
         <text x="497" y="195" textAnchor="middle" fontSize="12.5" fill="currentColor" stroke="none" fontFamily="var(--font-mono)">verdict λ</text>
 
+        <path d="M497 92v146" strokeDasharray="3 3" />
+        <rect x="422" y="238" width="150" height="52" rx="6" strokeDasharray="4 3" />
+        <text x="497" y="263" textAnchor="middle" fontSize="12" fill="currentColor" stroke="none" fontFamily="var(--font-mono)">semantic λ</text>
+        <text x="497" y="279" textAnchor="middle" fontSize="9.5" fill="currentColor" stroke="none" fontFamily="var(--font-mono)" opacity="0.6">async advisory</text>
+
         <path d="M572 66l90 56" />
         <path d="M572 128h90" />
         <path d="M572 190l90 -56" />
+        <path d="M572 264l90 -110" strokeDasharray="3 3" />
 
         <ellipse cx="740" cy="104" rx="46" ry="14" />
         <path d="M694 104v52c0 7.7 20.6 14 46 14s46 -6.3 46 -14v-52" />
         <path d="M694 130c0 7.7 20.6 14 46 14s46 -6.3 46 -14" />
         <text x="740" y="200" textAnchor="middle" fontSize="12.5" fill="currentColor" stroke="none" fontFamily="var(--font-mono)">DynamoDB</text>
+
+        <path d="M572 264h130" strokeDasharray="3 3" />
+        <rect x="702" y="238" width="160" height="52" rx="6" />
+        <text x="782" y="263" textAnchor="middle" fontSize="12" fill="currentColor" stroke="none" fontFamily="var(--font-mono)">Amazon Bedrock</text>
+        <text x="782" y="279" textAnchor="middle" fontSize="9.5" fill="currentColor" stroke="none" fontFamily="var(--font-mono)" opacity="0.6">Claude 3 Haiku</text>
       </g>
     </svg>
   );

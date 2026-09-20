@@ -69,7 +69,7 @@ pnpm install && pnpm typecheck && pnpm test
 **Running the Scenarios Table:**
 To view the deterministic drift scenarios (six rules):
 ```sh
-pnpm --filter @handshake/resolver run test:scenarios
+pnpm --filter @mergelab/resolver run test:scenarios
 ```
 Or check the `fixtures/scenarios.ts` file for the exact input/output shapes.
 

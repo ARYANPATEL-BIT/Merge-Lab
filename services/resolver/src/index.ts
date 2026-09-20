@@ -9,3 +9,7 @@ export {
   type ResolveResult,
 } from "./resolve.js";
 export { assembleBoard } from "./board.js";
+export {
+  findSemanticCandidates,
+  type SemanticCandidatePair,
+} from "./semantic.js";

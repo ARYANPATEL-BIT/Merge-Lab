@@ -39,7 +39,18 @@ function demoWantsDormant(): boolean {
 
 export function loadDemo(): BoardSnapshot {
   const { contracts, bindings, nowMs } = buildDemo({ dormant: demoWantsDormant() });
-  return { board: assembleBoard(contracts, nowMs, bindings), nowMs };
+  const board = assembleBoard(contracts, nowMs, bindings);
+  // Showcase the Bedrock advisory tier with a sample inferred finding
+  board.findings.push({
+    rule: "SEMANTIC_DUPLICATE",
+    severity: "warn",
+    reason:
+      "Probable duplicate intent between getUser (dev-a, feat/user-api) and searchUsers (dev-c, feat/search): Both retrieve user entities by identifier or query.",
+    contract_ids: ["ct_ua_get_user", "ct_se_search_users"],
+    origin: "inferred",
+    confidence: 0.88,
+  });
+  return { board, nowMs };
 }
 
 export async function fetchBoard(signal?: AbortSignal): Promise<BoardSnapshot> {

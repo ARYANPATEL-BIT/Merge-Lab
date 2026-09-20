@@ -4,6 +4,7 @@
 
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, GetCommand, PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
+import { InvokeCommand, LambdaClient } from "@aws-sdk/client-lambda";
 import type { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
 import {
   ContractSchema,
@@ -18,11 +19,13 @@ import { ulid } from "ulid";
 
 const TABLE = process.env.TABLE_NAME as string;
 const TOKEN = process.env.MERGELAB_TOKEN as string;
+const SEMANTIC_FUNCTION = process.env.SEMANTIC_FUNCTION_NAME;
 const ACTIVE = new Set(["declared", "implementing", "implemented"]);
 
 const ddb = DynamoDBDocumentClient.from(new DynamoDBClient({}), {
   marshallOptions: { removeUndefinedValues: true },
 });
+const lambda = new LambdaClient({});
 
 function bearer(event: APIGatewayProxyEventV2): string | undefined {
   const h = event.headers ?? {};
@@ -148,6 +151,28 @@ export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGateway
     );
   }
   await Promise.all(writes);
+
+  // Trigger advisory semantic duplicate analysis asynchronously (fire-and-forget).
+  // Fail-open: any trigger failure must never affect Tier 1 ingest.
+  if (SEMANTIC_FUNCTION && contracts.length > 0) {
+    lambda
+      .send(
+        new InvokeCommand({
+          FunctionName: SEMANTIC_FUNCTION,
+          InvocationType: "Event",
+          Payload: Buffer.from(
+            JSON.stringify({
+              repo,
+              workspace_id: ctx.workspace_id,
+              contract_ids: contracts.map((c) => c.contract_id),
+            }),
+          ),
+        }),
+      )
+      .catch((err) => {
+        console.warn("Failed to trigger semantic Lambda, failing open:", err);
+      });
+  }
 
   console.log(
     JSON.stringify({ repo, branch, route: "POST /v1/declarations", latency_ms: Date.now() - started }),

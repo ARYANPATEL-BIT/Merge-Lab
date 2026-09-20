@@ -8,9 +8,12 @@ import { DynamoDBDocumentClient, GetCommand, QueryCommand } from "@aws-sdk/lib-d
 import type { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
 import {
   ContractSchema,
+  DEFAULT_WORKSPACE_ID,
+  FindingSchema,
   contractInWorkspace,
   resolveWorkspaceContext,
   type Contract,
+  type Finding,
 } from "@mergelab/shared";
 import { assembleBoard, type Binding } from "@mergelab/resolver";
 
@@ -82,6 +85,31 @@ async function bindingsByBranch(repo: string): Promise<Record<string, Binding[]>
   return byBranch;
 }
 
+// Semantic advisory findings stored by the async semantic Lambda.
+async function semanticFindings(repo: string, workspaceId: string): Promise<Finding[]> {
+  const findings: Finding[] = [];
+  let ExclusiveStartKey: Record<string, unknown> | undefined;
+  do {
+    const out = await ddb.send(
+      new QueryCommand({
+        TableName: TABLE,
+        KeyConditionExpression: "PK = :pk AND begins_with(SK, :sk)",
+        ExpressionAttributeValues: { ":pk": `REPO#${repo}`, ":sk": "FINDING#SEMANTIC#" },
+        ExclusiveStartKey,
+      }),
+    );
+    for (const item of out.Items ?? []) {
+      const itemWs = item.workspace_id ?? DEFAULT_WORKSPACE_ID;
+      if (itemWs === workspaceId && item.finding) {
+        const parsed = FindingSchema.safeParse(item.finding);
+        if (parsed.success) findings.push(parsed.data);
+      }
+    }
+    ExclusiveStartKey = out.LastEvaluatedKey;
+  } while (ExclusiveStartKey);
+  return findings;
+}
+
 export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
   const started = Date.now();
   const ctx = await resolveWorkspaceContext(bearer(event), TOKEN, lookupToken);
@@ -90,9 +118,20 @@ export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGateway
   const repo = (event.queryStringParameters ?? {}).repo;
   if (!repo) return reply(400, { error: "invalid_request", issues: [{ path: ["repo"], message: "required" }] });
 
-  const [allRepoContracts, bindings] = await Promise.all([allContracts(repo), bindingsByBranch(repo)]);
+  const [allRepoContracts, bindings, advisoryFindings] = await Promise.all([
+    allContracts(repo),
+    bindingsByBranch(repo),
+    semanticFindings(repo, ctx.workspace_id),
+  ]);
   const contracts = allRepoContracts.filter((c) => contractInWorkspace(c, ctx.workspace_id));
   const board = assembleBoard(contracts, Date.now(), bindings);
+
+  // Keep only advisory findings whose contracts are still present on the board
+  const activeIds = new Set(contracts.map((c) => c.contract_id));
+  const validAdvisory = advisoryFindings.filter((f) =>
+    f.contract_ids.every((id) => activeIds.has(id)),
+  );
+  board.findings.push(...validAdvisory);
 
   console.log(
     JSON.stringify({

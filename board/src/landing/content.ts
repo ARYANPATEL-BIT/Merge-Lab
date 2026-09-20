@@ -70,7 +70,7 @@ export const STEPS: Step[] = [
     n: "01",
     name: "Declare",
     where: "your working tree",
-    body: "The CLI walks your working tree with ts-morph — uncommitted edits included — and publishes exported signatures, data shapes, deps, routes and env var names. Names and types only.",
+    body: "The CLI walks your working tree with ts-morph - uncommitted edits included - and publishes exported signatures, data shapes, deps, routes and env var names. Names and types only.",
   },
   {
     n: "02",
@@ -130,16 +130,17 @@ export const STATS: Stat[] = [
   { value: "0", label: "bytes of source code sent" },
 ];
 
-/** The four AWS services actually provisioned by infra/template.yaml. */
+/** The AWS services provisioned by infra/template.yaml. */
 export interface AwsService {
   name: string;
   role: string;
 }
 
 export const AWS_SERVICES: AwsService[] = [
-  { name: "AWS Lambda", role: "Ingest, context, verdict and board handlers" },
+  { name: "AWS Lambda", role: "Ingest, context, verdict, board, auth and semantic handlers" },
   { name: "API Gateway", role: "One HTTP API in front of the functions" },
-  { name: "DynamoDB", role: "Single-table contract registry" },
+  { name: "DynamoDB", role: "Single-table contract registry and semantic cache" },
+  { name: "Amazon Bedrock", role: "Claude 3 Haiku for async semantic duplicate analysis" },
   { name: "AWS SAM", role: "Infrastructure as code, region ap-south-1" },
 ];
 
