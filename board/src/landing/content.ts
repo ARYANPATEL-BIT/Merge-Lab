@@ -70,7 +70,7 @@ export const STEPS: Step[] = [
     n: "01",
     name: "Declare",
     where: "your working tree",
-    body: "The daemon walks your working tree with ts-morph - uncommitted edits included - and publishes exported signatures, data shapes, deps, routes and env var names. Names and types only.",
+    body: "The CLI walks your working tree with ts-morph — uncommitted edits included — and publishes exported signatures, data shapes, deps, routes and env var names. Names and types only.",
   },
   {
     n: "02",
@@ -137,7 +137,7 @@ export interface AwsService {
 }
 
 export const AWS_SERVICES: AwsService[] = [
-  { name: "AWS Lambda", role: "Ingest, context and verdict handlers" },
+  { name: "AWS Lambda", role: "Ingest, context, verdict and board handlers" },
   { name: "API Gateway", role: "One HTTP API in front of the functions" },
   { name: "DynamoDB", role: "Single-table contract registry" },
   { name: "AWS SAM", role: "Infrastructure as code, region ap-south-1" },
