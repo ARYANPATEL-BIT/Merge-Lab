@@ -92,7 +92,7 @@ export function ArchitectureDiagram() {
       width="100%"
       height="100%"
       role="img"
-      aria-label="Daemon and hooks call API Gateway HTTP API, fanning out to ingest, context and verdict Lambdas backed by DynamoDB, with async Bedrock semantic analysis."
+      aria-label="The CLI and hooks call an API Gateway HTTP API that fans out to six Lambdas - ingest, context, verdict, board and auth - plus an async semantic Lambda backed by Amazon Bedrock (Claude 3 Haiku); all read and write one DynamoDB table."
       preserveAspectRatio="xMidYMid meet"
     >
       <g fill="none" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke">

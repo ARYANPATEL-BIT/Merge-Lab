@@ -1,5 +1,7 @@
-// Rule scenarios for services/resolver - one per RuleId. Provider is dev-a on
-// feat/user-api; consumer is dev-b on feat/profile-ui throughout.
+// Rule scenarios for services/resolver - one per deterministic RuleId (the six
+// rules runRules emits; SEMANTIC_DUPLICATE is the inferred Bedrock advisory and
+// is not exercised here). Provider is dev-a on feat/user-api; consumer is dev-b
+// on feat/profile-ui throughout.
 
 import type { Contract, Declaration, Finding, RuleId } from "@mergelab/shared";
 

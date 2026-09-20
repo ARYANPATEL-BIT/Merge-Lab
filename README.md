@@ -2,7 +2,42 @@
 
 The pre-push interface contract registry for developers and AI agents.
 
+<<<<<<< Updated upstream
 An interface decision—the shape of a data model, the casing of a field, or the choice of an HTTP client—is made in the first five minutes of a session, but its implementation takes the next several hours. Merge Lab linters your teammates' unpushed decisions across parallel git branches by publishing **declarations only** (exported signatures, types, routes, dependencies, and env names—never source code or literal values), enabling AI agents to coordinate at `SessionStart` and intercept breaking drift at `PreToolUse`.
+=======
+An interface decision - the shape of a User, the name of a route, the choice of HTTP client - is made in the first five minutes of a session, but its implementation takes the next three hours. Merge Lab is a linter for your teammates' unpushed decisions that moves these choices onto the wire the moment they exist, not the moment they ship. A local CLI reads each dev's working tree (including uncommitted changes) on demand - it is a command you run, not a filesystem watcher - and publishes **declarations only** - exported signatures, data shapes, deps, env var names, routes. Never source code. Teammates' agents read those contracts at SessionStart and are blocked at PreToolUse when a write drifts from them.
+
+## Hard rules
+
+- Never transmit file contents, diffs, or literal values. Names and types only.
+- Enforcement is deterministic. Never block on an LLM opinion.
+- Every hook fails open: on any error, print nothing, exit 0.
+- Extraction failure returns `[]` and increments a counter. Never guess.
+
+## Layout
+
+| Path                  | Tier | Role                                                            |
+| --------------------- | ---- | -------------------------------------------------------------- |
+| `packages/shared`     | P1   | Canonical DECLARATION contract types. Everyone imports here.    |
+| `packages/extractor`  | P1   | ts-morph walk of a working tree → `Declaration[]`.              |
+| `services/resolver`   | P1   | Resolves the authoritative contract set read at SessionStart.  |
+| `fixtures`            | P1   | Source trees + expected declarations for extractor tests.      |
+| `infra`               | P2   | SAM: Lambda + API Gateway + DynamoDB + Bedrock (ap-south-1).   |
+| `services/ingest`     | P2   | Accepts published declarations from the CLI.                   |
+| `services/context`    | P2   | Serves teammate contracts at SessionStart.                     |
+| `services/verdict`    | P2   | Deterministic drift check consumed at PreToolUse.              |
+| `services/board`      | P2   | Serves the projector board snapshot (GET /v1/board).          |
+| `services/auth`       | P2   | Email/password signup + login and workspace management.       |
+| `services/semantic`   | P2   | Async advisory semantic-duplicate check via Bedrock.          |
+| `packages/daemon`     | P3   | The CLI that walks the working tree. A deliberate choice over a background daemon for better visibility and control. |
+| `packages/hooks`      | P3   | SessionStart + PreToolUse hooks. Fail open.                    |
+| `board`               | P4   | Dashboard UI.                                                  |
+
+## Stack
+
+Node 20, TypeScript, ts-morph, vitest, pnpm workspaces.
+AWS: Lambda + API Gateway + DynamoDB + Bedrock via SAM. Region `ap-south-1`.
+>>>>>>> Stashed changes
 
 ## Architecture
 
@@ -16,6 +51,7 @@ flowchart TD
         CLI[mergelab CLI / Daemon]
     end
 
+<<<<<<< Updated upstream
     subgraph AWS [AWS Serverless Control Plane ap-south-1]
         API(Amazon API Gateway HTTP API)
         
@@ -32,6 +68,28 @@ flowchart TD
 
     subgraph UI [Projector Dashboard]
         Board[React + Vite Projector UI]
+=======
+    subgraph AWS [AWS Control Plane ap-south-1]
+        API(API Gateway)
+        API --> Ingest[ingest Lambda]
+        API --> Context[context Lambda]
+        API --> Verdict[verdict Lambda]
+        API --> BoardFn[board Lambda]
+        API --> Auth[auth Lambda]
+        API --> Semantic[semantic Lambda]
+        Ingest -. async .-> Semantic
+        Ingest --> DB[(DynamoDB)]
+        Context --> DB
+        Verdict --> DB
+        BoardFn --> DB
+        Auth --> DB
+        Semantic --> DB
+        Semantic --> Bedrock[Amazon Bedrock<br/>Claude 3 Haiku]
+    end
+
+    subgraph UI [Projector]
+        BoardUI[Board UI] -->|polls| API
+>>>>>>> Stashed changes
     end
 
     DevA -->|PostToolUse: mergelab publish| API

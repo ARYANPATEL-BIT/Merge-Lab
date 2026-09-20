@@ -1,8 +1,9 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  Merge Lab registry (P2) - ingest / context / verdict / board Lambdas behind
-  one HTTP API, backed by a single DynamoDB table. Deploy to ap-south-1.
+  Merge Lab registry (P2) - ingest / context / verdict / board / auth /
+  semantic Lambdas behind one HTTP API, backed by a single DynamoDB table, with
+  async semantic-duplicate analysis on Amazon Bedrock. Deploy to ap-south-1.
 
 Parameters:
   MergelabToken:

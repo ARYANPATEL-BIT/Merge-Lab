@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "gen:stats": "node scripts/gen-stats.mjs",
+    "prebuild": "node scripts/gen-stats.mjs",
     "build": "vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit"

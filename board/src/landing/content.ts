@@ -5,6 +5,7 @@
 // numbers are counted from the repo. No invented statistics, no placeholders.
 
 import type { RuleId, Severity } from "@mergelab/shared";
+import generatedStats from "../generated/stats.json";
 
 export const GITHUB_URL = "https://github.com/ARYANPATEL-BIT/Merge-Lab";
 
@@ -122,10 +123,25 @@ export interface Stat {
   label: string;
 }
 
+// The first three figures are generated at build time by scripts/gen-stats.mjs
+// (counting workspace packages, the real passing-test count, and the
+// deterministic RuleId members). Any figure the generator could not establish
+// is null and is omitted here, so the page renders without a number rather than
+// with a stale or wrong one. The last two are invariants, not counts.
+const COMPUTED: (Stat | null)[] = [
+  generatedStats.packages != null
+    ? { value: String(generatedStats.packages), label: "packages & services" }
+    : null,
+  generatedStats.tests != null
+    ? { value: String(generatedStats.tests), label: "passing tests" }
+    : null,
+  generatedStats.rules != null
+    ? { value: String(generatedStats.rules), label: "deterministic rules" }
+    : null,
+];
+
 export const STATS: Stat[] = [
-  { value: "12", label: "packages & services" },
-  { value: "137", label: "passing tests" },
-  { value: "6", label: "deterministic rules" },
+  ...COMPUTED.filter((s): s is Stat => s !== null),
   { value: "300ms", label: "verdict budget" },
   { value: "0", label: "bytes of source code sent" },
 ];
